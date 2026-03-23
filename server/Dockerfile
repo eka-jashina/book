@@ -1,4 +1,4 @@
-FROM node:22-alpine AS builder
+FROM node:25-alpine AS builder
 
 # Mirror local repo layout so tsconfig rootDir:".." resolves consistently
 WORKDIR /project/server
@@ -19,7 +19,7 @@ RUN npm run build
 
 # ── Production stage ──────────────────────────────────────────────
 
-FROM node:22-alpine
+FROM node:25-alpine
 
 # dumb-init: proper PID 1 signal forwarding (SIGTERM → Node.js)
 RUN apk add --no-cache dumb-init
