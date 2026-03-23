@@ -102,9 +102,9 @@
     "serialize-javascript": ">=7.0.3"
   },
   "dependencies": {
-    "@sentry/browser": "^10.40.0",
-    "dompurify": "^3.3.2",
-    "i18next": "^25.8.13",
+    "@sentry/browser": "^10.45.0",
+    "dompurify": "^3.3.3",
+    "i18next": "^25.10.5",
     "jszip": "^3.10.1",
     "quill": "^2.0.3",
     "web-vitals": "^5.1.0"
