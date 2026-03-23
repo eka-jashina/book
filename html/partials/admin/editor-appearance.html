@@ -1,0 +1,171 @@
+            <!-- === Таб: Оформление === -->
+            <div class="editor-panel" data-editor-panel="appearance" role="tabpanel">
+              <div class="appearance-theme-switch" id="appearanceThemeSwitch">
+                <button class="appearance-theme-btn active" type="button" data-edit-theme="light">
+                  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                    <path fill="currentColor" d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1z"/>
+                  </svg>
+                  <span data-i18n="admin.appearance.lightTheme">Светлая</span>
+                </button>
+                <button class="appearance-theme-btn" type="button" data-edit-theme="dark">
+                  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                    <path fill="currentColor" d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/>
+                  </svg>
+                  <span data-i18n="admin.appearance.darkTheme">Тёмная</span>
+                </button>
+              </div>
+
+              <!-- Live preview -->
+              <div class="appearance-preview" id="appearancePreview">
+                <div class="appearance-preview-cover" id="previewCover">
+                  <span class="appearance-preview-title" id="previewTitle" data-i18n="admin.appearance.previewTitle">Заголовок</span>
+                  <span class="appearance-preview-author" id="previewAuthor" data-i18n="admin.appearance.previewAuthor">Автор</span>
+                </div>
+                <div class="appearance-preview-page" id="previewPage">
+                  <div class="appearance-preview-text" data-i18n="admin.appearance.previewText">Текст страницы книги...</div>
+                </div>
+              </div>
+
+              <!-- Обложка (per-theme) -->
+              <fieldset class="setting-fieldset">
+                <legend class="setting-fieldset-legend" data-i18n="admin.appearance.coverSection">Обложка</legend>
+                <div class="settings-grid settings-grid--inner">
+                  <div class="setting-card">
+                    <label class="setting-label" for="coverBgStart" data-i18n="admin.appearance.bgColorLabel">Цвет фона (градиент)</label>
+                    <div class="appearance-color-row">
+                      <div class="appearance-color-group">
+                        <input type="color" class="appearance-color" id="coverBgStart" value="#3a2d1f">
+                        <span class="appearance-color-label" data-i18n="admin.appearance.gradientStart">Начало</span>
+                      </div>
+                      <span class="appearance-arrow" aria-hidden="true">→</span>
+                      <div class="appearance-color-group">
+                        <input type="color" class="appearance-color" id="coverBgEnd" value="#2a2016">
+                        <span class="appearance-color-label" data-i18n="admin.appearance.gradientEnd">Конец</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="setting-card">
+                    <label class="setting-label" for="coverText" data-i18n="admin.appearance.textColorLabel">Цвет текста</label>
+                    <div class="appearance-color-row">
+                      <input type="color" class="appearance-color" id="coverText" value="#f2e9d8">
+                      <span class="appearance-color-preview" id="coverTextPreview" style="color: #f2e9d8; background: linear-gradient(135deg, #3a2d1f, #2a2016); padding: 4px 12px; border-radius: 6px; font-size: 14px; font-weight: 600;" data-i18n="admin.appearance.previewTitle">Заголовок</span>
+                    </div>
+                  </div>
+
+                  <div class="setting-card setting-card--texture">
+                    <label class="setting-label" data-i18n="admin.appearance.bgImageLabel">Фоновое изображение</label>
+                    <div class="cover-bg-upload">
+                      <div class="cover-bg-preview" id="coverBgPreview">
+                        <span class="cover-bg-preview-empty" id="coverBgPreviewEmpty">
+                          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+                            <path fill="currentColor" d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                          </svg>
+                          <span data-i18n="admin.appearance.noImage">Нет изображения</span>
+                        </span>
+                      </div>
+                      <div class="cover-bg-actions">
+                        <label class="btn btn-secondary btn-small upload-btn">
+                          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                            <path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/>
+                          </svg>
+                          <span data-i18n="common.upload">Загрузить</span>
+                          <input type="file" id="coverBgFileInput" accept="image/*" hidden>
+                        </label>
+                        <button class="btn btn-small" type="button" id="coverBgRemove" hidden data-i18n="common.delete">Удалить</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+
+              <!-- Декоративный шрифт -->
+              <fieldset class="setting-fieldset setting-fieldset--top">
+                <legend class="setting-fieldset-legend" data-i18n="admin.appearance.decorativeFontSection">Декоративный шрифт</legend>
+                <p class="fieldset-description" data-i18n="admin.appearance.decorativeFontDesc">Для заголовков, буквиц и обложки. По умолчанию — TolkienCyr</p>
+
+                <div class="decorative-font-preview">
+                  <span class="decorative-font-sample" id="decorativeFontSample" data-i18n="admin.appearance.decorativeFontSample">Абвг Abcd 1234</span>
+                </div>
+
+                <div class="decorative-font-actions">
+                  <label class="btn btn-secondary upload-btn">
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                      <path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/>
+                    </svg>
+                    <span data-i18n="admin.appearance.decorativeFontUpload">Загрузить шрифт</span>
+                    <input type="file" id="decorativeFontUpload" accept=".woff2,.woff,.ttf,.otf" hidden>
+                  </label>
+                  <div class="decorative-font-info" id="decorativeFontInfo">
+                    <span class="decorative-font-name" id="decorativeFontName"></span>
+                    <button class="texture-custom-remove" type="button" id="decorativeFontRemove" data-i18n-title="admin.appearance.decorativeFontRemove">
+                      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                        <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <span class="form-hint" data-i18n="admin.appearance.fontFormatHint">Форматы: .woff2, .woff, .ttf, .otf. Макс. 2 МБ</span>
+              </fieldset>
+
+              <!-- Страницы -->
+              <fieldset class="setting-fieldset setting-fieldset--top">
+                <legend class="setting-fieldset-legend" data-i18n="admin.appearance.pagesSection">Страницы</legend>
+                <div class="settings-grid settings-grid--inner">
+                  <div class="setting-card setting-card--texture">
+                    <label class="setting-label" data-i18n="admin.appearance.textureLabel">Текстура</label>
+                    <div class="texture-selector">
+                      <div class="texture-options">
+                        <button class="texture-option active" type="button" data-texture="default" data-i18n-title="admin.cover.bgDefault">
+                          <img src="images/backgrounds/bg-page.webp" alt="Текстура по умолчанию" class="texture-thumb">
+                          <span class="texture-option-label" data-i18n="admin.appearance.texturePaper">Бумага</span>
+                        </button>
+                        <button class="texture-option" type="button" data-texture="none" data-i18n-title="admin.appearance.textureNone">
+                          <span class="texture-thumb texture-thumb--none"></span>
+                          <span class="texture-option-label" data-i18n="admin.appearance.textureNone">Нет</span>
+                        </button>
+                        <label class="texture-option texture-option--upload" data-i18n-title="admin.appearance.textureCustom">
+                          <span class="texture-thumb texture-thumb--upload" id="customTextureThumb">
+                            <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+                              <path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/>
+                            </svg>
+                          </span>
+                          <span class="texture-option-label" data-i18n="admin.appearance.textureCustom">Своя</span>
+                          <input type="file" id="textureFileInput" accept="image/*" hidden>
+                        </label>
+                      </div>
+                      <div class="texture-custom-info" id="textureCustomInfo" hidden>
+                        <span class="texture-custom-name" id="textureCustomName"></span>
+                        <button class="texture-custom-remove" type="button" id="textureCustomRemove" data-i18n-title="admin.appearance.textureRemoveTitle">
+                          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                            <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    <input type="hidden" id="pageTexture" value="default">
+                  </div>
+
+                  <div class="setting-card">
+                    <label class="setting-label" for="bgPage" data-i18n="admin.appearance.pageBgLabel">Фон страницы</label>
+                    <div class="appearance-color-row">
+                      <input type="color" class="appearance-color" id="bgPage" value="#fdfcf8">
+                      <span class="appearance-swatch" id="bgPageSwatch" style="background: #fdfcf8;"></span>
+                    </div>
+                  </div>
+
+                  <div class="setting-card">
+                    <label class="setting-label" for="bgApp" data-i18n="admin.appearance.appBgLabel">Фон приложения</label>
+                    <div class="appearance-color-row">
+                      <input type="color" class="appearance-color" id="bgApp" value="#e6e3dc">
+                      <span class="appearance-swatch" id="bgAppSwatch" style="background: #e6e3dc;"></span>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+
+              <div class="panel-actions panel-actions--top">
+                <button class="btn btn-primary" id="saveAppearance" type="button" data-i18n="common.save">Сохранить</button>
+                <button class="btn btn-secondary" id="resetAppearance" type="button" data-i18n="common.reset">Сбросить</button>
+              </div>
+            </div>

@@ -1,0 +1,523 @@
+/**
+ * PHOTO ALBUM
+ *
+ * Шаблоны фотоальбома для размещения 1–4 изображений на странице.
+ * CSS Grid внутри контейнера с явной высотой + min-height:0 на элементах,
+ * чтобы грид корректно сжимал фото под размер колонки пагинатора.
+ *
+ * Разметка:
+ *   <div class="photo-album" data-layout="1|2|2h|3|3r|3t|3b|4">
+ *     <figure class="photo-album__item">
+ *       <img src="..." alt="...">
+ *       <figcaption>Подпись (опционально)</figcaption>
+ *     </figure>
+ *     ...
+ *   </div>
+ *
+ * Шаблоны:
+ *   data-layout="1"  — одна фотография на всю страницу
+ *   data-layout="2"  — две фотографии друг над другом
+ *   data-layout="2h" — две фотографии рядом (горизонтально)
+ *   data-layout="3"  — одна большая слева  + две маленькие справа
+ *   data-layout="3r" — одна большая справа + две маленькие слева
+ *   data-layout="3t" — одна большая сверху + две маленькие снизу
+ *   data-layout="3b" — одна большая снизу  + две маленькие сверху
+ *   data-layout="4"  — сетка 2×2
+ */
+
+/* ═══════════════════════════════════════════
+   БАЗОВЫЕ СТИЛИ КОНТЕЙНЕРА
+   ═══════════════════════════════════════════ */
+
+/* Высота задаётся через CSS-переменную из AsyncPaginator (точная высота колонки).
+   Фоллбэк calc(80dvh - 4em) = высота книги (80dvh) минус padding-ы .cols (2em+2em). */
+.photo-album {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  height: var(--album-page-height, calc(80dvh - 4em));
+  box-sizing: border-box;
+  overflow: hidden;
+  break-inside: avoid;
+}
+
+/* ═══════════════════════════════════════════
+   ЭЛЕМЕНТ АЛЬБОМА (figure)
+   ═══════════════════════════════════════════ */
+
+.photo-album__item {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+/* ── Защита от скачивания ── */
+
+/* Прозрачный оверлей поверх изображения — блокирует прямой доступ к <img> */
+.photo-album__item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  cursor: zoom-in;
+}
+
+.photo-album .photo-album__item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  float: none;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 4px;
+  background: none;
+  animation: none;
+
+  /* Защита от скачивания */
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  pointer-events: none;
+}
+
+/* Поворот фотографий (inline style transform:rotate) */
+.photo-album .photo-album__item img[style*="rotate"] {
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Подпись к фотографии */
+.photo-album__item figcaption {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  padding: 0.4em 0.6em;
+  font-size: 0.75em;
+  color: var(--color-dark-modal-text);
+  text-align: center;
+  text-indent: 0;
+  text-shadow: 0 1px 3px rgb(0, 0, 0, 0.6);
+  background: linear-gradient(to top, rgb(0, 0, 0, 0.5), transparent);
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════
+   ШАБЛОН: 1 фото (на всю страницу)
+   ┌──────────┐
+   │          │
+   │    1     │
+   │          │
+   └──────────┘
+   ═══════════════════════════════════════════ */
+
+.photo-album[data-layout="1"] {
+  grid-template: 1fr / 1fr;
+}
+
+/* ═══════════════════════════════════════════
+   ШАБЛОН: 2 фото (вертикально)
+   ┌──────────┐
+   │    1     │
+   ├──────────┤
+   │    2     │
+   └──────────┘
+   ═══════════════════════════════════════════ */
+
+.photo-album[data-layout="2"] {
+  grid-template: 1fr 1fr / 1fr;
+}
+
+/* ═══════════════════════════════════════════
+   ШАБЛОН: 2h фото (горизонтально)
+   ┌─────┬─────┐
+   │     │     │
+   │  1  │  2  │
+   │     │     │
+   └─────┴─────┘
+   ═══════════════════════════════════════════ */
+
+.photo-album[data-layout="2h"] {
+  grid-template: 1fr / 1fr 1fr;
+}
+
+/* ═══════════════════════════════════════════
+   ШАБЛОН: 3 фото (большое слева + 2 справа)
+   ┌──────┬─────┐
+   │      │  2  │
+   │  1   ├─────┤
+   │      │  3  │
+   └──────┴─────┘
+   ═══════════════════════════════════════════ */
+
+.photo-album[data-layout="3"] {
+  grid-template: 1fr 1fr / 1fr 1fr;
+}
+
+.photo-album[data-layout="3"] .photo-album__item:first-child {
+  grid-row: 1 / 3;
+}
+
+/* ═══════════════════════════════════════════
+   ШАБЛОН: 3r фото (большое справа + 2 слева)
+   ┌─────┬──────┐
+   │  1  │      │
+   ├─────┤  3   │
+   │  2  │      │
+   └─────┴──────┘
+   ═══════════════════════════════════════════ */
+
+.photo-album[data-layout="3r"] {
+  grid-template: 1fr 1fr / 1fr 1fr;
+}
+
+.photo-album[data-layout="3r"] .photo-album__item:nth-child(3) {
+  grid-row: 1 / 3;
+  grid-column: 2;
+}
+
+/* ═══════════════════════════════════════════
+   ШАБЛОН: 3t фото (большое сверху + 2 снизу)
+   ┌──────────┐
+   │    1     │
+   ├─────┬────┤
+   │  2  │ 3  │
+   └─────┴────┘
+   ═══════════════════════════════════════════ */
+
+.photo-album[data-layout="3t"] {
+  grid-template: 1fr 1fr / 1fr 1fr;
+}
+
+.photo-album[data-layout="3t"] .photo-album__item:first-child {
+  grid-column: 1 / 3;
+}
+
+/* ═══════════════════════════════════════════
+   ШАБЛОН: 3b фото (большое снизу + 2 сверху)
+   ┌─────┬────┐
+   │  1  │ 2  │
+   ├─────┴────┤
+   │    3     │
+   └──────────┘
+   ═══════════════════════════════════════════ */
+
+.photo-album[data-layout="3b"] {
+  grid-template: 1fr 1fr / 1fr 1fr;
+}
+
+.photo-album[data-layout="3b"] .photo-album__item:nth-child(3) {
+  grid-column: 1 / 3;
+}
+
+/* ═══════════════════════════════════════════
+   ШАБЛОН: 4 фото (сетка 2×2)
+   ┌─────┬─────┐
+   │  1  │  2  │
+   ├─────┼─────┤
+   │  3  │  4  │
+   └─────┴─────┘
+   ═══════════════════════════════════════════ */
+
+.photo-album[data-layout="4"] {
+  grid-template: 1fr 1fr / 1fr 1fr;
+}
+
+/* ═══════════════════════════════════════════
+   РАМКИ (frame modifiers)
+   ═══════════════════════════════════════════ */
+
+.photo-album__item--frame-thin {
+  border: 2px solid rgb(0, 0, 0, 0.25);
+}
+
+.photo-album__item--frame-shadow {
+  box-shadow: 0 4px 16px rgb(0, 0, 0, 0.35);
+}
+
+.photo-album__item--frame-polaroid {
+  padding: 6px 6px 20px;
+  background: var(--color-surface);
+  border-radius: 2px;
+  box-shadow: 0 2px 10px rgb(0, 0, 0, 0.2);
+}
+
+.photo-album__item--frame-polaroid img {
+  border-radius: 0;
+}
+
+.photo-album__item--frame-rounded {
+  border-radius: 16px;
+}
+
+.photo-album__item--frame-rounded img {
+  border-radius: 16px;
+}
+
+.photo-album__item--frame-double {
+  border: 4px double rgb(0, 0, 0, 0.35);
+}
+
+/* ═══════════════════════════════════════════
+   ФИЛЬТРЫ (filter modifiers)
+   ═══════════════════════════════════════════ */
+
+.photo-album__item--filter-grayscale img {
+  filter: grayscale(1);
+}
+
+.photo-album__item--filter-sepia img {
+  filter: sepia(0.75);
+}
+
+.photo-album__item--filter-contrast img {
+  filter: contrast(1.35);
+}
+
+.photo-album__item--filter-warm img {
+  filter: saturate(1.3) hue-rotate(-10deg);
+}
+
+.photo-album__item--filter-cool img {
+  filter: saturate(1.1) hue-rotate(15deg) brightness(1.05);
+}
+
+/* ═══════════════════════════════════════════
+   МУЛЬТИ-СТРАНИЧНЫЙ АЛЬБОМ
+   Каждый .photo-album после первого — на новую страницу
+   ═══════════════════════════════════════════ */
+
+.photo-album + .photo-album {
+  break-before: column;
+}
+
+/* ═══════════════════════════════════════════
+   ТЁМНАЯ ТЕМА
+   ═══════════════════════════════════════════ */
+
+html[data-theme="dark"] .photo-album__item {
+  box-shadow: 0 1px 3px rgb(0, 0, 0, 0.4);
+}
+
+html[data-theme="dark"] .photo-album__item--frame-thin {
+  border-color: rgb(255, 255, 255, 0.2);
+}
+
+html[data-theme="dark"] .photo-album__item--frame-polaroid {
+  background: var(--color-surface-alt);
+}
+
+html[data-theme="dark"] .photo-album__item--frame-double {
+  border-color: rgb(255, 255, 255, 0.2);
+}
+
+/* ═══════════════════════════════════════════
+   FIREFOX FIXES
+   ═══════════════════════════════════════════ */
+
+@supports (-moz-appearance: none) {
+  .photo-album {
+    contain: paint layout;
+  }
+
+  .photo-album .photo-album__item img {
+    float: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   LIGHTBOX — полноэкранный просмотр фото
+   ═══════════════════════════════════════════ */
+
+/* Курсор zoom-in перенесён на ::before оверлей (см. .photo-album__item::before) */
+
+/* Оверлей */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0, 0, 0, 0);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    background 300ms ease,
+    opacity 200ms ease,
+    visibility 0ms 300ms;
+}
+
+.lightbox--visible {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    background 300ms ease,
+    opacity 200ms ease,
+    visibility 0ms;
+}
+
+.lightbox--active {
+  background: var(--color-overlay-scrim);
+}
+
+/* Полноэкранная картинка */
+.lightbox__img {
+  display: block;
+  max-width: calc(100vw - 80px);
+  max-height: calc(100vh - 80px);
+  max-height: calc(100dvh - 80px);
+  width: auto;
+  height: auto;
+  margin: 0;
+  float: none;
+  object-fit: contain;
+  border-radius: 4px;
+  will-change: transform;
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Защита от скачивания */
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  pointer-events: none;
+}
+
+/* Прозрачный щит поверх картинки в лайтбоксе — блокирует прямой доступ */
+.lightbox__shield {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  cursor: default;
+}
+
+/* Кнопка закрытия */
+.lightbox__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  width: var(--btn-size-lg);
+  height: var(--btn-size-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-overlay-on-dark);
+  color: var(--color-dark-modal-text);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 200ms ease, background 200ms ease;
+}
+
+.lightbox--active .lightbox__close {
+  opacity: 1;
+}
+
+.lightbox__close:hover {
+  background: var(--color-overlay-on-dark-hover);
+}
+
+/* Подпись */
+.lightbox__caption {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+  max-width: 80%;
+  padding: 8px 20px;
+  font-size: 14px;
+  color: rgb(255, 255, 255, 0.85);
+  text-align: center;
+  background: rgb(0, 0, 0, 0.5);
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity 200ms ease 100ms;
+  pointer-events: none;
+}
+
+.lightbox--active .lightbox__caption {
+  opacity: 1;
+}
+
+/* Кнопки навигации (prev / next) */
+.lightbox__nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-overlay-on-dark);
+  color: var(--color-dark-modal-text);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 200ms ease, background 200ms ease;
+}
+
+.lightbox__nav[hidden] {
+  display: none;
+}
+
+.lightbox__nav--prev {
+  left: 16px;
+}
+
+.lightbox__nav--next {
+  right: 16px;
+}
+
+.lightbox--active .lightbox__nav {
+  opacity: 1;
+}
+
+.lightbox__nav:hover {
+  background: var(--color-overlay-on-dark-hover);
+}
+
+/* Счётчик фото (1 / 5) */
+.lightbox__counter {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+  padding: 4px 14px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: rgb(255, 255, 255, 0.7);
+  background: rgb(0, 0, 0, 0.4);
+  border-radius: 12px;
+  opacity: 0;
+  transition: opacity 200ms ease 100ms;
+  pointer-events: none;
+}
+
+.lightbox__counter[hidden] {
+  display: none;
+}
+
+.lightbox--active .lightbox__counter {
+  opacity: 1;
+}
+
+/* Crossfade при переключении фото */
+.lightbox__img--fade {
+  opacity: 0.3;
+  transition: opacity 150ms ease;
+}

@@ -1,0 +1,69 @@
+/* Админ-панель — табы и панели */
+
+.admin-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--admin-surface);
+  border-radius: var(--admin-radius);
+  padding: 4px;
+  box-shadow: var(--admin-shadow);
+  margin-bottom: 24px;
+}
+
+.admin-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  border-radius: var(--admin-radius-sm);
+  font-family: var(--admin-font);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--admin-text-secondary);
+  cursor: pointer;
+  transition: all var(--admin-transition);
+}
+
+.admin-tab:hover {
+  color: var(--admin-text);
+  background: var(--admin-bg);
+}
+
+.admin-tab.active {
+  color: var(--admin-primary);
+  background: var(--admin-bg);
+  box-shadow: var(--admin-shadow);
+}
+
+/* === Панели === */
+.admin-panel {
+  display: none;
+}
+
+.admin-panel.active {
+  display: block;
+}
+
+.panel-header {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.panel-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.panel-description {
+  width: 100%;
+  color: var(--admin-text-secondary);
+  font-size: 14px;
+}

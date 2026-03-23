@@ -1,0 +1,36 @@
+# Docker Compose override для нагрузочного тестирования k6.
+#
+# Запуск:
+#   docker compose -f docker-compose.yml -f docker-compose.k6.yml run --rm k6 run /scripts/scenarios/smoke.js
+#   docker compose -f docker-compose.yml -f docker-compose.k6.yml run --rm k6 run /scripts/scenarios/load.js
+#
+# Переопределяет NODE_ENV=test на сервере для отключения rate limiting.
+
+services:
+  # Переопределяем сервер: NODE_ENV=test отключает rate limiting
+  server:
+    environment:
+      NODE_ENV: test
+      # Увеличенный пул соединений для нагрузочного тестирования
+      DATABASE_URL: postgresql://flipbook:flipbook_dev@postgres:5432/flipbook?connection_limit=20&pool_timeout=15
+
+  k6:
+    image: grafana/k6:latest
+    depends_on:
+      server:
+        condition: service_healthy
+    environment:
+      BASE_URL: http://server:4000
+      POOL_SIZE: "50"
+    volumes:
+      - ./k6:/scripts
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    entrypoint: ["k6"]
+    command: ["run", "/scripts/scenarios/smoke.js"]

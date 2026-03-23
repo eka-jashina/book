@@ -1,0 +1,12 @@
+# Flipbook — robots.txt
+# https://eka-jashina.github.io/flipbook/
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://eka-jashina.github.io/flipbook/sitemap.xml
+
+# Запрет индексации служебных страниц
+Disallow: /api/
+Disallow: /assets/

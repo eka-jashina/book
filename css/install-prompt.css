@@ -1,0 +1,255 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   PWA INSTALL PROMPT
+   Баннер с предложением установить приложение
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.install-prompt {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 420px;
+  width: calc(100% - 32px);
+  padding: 16px 20px;
+  background: var(--pod-btn-bg);
+  color: var(--text-primary, #f5f5f5);
+  border-radius: 16px;
+  box-shadow:
+    0 8px 32px rgb(0, 0, 0, 0.4),
+    0 0 0 1px rgb(255, 255, 255, 0.1);
+  z-index: 10001;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.3s ease,
+    visibility 0.3s ease;
+}
+
+.install-prompt--visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Иконка */
+.install-prompt__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--pod-btn-bg);
+  border-radius: 12px;
+  color: var(--color-dark-modal-text);
+}
+
+/* Контент */
+.install-prompt__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.install-prompt__title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.install-prompt__text {
+  font-size: 13px;
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Кнопки действий */
+.install-prompt__actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.install-prompt__btn {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.install-prompt__btn--dismiss {
+  background: transparent;
+  color: var(--text-secondary, #a0a0a0);
+}
+
+.install-prompt__btn--dismiss:hover {
+  background: var(--color-overlay-on-dark);
+  color: var(--text-primary, #f5f5f5);
+}
+
+.install-prompt__btn--install {
+  background: linear-gradient(135deg, #6b5340 0%, #8b4513 100%);
+  color: var(--color-dark-modal-text);
+}
+
+.install-prompt__btn--install:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.install-prompt__btn--install:active {
+  transform: translateY(0);
+}
+
+/* Кнопка закрытия */
+.install-prompt__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--text-secondary, #a0a0a0);
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all 0.15s ease;
+}
+
+.install-prompt__close:hover {
+  background: var(--color-overlay-on-dark);
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Адаптация под темы
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+[data-theme="light"] .install-prompt {
+  background: var(--color-dark-modal-bg);
+  color: var(--color-dark-modal-text);
+}
+
+[data-theme="bw"] .install-prompt {
+  background: var(--color-bw-surface);
+  color: var(--color-dark-modal-text);
+  box-shadow:
+    0 8px 32px rgb(0, 0, 0, 0.5),
+    0 0 0 1px rgb(255, 255, 255, 0.2);
+}
+
+[data-theme="bw"] .install-prompt__icon {
+  background: var(--color-bw-surface-alt);
+}
+
+[data-theme="bw"] .install-prompt__btn--install {
+  background: var(--color-bw-surface-alt);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Мобильная адаптация
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  .install-prompt {
+    bottom: 16px;
+    padding: 12px 16px;
+    padding-right: 40px; /* Место для кнопки закрытия */
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .install-prompt__icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .install-prompt__icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .install-prompt__content {
+    flex-basis: calc(100% - 52px);
+  }
+
+  .install-prompt__title {
+    font-size: 14px;
+  }
+
+  .install-prompt__text {
+    font-size: 12px;
+  }
+
+  .install-prompt__actions {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 4px;
+  }
+
+  .install-prompt__btn {
+    padding: 8px 16px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Кнопка установки в настройках
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.install-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--pod-btn-bg);
+  color: var(--color-dark-modal-text);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.install-btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.install-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.install-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
+
+.install-btn svg {
+  flex-shrink: 0;
+}
+
+/* Скрываем кнопку когда установка недоступна */
+.install-btn[hidden] {
+  display: none;
+}
+
+[data-theme="bw"] .install-btn {
+  background: var(--color-bw-surface-alt);
+}

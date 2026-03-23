@@ -1,0 +1,55 @@
+        <!-- ═══════════════════════════════════════ -->
+        <!-- ЭКРАН: НАСТРОЙКИ ПЛАТФОРМЫ              -->
+        <!-- ═══════════════════════════════════════ -->
+        <section class="admin-panel" data-panel="platform" role="tabpanel" hidden>
+          <div class="panel-header">
+            <h2 data-i18n="admin.platform.title">Настройки платформы</h2>
+            <p class="panel-description" data-i18n="admin.platform.description">Глобальные настройки, общие для всех книг</p>
+          </div>
+
+          <fieldset class="setting-fieldset">
+            <legend class="setting-fieldset-legend" data-i18n="admin.platform.visibilitySection">Видимость для читателя</legend>
+            <p class="fieldset-description" data-i18n="admin.platform.visibilityDesc">Какие настройки будут доступны в панели читателя</p>
+            <div class="visibility-toggles" id="visibilityToggles">
+              <!-- Переключатели генерируются из JS (SettingsModule) -->
+            </div>
+          </fieldset>
+
+          <fieldset class="setting-fieldset setting-fieldset--top">
+            <legend class="setting-fieldset-legend" data-i18n="admin.platform.fontsSection">Шрифты для чтения</legend>
+            <p class="fieldset-description" data-i18n="admin.platform.fontsDesc">Список шрифтов, доступных читателю</p>
+            <div class="reading-fonts-list" id="readingFontsList"></div>
+            <div class="reading-fonts-add panel-actions--top">
+              <button class="btn btn-primary" type="button" id="addReadingFont">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                  <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+                <span data-i18n="admin.platform.addFont">Добавить свой шрифт</span>
+              </button>
+            </div>
+          </fieldset>
+
+          <fieldset class="setting-fieldset setting-fieldset--top">
+            <legend class="setting-fieldset-legend" data-i18n="admin.platform.fontSizeLimits">Ограничения размера шрифта</legend>
+            <p class="fieldset-description" data-i18n="admin.platform.fontSizeLimitsDesc">Допустимый диапазон размера шрифта для читателя</p>
+            <div class="settings-grid settings-grid--inner">
+              <div class="setting-card">
+                <label class="setting-label" for="fontMin" data-i18n="admin.platform.fontMin">Минимальный</label>
+                <div class="setting-range-row">
+                  <input class="setting-range" type="range" id="fontMin" min="8" max="30" value="14">
+                  <span class="setting-range-value" id="fontMinValue">14px</span>
+                </div>
+              </div>
+              <div class="setting-card">
+                <label class="setting-label" for="fontMax" data-i18n="admin.platform.fontMax">Максимальный</label>
+                <div class="setting-range-row">
+                  <input class="setting-range" type="range" id="fontMax" min="8" max="60" value="22">
+                  <span class="setting-range-value" id="fontMaxValue">22px</span>
+                </div>
+              </div>
+            </div>
+            <div class="panel-actions panel-actions--top">
+              <button class="btn btn-primary" id="savePlatform" type="button" data-i18n="common.save">Сохранить</button>
+            </div>
+          </fieldset>
+        </section>

@@ -1,0 +1,128 @@
+# GitHub Actions workflow для CI (lint, test, e2e, build)
+# Запускается при push в main ветку
+
+name: CI
+
+on:
+  # Запускается при push в main
+  push:
+    branches: ['main']
+
+  # Позволяет запустить вручную из вкладки Actions
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Запускать только один CI одновременно
+concurrency:
+  group: 'ci'
+  cancel-in-progress: true
+
+jobs:
+  # Линтинг
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: ESLint
+        run: npm run lint:js
+
+      - name: Stylelint
+        run: npm run lint:css
+
+  # Клиентские тесты
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit and integration tests
+        run: npm run test:run
+
+  # E2E тесты (Playwright, Chromium) — информационный, не блокирует сборку
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright (Chromium only)
+        run: npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Run E2E tests
+        run: npx playwright test --project=chromium
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+
+  # Сборка (проверка, что production build проходит)
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [lint, test]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          NODE_ENV: production

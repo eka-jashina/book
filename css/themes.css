@@ -1,0 +1,239 @@
+/**
+ * THEMES
+ *
+ * Переопределение CSS-переменных для разных тем.
+ * Централизованное место для всех тематических стилей.
+ */
+
+/* ═══════════════════════════════════════════
+   ТЁМНАЯ ТЕМА - ПЕРЕМЕННЫЕ
+   ═══════════════════════════════════════════ */
+
+html[data-theme="dark"] {
+  /* UI токены */
+  --color-accent: #7b8ad4;
+  --color-accent-hover: #8e9bdf;
+  --color-accent-focus: rgb(123, 138, 212, 0.2);
+  --color-accent-text: #1a1a2e;
+  --color-surface: #1e1e1e;
+  --color-surface-alt: #2a2a2a;
+  --color-surface-hover: #333;
+  --color-text-primary: #e6e6e6;
+  --color-text-secondary: #aaa;
+  --color-text-tertiary: #777;
+  --color-text-placeholder: #666;
+  --color-border: #444;
+  --color-border-hover: #555;
+  --color-error-bg: #2d1b1b;
+  --color-error-text: #f87171;
+  --color-divider: #333;
+  --bg-app: #121212;
+  --bg-book: #1b1b1b;
+  --bg-page: #1e1e1e;
+  --bg-page-alt: #242424;
+  --text-main: #e6e6e6;
+  --text-muted: #aaa;
+  --border-page: rgb(255, 255, 255, 0.08);
+  --page-edge-base: #2a2a2a;
+  --page-edge-alt: #1f1f1f;
+  --shadow-book:
+    0 2px 4px rgb(0, 0, 0, 0.2),
+    0 8px 16px rgb(0, 0, 0, 0.3),
+    0 30px 60px rgb(0, 0, 0, 0.5);
+  --shadow-page: rgb(0, 0, 0, 0.6);
+  --cover-front-bg: linear-gradient(135deg, #111, #000);
+  --cover-front-text: #eaeaea;
+  --cover-back-bg: #1b1b1b;
+  --spine-dark: rgb(0, 0, 0, 0.9);
+  --spine-mid: rgb(0, 0, 0, 0.6);
+  --spine-soft: rgb(0, 0, 0, 0.25);
+  --paper-highlight: rgb(255, 255, 255, 0.08);
+
+  /* Компонентные токены */
+  --color-img-placeholder: #2a2622;
+  --color-img-placeholder-alt: #3a3632;
+  --loading-overlay: rgb(30, 25, 20, 0.75);
+  --loading-dot: rgb(200, 150, 100, 0.7);
+  --loading-text: rgb(200, 150, 100, 0.8);
+  --toc-hover: rgb(255, 255, 255, 0.12);
+  --toc-active: rgb(255, 255, 255, 0.18);
+  --toc-focus-ring: rgb(255, 255, 255, 0.5);
+  --toc-focus-bg: rgb(255, 255, 255, 0.08);
+}
+
+/* ═══════════════════════════════════════════
+   ТЁМНАЯ ТЕМА - КОМПОНЕНТЫ
+   ═══════════════════════════════════════════ */
+
+/* Страницы - убираем текстуру */
+html[data-theme="dark"] .page,
+html[data-theme="dark"] .side {
+  background-image: none;
+}
+
+/* Фоны и изображения - затемняем */
+html[data-theme="dark"] .bg {
+  filter: brightness(50%);
+}
+
+html[data-theme="dark"] .bg[data-loading="true"] {
+  filter: brightness(50%) blur(20px);
+}
+
+html[data-theme="dark"] img {
+  filter: brightness(50%);
+}
+
+/* ═══════════════════════════════════════════
+   ЧЁРНО-БЕЛАЯ ТЕМА - ПЕРЕМЕННЫЕ
+   ═══════════════════════════════════════════ */
+
+html[data-theme="bw"] {
+  /* UI токены */
+  --color-accent: #000;
+  --color-accent-hover: #333;
+  --color-accent-focus: rgb(0, 0, 0, 0.15);
+  --color-accent-text: #fff;
+  --color-surface: #fff;
+  --color-surface-alt: #f5f5f5;
+  --color-surface-hover: #eee;
+  --color-text-primary: #000;
+  --color-text-secondary: #333;
+  --color-text-tertiary: #666;
+  --color-text-placeholder: #999;
+  --color-border: #000;
+  --color-border-hover: #333;
+  --color-error-bg: #fee;
+  --color-error-text: #900;
+  --color-divider: #000;
+  --bg-app: #fff;
+  --bg-book: #fff;
+  --bg-page: #fff;
+  --bg-page-alt: #fff;
+  --text-main: #000;
+  --text-muted: #000;
+  --border-page: #000;
+  --page-edge-base: #fff;
+  --page-edge-alt: #000;
+  --shadow-book: none;
+  --shadow-page: #000;
+  --cover-front-bg: #000;
+  --cover-front-text: #fff;
+  --cover-back-bg: #fff;
+  --spine-dark: rgb(0, 0, 0, 0.5);
+  --spine-mid: rgb(0, 0, 0, 0.3);
+  --spine-soft: rgb(0, 0, 0, 0.1);
+  --paper-highlight: rgb(255, 255, 255, 0.5);
+  --controls-accent: #000;
+
+  /* Компонентные токены */
+  --color-img-placeholder: #ccc;
+  --color-img-placeholder-alt: #eee;
+  --loading-overlay: rgb(255, 255, 255, 0.85);
+  --loading-dot: rgb(0, 0, 0, 0.5);
+  --loading-text: rgb(0, 0, 0, 0.6);
+  --toc-hover: rgb(0, 0, 0, 0.1);
+  --toc-active: rgb(0, 0, 0, 0.15);
+  --toc-focus-ring: rgb(0, 0, 0, 0.5);
+  --toc-focus-bg: rgb(0, 0, 0, 0.08);
+}
+
+/* ═══════════════════════════════════════════
+   ЧЁРНО-БЕЛАЯ ТЕМА - КОМПОНЕНТЫ
+   ═══════════════════════════════════════════ */
+
+/* Страницы - убираем текстуру */
+html[data-theme="bw"] .page,
+html[data-theme="bw"] .side {
+  background-image: none;
+}
+
+/* Фоны и изображения - grayscale */
+html[data-theme="bw"] .bg {
+  filter: grayscale(100%);
+}
+
+html[data-theme="bw"] .bg[data-loading="true"] {
+  filter: grayscale(100%) blur(20px);
+}
+
+html[data-theme="bw"] img {
+  filter: grayscale(100%);
+}
+
+/* ═══════════════════════════════════════════
+   КНОПКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ
+   ═══════════════════════════════════════════ */
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--color-border, rgb(0, 0, 0, 0.15));
+  border-radius: 8px;
+  background: var(--color-surface, rgb(255, 255, 255, 0.8));
+  color: var(--color-text-primary, #2c2418);
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s, transform 0.15s;
+  backdrop-filter: blur(8px);
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  background: var(--color-surface-hover, rgb(0, 0, 0, 0.08));
+  border-color: var(--color-border-hover, rgb(0, 0, 0, 0.25));
+  transform: scale(1.05);
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--color-accent, #5b6abf);
+  outline-offset: 2px;
+}
+
+/* Вариант для лендинга (поверх тёмного фона по умолчанию) */
+.theme-toggle--landing {
+  border-color: var(--lnd-border-card, rgb(196, 148, 60, 0.18));
+  background: var(--lnd-bg-card, rgb(36, 26, 18, 0.7));
+  color: var(--lnd-text-secondary, rgb(242, 233, 216, 0.75));
+  backdrop-filter: blur(8px);
+}
+
+.theme-toggle--landing:hover {
+  border-color: var(--lnd-gold-dim, #8b6914);
+  color: var(--lnd-text, #f2e9d8);
+  background: var(--lnd-bg-card-hover, rgb(44, 32, 24, 0.8));
+}
+
+/* Вариант для книжной полки */
+.theme-toggle--shelf {
+  border-color: var(--shelf-border, rgb(232, 220, 200, 0.2));
+  background: var(--shelf-bg-subtle, rgb(255, 255, 255, 0.06));
+  color: var(--shelf-text-dim, rgb(232, 220, 200, 0.7));
+}
+
+.theme-toggle--shelf:hover {
+  background: var(--shelf-bg-hover, rgb(255, 255, 255, 0.12));
+  border-color: var(--shelf-border-hover, rgb(232, 220, 200, 0.35));
+  color: var(--shelf-text, #e8dcc8);
+}
+
+/* Вариант для админки (в тёмном хедере) */
+.theme-toggle--admin {
+  border-color: rgb(255, 255, 255, 0.2);
+  background: rgb(255, 255, 255, 0.1);
+  color: var(--admin-header-text, #e8dcc8);
+  backdrop-filter: none;
+}
+
+.theme-toggle--admin:hover {
+  background: rgb(255, 255, 255, 0.2);
+  border-color: rgb(255, 255, 255, 0.35);
+  color: #fff;
+}

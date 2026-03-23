@@ -1,0 +1,188 @@
+    <!-- ═══════════════════════════════════════════
+         TEMPLATES
+         ═══════════════════════════════════════════ -->
+
+    <!-- Полка с книгами -->
+    <template id="tmpl-bookshelf-shelf">
+      <div class="bookshelf-shelf">
+        <div class="bookshelf-books"></div>
+        <div class="bookshelf-plank"></div>
+      </div>
+    </template>
+
+    <!-- Карточка книги на полке -->
+    <template id="tmpl-bookshelf-book">
+      <div class="bookshelf-book-wrapper">
+        <button class="bookshelf-book" type="button">
+          <div class="bookshelf-book-cover">
+            <div class="bookshelf-book-frame"></div>
+            <span class="bookshelf-book-badge" hidden></span>
+            <span class="bookshelf-book-title"></span>
+            <span class="bookshelf-book-author"></span>
+          </div>
+          <div class="bookshelf-book-shadow"></div>
+        </button>
+        <div class="bookshelf-book-menu" hidden>
+          <button class="bookshelf-menu-item" data-book-action="read" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <path fill="currentColor" d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1z"/>
+            </svg>
+            <span data-i18n="bookshelf.menuRead">Читать</span>
+          </button>
+          <button class="bookshelf-menu-item" data-book-action="edit" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+            </svg>
+            <span data-i18n="bookshelf.menuEdit">Редактировать</span>
+          </button>
+          <div class="bookshelf-menu-divider"></div>
+          <span class="bookshelf-menu-label" data-i18n="bookshelf.menuVisibility">Видимость</span>
+          <button class="bookshelf-menu-item bookshelf-menu-vis" data-book-action="set-visibility" data-visibility="draft" type="button">
+            <span class="bookshelf-menu-radio"></span>
+            <span data-i18n="bookshelf.visibilityDraft">Черновик</span>
+          </button>
+          <button class="bookshelf-menu-item bookshelf-menu-vis" data-book-action="set-visibility" data-visibility="published" type="button">
+            <span class="bookshelf-menu-radio"></span>
+            <span data-i18n="bookshelf.visibilityPublished">Опубликована</span>
+          </button>
+          <button class="bookshelf-menu-item bookshelf-menu-vis" data-book-action="set-visibility" data-visibility="unlisted" type="button">
+            <span class="bookshelf-menu-radio"></span>
+            <span data-i18n="bookshelf.visibilityUnlisted">По ссылке</span>
+          </button>
+          <div class="bookshelf-menu-divider"></div>
+          <button class="bookshelf-menu-item bookshelf-menu-item--danger" data-book-action="delete" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+            </svg>
+            <span data-i18n="bookshelf.menuDelete">Удалить</span>
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <!-- Кнопка ambient-звука -->
+    <template id="tmpl-ambient-pill">
+      <button type="button" class="ambient-pill" role="radio">
+        <span class="ambient-pill-icon"></span>
+        <span class="ambient-pill-label"></span>
+      </button>
+    </template>
+
+    <!-- Модалка аутентификации (логин / регистрация) -->
+    <template id="tmpl-auth-modal">
+      <div class="auth-modal" role="dialog" aria-modal="true" data-i18n-aria-label="auth.loginTitle">
+        <button type="button" class="auth-close-btn" data-i18n-aria-label="auth.close" aria-label="Закрыть" data-action="close">&times;</button>
+        <div class="auth-modal-header">
+          <h2 class="auth-modal-title" data-i18n="auth.loginTitle">Вход</h2>
+          <p class="auth-modal-subtitle" data-i18n="auth.loginSubtitle">Войдите в свой аккаунт</p>
+        </div>
+        <form class="auth-form" novalidate>
+          <div class="auth-field" data-register-only hidden>
+            <label for="auth-username" class="auth-label"><span data-i18n="auth.usernameLabel">Имя пользователя</span> <span class="auth-required">*</span></label>
+            <input type="text" id="auth-username" class="auth-input" data-i18n-placeholder="auth.usernamePlaceholder" placeholder="my-name" autocomplete="username" required
+              pattern="^[a-z0-9][a-z0-9-]{2,39}$" minlength="3" maxlength="40">
+            <span class="auth-hint" data-i18n="auth.usernameHintFull">Латиница, цифры, дефис. От 3 до 40 символов. Нельзя изменить позже.</span>
+            <span class="auth-username-validation" id="auth-username-validation" hidden></span>
+          </div>
+          <div class="auth-field" data-register-only hidden>
+            <label for="auth-name" class="auth-label" data-i18n="auth.displayNameLabel">Отображаемое имя</label>
+            <input type="text" id="auth-name" class="auth-input" data-i18n-placeholder="auth.displayNamePlaceholder" placeholder="Ваше имя" autocomplete="name">
+          </div>
+          <div class="auth-field">
+            <label for="auth-email" class="auth-label" data-i18n="auth.emailLabel">Email</label>
+            <input type="email" id="auth-email" class="auth-input" data-i18n-placeholder="auth.emailPlaceholder" placeholder="email@example.com" autocomplete="email" required>
+          </div>
+          <div class="auth-field">
+            <label for="auth-password" class="auth-label" data-i18n="auth.passwordLabel">Пароль</label>
+            <input type="password" id="auth-password" class="auth-input" data-i18n-placeholder="auth.passwordLoginPlaceholder" placeholder="Ваш пароль" autocomplete="current-password" required minlength="8">
+          </div>
+          <div class="auth-error" id="auth-error" hidden></div>
+          <button type="submit" class="auth-submit" data-i18n="auth.loginButton">Войти</button>
+        </form>
+        <div class="auth-divider"><span data-i18n="auth.or">или</span></div>
+        <a href="/api/auth/google" class="auth-google-btn">
+          <svg class="auth-google-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.96 10.96 0 0 0 1 12c0 1.77.42 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          <span data-i18n="auth.googleButton">Войти через Google</span>
+        </a>
+        <div class="auth-switch">
+          <span class="auth-switch-text" data-i18n="auth.noAccountQuestion">Нет аккаунта?</span>
+          <button type="button" class="auth-switch-btn" data-i18n="auth.switchToRegister" data-action="switch">Зарегистрироваться</button>
+        </div>
+      </div>
+    </template>
+
+    <!-- Шапка профиля (аватар, имя, bio) -->
+    <template id="tmpl-profile-header">
+      <div class="profile-header-avatar">
+        <span class="profile-header-initial"></span>
+      </div>
+      <div class="profile-header-info">
+        <h2 class="profile-header-name"></h2>
+        <span class="profile-header-username"></span>
+        <p class="profile-header-bio"></p>
+        <div class="profile-header-actions">
+          <button type="button" class="profile-header-edit" hidden>
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+              <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+            </svg>
+            <span data-i18n="bookshelf.editProfile">Редактировать профиль</span>
+          </button>
+          <button type="button" class="profile-header-logout" data-i18n="bookshelf.logout" hidden>
+            Выйти
+          </button>
+        </div>
+      </div>
+      <div class="profile-header-plaque" hidden>
+        <svg class="profile-header-plaque-icon" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+          <path fill="currentColor" d="M21 4H3c-.55 0-1 .45-1 1v14c0 .55.45 1 1 1h18c.55 0 1-.45 1-1V5c0-.55-.45-1-1-1zM9 18H4V6h5v12zm11 0h-9V6h9v12z"/>
+        </svg>
+        <span class="profile-header-plaque-count"></span>
+        <span class="profile-header-plaque-label" data-i18n="bookshelf.onTheShelf">на полке</span>
+      </div>
+    </template>
+
+    <!-- Лайтбокс просмотра фотографий -->
+    <template id="tmpl-lightbox">
+      <div class="lightbox" role="dialog" aria-modal="true" aria-label="Просмотр фотографии">
+        <img class="lightbox__img" alt="">
+        <div class="lightbox__shield"></div>
+        <button class="lightbox__close" type="button" aria-label="Закрыть">
+          <svg viewBox="0 0 24 24" width="28" height="28"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+        <button class="lightbox__nav lightbox__nav--prev" type="button" aria-label="Предыдущее фото">
+          <svg viewBox="0 0 24 24" width="32" height="32"><path fill="currentColor" d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+        </button>
+        <button class="lightbox__nav lightbox__nav--next" type="button" aria-label="Следующее фото">
+          <svg viewBox="0 0 24 24" width="32" height="32"><path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </button>
+        <div class="lightbox__counter"></div>
+        <div class="lightbox__caption"></div>
+      </div>
+    </template>
+
+    <!-- Превью профиля -->
+    <template id="tmpl-profile-preview">
+      <div class="profile-header profile-header--preview">
+        <div class="profile-header-avatar">
+          <span class="profile-header-initial"></span>
+        </div>
+        <div class="profile-header-info">
+          <h2 class="profile-header-name"></h2>
+          <span class="profile-header-username"></span>
+          <p class="profile-header-bio"></p>
+        </div>
+      </div>
+    </template>
+
+    <!-- Карточка книги на витрине (лендинг) -->
+    <template id="tmpl-landing-book-card">
+      <div class="landing-book-cover">
+        <span class="landing-book-title"></span>
+        <span class="landing-book-author"></span>
+      </div>
+    </template>

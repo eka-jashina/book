@@ -1,0 +1,72 @@
+/**
+ * LAYOUT
+ *
+ * Сцена и фон главы.
+ */
+
+/* ═══════════════════════════════════════════
+   ФОНОВОЕ ИЗОБРАЖЕНИЕ ГЛАВЫ
+   ═══════════════════════════════════════════ */
+
+.chapter-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.chapter-bg .bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition:
+    opacity var(--timing-transition) ease-in-out,
+    filter var(--timing-blur) ease-out,
+    transform var(--timing-blur) ease-out;
+  will-change: opacity, filter, transform;
+  contain: strict;
+}
+
+/* Blur placeholder при загрузке изображения */
+.bg[data-loading="true"] {
+  filter: blur(20px);
+  transform: scale(1.05); /* Компенсация blur-краёв */
+}
+
+.bg[data-loading="false"] {
+  filter: blur(0);
+  transform: scale(1);
+}
+
+.bg[data-active="true"] {
+  opacity: 1;
+}
+
+.bg[data-active="false"] {
+  opacity: 0;
+}
+
+/* Затемняющий оверлей */
+.chapter-bg::after {
+  position: absolute;
+  inset: 0;
+  background: rgb(0, 0, 0, 0.15);
+  pointer-events: none;
+  content: "";
+}
+
+/* ═══════════════════════════════════════════
+   СЦЕНА
+   ═══════════════════════════════════════════ */
+
+.scene {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 1440px;
+  padding: 0 40px;
+  margin: 40px auto;
+}

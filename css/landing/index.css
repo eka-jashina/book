@@ -1,0 +1,11 @@
+/**
+ * LANDING — INDEX
+ *
+ * Порядок импорта важен для каскадирования.
+ */
+
+@import url('./landing-layout.css');
+@import url('./landing-hero.css');
+@import url('./landing-sections.css');
+@import url('./landing-cta.css');
+@import url('./landing-responsive.css');

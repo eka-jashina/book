@@ -1,0 +1,26 @@
+            <!-- === Таб: Звуки === -->
+            <div class="editor-panel" data-editor-panel="sounds" role="tabpanel">
+              <fieldset class="setting-fieldset">
+                <legend class="setting-fieldset-legend" data-i18n="admin.sounds.effectsSection">Звуковые эффекты</legend>
+                <p class="fieldset-description" data-i18n="admin.sounds.effectsDescription">Файлы звуков для перелистывания и открытия/закрытия книги</p>
+                <div class="settings-grid settings-grid--inner" id="soundCardsGrid">
+                  <!-- Звуковые карточки генерируются из JS (SoundsModule) -->
+                </div>
+                <div class="panel-actions panel-actions--top">
+                  <button class="btn btn-primary" id="saveSounds" type="button" data-i18n="admin.sounds.saveButton">Сохранить звуки</button>
+                  <button class="btn btn-secondary" id="resetSounds" type="button" data-i18n="admin.sounds.resetButton">Сбросить</button>
+                </div>
+              </fieldset>
+
+              <fieldset class="setting-fieldset setting-fieldset--top">
+                <legend class="setting-fieldset-legend" data-i18n="admin.sounds.ambientsSection">Атмосферы</legend>
+                <p class="fieldset-description" data-i18n="admin.sounds.ambientsDescription">Фоновые звуки, доступные читателю во время чтения</p>
+                <div class="ambient-cards" id="ambientCards"></div>
+                <button class="btn btn-primary btn--top" id="addAmbient" type="button">
+                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                    <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                  </svg>
+                  <span data-i18n="admin.sounds.addAmbient">Добавить атмосферу</span>
+                </button>
+              </fieldset>
+            </div>

@@ -1,0 +1,118 @@
+/* Личный кабинет — переменные */
+
+:root {
+  /* Текст */
+  --admin-bg: #e5dcc8;
+  --admin-surface: #efe8da;
+  --admin-border: #c4b498;
+  --admin-text: #2a1e10;
+  --admin-text-secondary: #6b5a44;
+  --admin-text-tertiary: #948470;
+
+  /* Accent */
+  --admin-primary: #6b5340;
+  --admin-primary-hover: #55412f;
+  --admin-primary-light: rgb(107, 83, 64, 0.14);
+  --admin-primary-lighter: rgb(107, 83, 64, 0.07);
+
+  /* Статусы */
+  --admin-danger: #a0382e;
+  --admin-danger-hover: #8a2e24;
+  --admin-danger-light: rgb(160, 56, 46, 0.1);
+  --admin-success: #4a7a4e;
+  --admin-warning: #b07828;
+
+  /* Скругления */
+  --admin-radius: 12px;
+  --admin-radius-sm: 8px;
+
+  /* Тени */
+  --admin-shadow: 0 1px 3px rgb(60, 40, 10, 0.1);
+  --admin-shadow-md: 0 4px 12px rgb(60, 40, 10, 0.12);
+  --admin-shadow-lg: 0 20px 60px rgb(42, 30, 16, 0.3);
+  --admin-focus-ring: 0 0 0 3px rgb(107, 83, 64, 0.22);
+
+  /* Фоны */
+  --admin-bg-light: #ebe3d0;
+  --admin-bg-hover: #e0d6c0;
+  --admin-backdrop: rgb(42, 30, 16, 0.5);
+
+  /* Header (тёмный) */
+  --admin-header-bg: #3a2d1f;
+  --admin-header-text: #e8dcc8;
+
+  /* Иконки и вспомогательные */
+  --admin-icon-muted: #94846c;
+  --admin-border-active: #7c6f5b;
+
+  /* Layout */
+  --admin-transition: 200ms ease;
+  --admin-max-width: 960px;
+  --admin-font: "Inter", -apple-system, blinkmacsystemfont, "Segoe UI", sans-serif;
+}
+
+/* ═══════════════════════════════════════════
+   ТЁМНАЯ ТЕМА АДМИНКИ
+   ═══════════════════════════════════════════ */
+
+html[data-theme="dark"] {
+  --admin-bg: #1e1e1e;
+  --admin-surface: #2a2a2a;
+  --admin-border: #444;
+  --admin-text: #e6e6e6;
+  --admin-text-secondary: #aaa;
+  --admin-text-tertiary: #777;
+  --admin-primary: #a89070;
+  --admin-primary-hover: #c4a882;
+  --admin-primary-light: rgb(168, 144, 112, 0.15);
+  --admin-primary-lighter: rgb(168, 144, 112, 0.08);
+  --admin-danger: #f08080;
+  --admin-danger-hover: #e06060;
+  --admin-danger-light: rgb(240, 128, 128, 0.15);
+  --admin-success: #7ab87e;
+  --admin-warning: #e0a050;
+  --admin-shadow: 0 1px 3px rgb(0, 0, 0, 0.3);
+  --admin-shadow-md: 0 4px 12px rgb(0, 0, 0, 0.4);
+  --admin-shadow-lg: 0 20px 60px rgb(0, 0, 0, 0.6);
+  --admin-focus-ring: 0 0 0 3px rgb(168, 144, 112, 0.3);
+  --admin-bg-light: #252525;
+  --admin-bg-hover: #333;
+  --admin-backdrop: rgb(0, 0, 0, 0.7);
+  --admin-header-bg: #1a1a1a;
+  --admin-header-text: #e6e6e6;
+  --admin-icon-muted: #777;
+  --admin-border-active: #a89070;
+}
+
+/* ═══════════════════════════════════════════
+   ЧЁРНО-БЕЛАЯ ТЕМА АДМИНКИ
+   ═══════════════════════════════════════════ */
+
+html[data-theme="bw"] {
+  --admin-bg: #fff;
+  --admin-surface: #fff;
+  --admin-border: #000;
+  --admin-text: #000;
+  --admin-text-secondary: #333;
+  --admin-text-tertiary: #666;
+  --admin-primary: #000;
+  --admin-primary-hover: #333;
+  --admin-primary-light: rgb(0, 0, 0, 0.08);
+  --admin-primary-lighter: rgb(0, 0, 0, 0.04);
+  --admin-danger: #900;
+  --admin-danger-hover: #700;
+  --admin-danger-light: rgb(153, 0, 0, 0.08);
+  --admin-success: #060;
+  --admin-warning: #960;
+  --admin-shadow: none;
+  --admin-shadow-md: 0 2px 6px rgb(0, 0, 0, 0.1);
+  --admin-shadow-lg: 0 10px 30px rgb(0, 0, 0, 0.15);
+  --admin-focus-ring: 0 0 0 2px #000;
+  --admin-bg-light: #f5f5f5;
+  --admin-bg-hover: #eee;
+  --admin-backdrop: rgb(0, 0, 0, 0.4);
+  --admin-header-bg: #000;
+  --admin-header-text: #fff;
+  --admin-icon-muted: #666;
+  --admin-border-active: #000;
+}

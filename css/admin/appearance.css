@@ -1,0 +1,448 @@
+/* Админ-панель — оформление: цвета, текстуры, фоны */
+
+/* === Цветовые контролы === */
+.appearance-color-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.appearance-color-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.appearance-color {
+  width: 48px;
+  height: var(--btn-size-md);
+  padding: 2px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-surface);
+  cursor: pointer;
+  appearance: none;
+}
+
+.appearance-color::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+
+.appearance-color::-webkit-color-swatch {
+  border: none;
+  border-radius: 4px;
+}
+
+.appearance-color::-moz-color-swatch {
+  border: none;
+  border-radius: 4px;
+}
+
+.appearance-color-label {
+  font-size: 11px;
+  color: var(--admin-text-secondary);
+}
+
+.appearance-arrow {
+  font-size: 16px;
+  color: var(--admin-text-secondary);
+  margin-bottom: 16px;
+}
+
+.appearance-swatch {
+  width: var(--btn-size-md);
+  height: var(--btn-size-md);
+  border-radius: var(--admin-radius-sm);
+  border: 1px solid var(--admin-border);
+  flex-shrink: 0;
+}
+
+/* === Переключатель темы оформления === */
+.appearance-theme-switch {
+  display: flex;
+  gap: 4px;
+  background: var(--admin-surface);
+  border-radius: var(--admin-radius);
+  padding: 4px;
+  box-shadow: var(--admin-shadow);
+  margin-bottom: 20px;
+}
+
+.appearance-theme-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  border-radius: var(--admin-radius-sm);
+  font-family: var(--admin-font);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--admin-text-secondary);
+  cursor: pointer;
+  transition: all var(--admin-transition);
+}
+
+.appearance-theme-btn:hover {
+  color: var(--admin-text);
+  background: var(--admin-bg);
+}
+
+.appearance-theme-btn.active {
+  color: var(--admin-primary);
+  background: var(--admin-bg);
+  box-shadow: var(--admin-shadow);
+  font-weight: 600;
+}
+
+/* === Группировка полей === */
+.setting-fieldset {
+  grid-column: 1 / -1;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  padding: 20px;
+  margin: 0;
+  background: var(--admin-bg);
+}
+
+.setting-fieldset-legend {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--admin-text-secondary);
+  padding: 0 8px;
+}
+
+.setting-fieldset--top {
+  margin-top: 20px;
+}
+
+.settings-grid--inner {
+  margin-bottom: 0;
+}
+
+/* === Загрузка фона обложки === */
+.cover-bg-upload {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.cover-bg-preview {
+  width: 120px;
+  height: 80px;
+  border-radius: var(--admin-radius-sm);
+  border: 1px solid var(--admin-border);
+  background: var(--admin-bg);
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.cover-bg-preview.has-image .cover-bg-preview-empty {
+  display: none;
+}
+
+.cover-bg-preview-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--admin-text-secondary);
+  font-size: 11px;
+  text-align: center;
+  padding: 8px;
+}
+
+.cover-bg-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* === Селектор текстуры === */
+.setting-card--texture {
+  grid-column: 1 / -1;
+}
+
+.texture-options {
+  display: flex;
+  gap: 12px;
+}
+
+.texture-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 2px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-surface);
+  cursor: pointer;
+  transition: all var(--admin-transition);
+  overflow: hidden;
+  font-family: var(--admin-font);
+}
+
+.texture-option:hover {
+  border-color: var(--admin-primary);
+}
+
+.texture-option.active {
+  border-color: var(--admin-primary);
+  box-shadow: var(--admin-focus-ring);
+}
+
+.texture-thumb {
+  width: 80px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  object-fit: cover;
+  border-radius: 6px 6px 0 0;
+}
+
+img.texture-thumb {
+  display: block;
+}
+
+.texture-thumb--none {
+  background: var(--admin-surface);
+  position: relative;
+}
+
+.texture-thumb--none::after {
+  content: "";
+  position: absolute;
+  width: 80%;
+  height: 1px;
+  background: var(--admin-border);
+  transform: rotate(-25deg);
+}
+
+.texture-thumb--upload {
+  background: var(--admin-bg);
+  color: var(--admin-text-secondary);
+  background-size: cover;
+  background-position: center;
+}
+
+.texture-thumb--upload.has-image svg {
+  display: none;
+}
+
+.texture-option-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--admin-text-secondary);
+  padding: 4px 8px 6px;
+}
+
+.texture-option.active .texture-option-label {
+  color: var(--admin-primary);
+  font-weight: 600;
+}
+
+.texture-option--upload {
+  border-style: dashed;
+}
+
+.texture-option--upload.active {
+  border-style: solid;
+}
+
+.texture-custom-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: var(--admin-bg);
+  border-radius: var(--admin-radius-sm);
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+}
+
+.texture-custom-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.texture-custom-remove {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--admin-text-secondary);
+  cursor: pointer;
+  transition: all var(--admin-transition);
+  flex-shrink: 0;
+}
+
+.texture-custom-remove:hover {
+  color: var(--admin-danger);
+  background: var(--admin-danger-light);
+}
+
+/* === Подзаголовки и разделители === */
+.section-subtitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--admin-text);
+  margin-bottom: 4px;
+}
+
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--admin-border);
+  margin: 24px 0;
+}
+
+/* === Декоративный шрифт === */
+.fieldset-description {
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+  margin-bottom: 16px;
+}
+
+/* === Live Preview === */
+.appearance-preview {
+  display: flex;
+  gap: 0;
+  align-items: stretch;
+  justify-content: center;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  min-height: 140px;
+}
+
+.appearance-preview-cover {
+  width: 90px;
+  min-height: 120px;
+  border-radius: 4px 0 0 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 8px;
+  transition: all var(--admin-transition);
+  box-shadow: 2px 0 8px rgb(0, 0, 0, 0.15);
+  z-index: 1;
+  background-size: cover;
+  background-position: center;
+}
+
+.appearance-preview-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2;
+  overflow-wrap: break-word;
+}
+
+.appearance-preview-author {
+  font-size: 9px;
+  text-align: center;
+  opacity: 0.8;
+}
+
+.appearance-preview-page {
+  width: 90px;
+  min-height: 120px;
+  border-radius: 0 4px 4px 0;
+  padding: 8px;
+  transition: all var(--admin-transition);
+  box-shadow: 2px 2px 8px rgb(0, 0, 0, 0.1);
+  background-size: cover;
+  background-blend-mode: multiply;
+}
+
+.appearance-preview-text {
+  font-size: 8px;
+  line-height: 1.6;
+  opacity: 0.6;
+}
+
+/* === Visibility toggles === */
+.visibility-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.visibility-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.visibility-toggle-row:last-child {
+  border-bottom: none;
+}
+
+.visibility-toggle-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--admin-text);
+}
+
+.decorative-font-preview {
+  margin-bottom: 12px;
+  padding: 16px;
+  background: var(--admin-surface);
+  border-radius: var(--admin-radius-sm);
+  text-align: center;
+}
+
+.decorative-font-sample {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.decorative-font-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.decorative-font-info {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--admin-surface);
+  border-radius: var(--admin-radius-sm);
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+}
+
+.decorative-font-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}

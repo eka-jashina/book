@@ -1,0 +1,197 @@
+    <!-- ═══════════════════════════════════════════
+         ADMIN TEMPLATES
+         ═══════════════════════════════════════════ -->
+
+    <!-- Слот изображения в фотоальбоме -->
+    <template id="tmpl-album-image-slot">
+      <span class="album-image-slot-placeholder">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M19 7v2.99s-1.99.01-2 0V7h-3s.01-1.99 0-2h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8h-3zM5 19l3-4 2 3 3-4 4 5H5z"/></svg>
+        <span class="album-image-slot-placeholder-text"></span>
+      </span>
+      <span class="album-image-slot-num"></span>
+      <button class="album-image-slot-rotate" type="button" title="Повернуть на 90°">
+        <svg viewBox="0 0 24 24" width="12" height="12"><path fill="currentColor" d="M7.11 8.53L5.7 7.11C4.8 8.27 4.24 9.61 4.07 11h2.02c.14-.87.49-1.72 1.02-2.47zM6.09 13H4.07c.17 1.39.72 2.73 1.62 3.89l1.41-1.42c-.52-.75-.87-1.59-1.01-2.47zM7.1 18.32c1.16.9 2.51 1.44 3.9 1.61V17.9c-.87-.15-1.71-.49-2.46-1.03L7.1 18.32zM13 4.07V1L8.45 5.55 13 10V6.09c2.84.48 5 2.94 5 5.91s-2.16 5.43-5 5.91v2.02c3.95-.49 7-3.85 7-7.93s-3.05-7.44-7-7.93z"/></svg>
+      </button>
+      <button class="album-image-slot-crop" type="button" title="Кадрировать">
+        <svg viewBox="0 0 24 24" width="12" height="12"><path fill="currentColor" d="M17 15h2V7c0-1.1-.9-2-2-2H9v2h8v8zM7 17V1H5v4H1v2h4v10c0 1.1.9 2 2 2h10v4h2v-4h4v-2H7z"/></svg>
+      </button>
+      <button class="album-image-slot-uncrop" type="button" title="Сбросить кадрирование">
+        <svg viewBox="0 0 24 24" width="12" height="12"><path fill="currentColor" d="M12.5 8c-2.65 0-5.05 1-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
+      </button>
+      <button class="album-image-slot-remove" type="button" title="Удалить">&times;</button>
+    </template>
+
+    <!-- Карточка звука -->
+    <template id="tmpl-admin-sound-card">
+      <div class="setting-card setting-card--sound" data-sound-key="">
+        <label class="setting-label"></label>
+        <div class="sound-selector">
+          <div class="sound-options">
+            <button class="sound-option active" type="button" data-sound-mode="default">
+              <span class="sound-option-icon">
+                <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+                  <path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+                </svg>
+              </span>
+              <span class="sound-option-label" data-i18n="admin.sounds.soundDefault"></span>
+            </button>
+            <label class="sound-option sound-option--upload" data-sound-mode="custom">
+              <span class="sound-option-icon sound-option-icon--upload">
+                <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+                  <path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/>
+                </svg>
+              </span>
+              <span class="sound-option-label" data-i18n="admin.sounds.soundCustom"></span>
+              <input type="file" class="sound-upload-input" accept="audio/*" hidden>
+            </label>
+          </div>
+          <div class="sound-custom-info" hidden>
+            <span class="sound-custom-name" data-i18n="admin.sounds.uploadedHint"></span>
+            <button class="sound-custom-remove" type="button">
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+              </svg>
+            </button>
+          </div>
+          <button class="sound-preview-btn" type="button">
+            <svg class="sound-preview-play" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <path fill="currentColor" d="M8 5v14l11-7z"/>
+            </svg>
+            <svg class="sound-preview-stop" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" hidden>
+              <path fill="currentColor" d="M6 6h12v12H6z"/>
+            </svg>
+            <span class="sound-preview-label"></span>
+          </button>
+        </div>
+        <input type="hidden" class="sound-mode-input" value="default">
+      </div>
+    </template>
+
+    <!-- Карточка главы -->
+    <template id="tmpl-admin-chapter-card">
+      <div class="chapter-card">
+        <div class="chapter-card-header" data-action="toggle">
+          <div class="chapter-drag">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <path fill="currentColor" d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+            </svg>
+          </div>
+          <svg class="chapter-expand-icon" viewBox="0 0 24 24" width="20" height="20">
+            <path fill="currentColor" d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/>
+          </svg>
+          <div class="chapter-info">
+            <div class="chapter-title"></div>
+            <div class="chapter-meta"></div>
+          </div>
+          <div class="chapter-actions">
+            <button class="chapter-action-btn chapter-move-up-btn" data-action="up" type="button" hidden>
+              <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+            </button>
+            <button class="chapter-action-btn chapter-move-down-btn" data-action="down" type="button" hidden>
+              <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+            </button>
+            <button class="chapter-action-btn delete" data-action="delete" type="button">
+              <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="chapter-card-body">
+          <!-- Заполняется динамически при раскрытии -->
+        </div>
+      </div>
+    </template>
+
+    <!-- Карточка книги в переключателе -->
+    <template id="tmpl-admin-book-card">
+      <div class="book-card" tabindex="0" role="button">
+        <div class="book-card-info">
+          <div class="book-card-title"></div>
+          <div class="book-card-meta"></div>
+        </div>
+        <div class="book-card-actions">
+          <div class="book-card-sort">
+            <button class="chapter-action-btn book-move-up-btn" data-book-move="up" type="button" hidden>
+              <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+            </button>
+            <button class="chapter-action-btn book-move-down-btn" data-book-move="down" type="button" hidden>
+              <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </button>
+          </div>
+          <span class="book-card-active-badge" hidden></span>
+          <button class="chapter-action-btn delete book-delete-btn" type="button" hidden>
+            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <!-- Карточка шрифта для чтения -->
+    <template id="tmpl-admin-reading-font-card">
+      <div class="reading-font-card">
+        <div class="reading-font-preview"></div>
+        <div class="reading-font-info">
+          <div class="reading-font-label"></div>
+          <div class="reading-font-meta"></div>
+        </div>
+        <div class="reading-font-actions">
+          <label class="admin-toggle">
+            <input type="checkbox" class="font-toggle-input">
+            <span class="admin-toggle-slider"></span>
+          </label>
+          <button class="chapter-action-btn delete font-delete-btn" type="button" hidden>
+            <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <!-- Переключатель видимости настройки -->
+    <template id="tmpl-admin-visibility-toggle">
+      <div class="visibility-toggle-row">
+        <span class="visibility-toggle-label"></span>
+        <label class="admin-toggle">
+          <input type="checkbox" checked>
+          <span class="admin-toggle-slider"></span>
+        </label>
+      </div>
+    </template>
+
+    <!-- Кнопка ambient-звука (настройки по умолчанию) -->
+    <template id="tmpl-admin-ambient-btn">
+      <button class="setting-ambient-btn" type="button" data-ambient=""></button>
+    </template>
+
+    <!-- Карточка страницы альбома -->
+    <template id="tmpl-admin-album-page-card">
+      <div class="album-page-card">
+        <div class="album-page-header">
+          <span class="album-page-title"></span>
+          <span class="album-page-move">
+            <button class="album-page-move-btn album-page-move-up" type="button" hidden>
+              <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+            </button>
+            <button class="album-page-move-btn album-page-move-down" type="button" hidden>
+              <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+            </button>
+          </span>
+          <button class="album-page-remove" type="button" hidden>
+            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+          </button>
+          <button class="album-page-bulk-btn" type="button">
+            <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+          </button>
+        </div>
+        <div class="album-layouts"></div>
+        <div class="album-images"></div>
+      </div>
+    </template>
+
+    <!-- Кнопка выбора типа (книга/альбом) на полке -->
+    <template id="tmpl-bookshelf-type-option">
+      <button type="button" class="bookshelf-type-option">
+        <div class="bookshelf-type-option-icon">
+          <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"></svg>
+        </div>
+        <div class="bookshelf-type-option-label"></div>
+      </button>
+    </template>

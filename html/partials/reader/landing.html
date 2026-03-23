@@ -1,0 +1,288 @@
+<!-- Landing screen (guests only) -->
+<div class="landing-screen" id="landing-screen" hidden>
+
+  <!-- Hero с табами -->
+  <section class="landing-hero">
+    <!-- Декоративный фон -->
+    <div class="landing-hero-bg" aria-hidden="true">
+      <div class="landing-hero-glow"></div>
+      <div class="landing-hero-particles"></div>
+    </div>
+
+    <!-- Переключатель темы и языка -->
+    <div class="landing-lang">
+      <div id="landing-theme-toggle"></div>
+      <select class="landing-lang-select" id="landing-lang-select" data-i18n-aria-label="reader.languageSelection" aria-label="Выбор языка">
+        <option value="ru">Русский</option>
+        <option value="en">English</option>
+        <option value="es">Español</option>
+        <option value="fr">Français</option>
+        <option value="de">Deutsch</option>
+      </select>
+    </div>
+
+    <div class="landing-hero-content">
+      <!-- Логотип -->
+      <div class="landing-logo" aria-hidden="true">
+        <svg class="landing-logo-icon" width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <rect x="4" y="6" width="28" height="36" rx="3" fill="#8B6914" opacity="0.9"/>
+          <rect x="8" y="4" width="28" height="36" rx="3" fill="#A67B28"/>
+          <rect x="12" y="2" width="28" height="36" rx="3" fill="#C4943C"/>
+          <rect x="14" y="4" width="24" height="32" rx="2" fill="#FFF8E7"/>
+          <line x1="18" y1="12" x2="34" y2="12" stroke="#C4943C" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="18" y1="17" x2="34" y2="17" stroke="#D4A84C" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+          <line x1="18" y1="21" x2="30" y2="21" stroke="#D4A84C" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+          <line x1="18" y1="25" x2="32" y2="25" stroke="#D4A84C" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+        </svg>
+      </div>
+
+      <h1 class="landing-hero-title">Foliant</h1>
+      <p class="landing-hero-tagline" data-i18n="landing.tagline">Каждая страница — событие</p>
+
+      <!-- Табы -->
+      <div class="landing-hero-tabs">
+        <button type="button" class="landing-tab landing-tab--active" data-tab="books">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          <span data-i18n="landing.tabBooks">Книги</span>
+        </button>
+        <button type="button" class="landing-tab" data-tab="albums">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <span data-i18n="landing.tabAlbums">Фотоальбомы</span>
+        </button>
+      </div>
+
+      <!-- Панели табов -->
+      <div class="landing-tab-panels">
+        <div class="landing-tab-panel landing-tab-panel--active" data-panel="books">
+          <p class="landing-tab-text" data-i18n="landing.booksDesc">Публикуйте книги с реалистичным 3D&#8209;перелистыванием, авторским оформлением и&nbsp;атмосферными звуками. Читатели будут листать страницы как настоящую книгу.</p>
+          <button type="button" class="landing-cta" id="landing-cta-books" data-i18n="landing.ctaBooks">Создать книгу</button>
+        </div>
+        <div class="landing-tab-panel" data-panel="albums">
+          <p class="landing-tab-text" data-i18n="landing.albumsDesc">Собирайте фотоальбомы для клиентов и&nbsp;портфолио. Каждый снимок&nbsp;— на&nbsp;отдельной странице с&nbsp;эффектом перелистывания. Вместо архива&nbsp;— ссылка, которой хочется делиться.</p>
+          <button type="button" class="landing-cta" id="landing-cta-albums" data-i18n="landing.ctaAlbums">Создать альбом</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Декоративная иллюстрация книги -->
+    <div class="landing-hero-illustration" aria-hidden="true">
+      <div class="landing-book-3d">
+        <div class="landing-book-3d__spine"></div>
+        <div class="landing-book-3d__cover">
+          <div class="landing-book-3d__ornament"></div>
+        </div>
+        <div class="landing-book-3d__pages"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Для кого -->
+  <section class="landing-audience">
+    <h2 class="landing-section-title" data-i18n="landing.audienceTitle">Для кого</h2>
+    <div class="landing-audience-grid">
+
+      <div class="landing-audience-card">
+        <div class="landing-audience-icon">
+          <svg width="44" height="44" viewBox="0 0 48 48" fill="none">
+            <rect x="8" y="4" width="24" height="32" rx="2" stroke="#C4943C" stroke-width="2" fill="none"/>
+            <rect x="16" y="8" width="24" height="32" rx="2" stroke="#C4943C" stroke-width="2" fill="none"/>
+            <line x1="22" y1="16" x2="34" y2="16" stroke="#C4943C" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="22" y1="21" x2="34" y2="21" stroke="#C4943C" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+            <line x1="22" y1="26" x2="32" y2="26" stroke="#C4943C" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+            <line x1="22" y1="31" x2="30" y2="31" stroke="#C4943C" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+            <path d="M12 6 L12 38" stroke="#8B6914" stroke-width="2" opacity="0.3"/>
+          </svg>
+        </div>
+        <h3 class="landing-audience-title" data-i18n="landing.audienceAuthors">Авторам и писателям</h3>
+        <ul class="landing-audience-list">
+          <li data-i18n="landing.audienceAuthors1">Загружайте тексты (TXT, DOCX, EPUB, FB2) или пишите в редакторе</li>
+          <li data-i18n="landing.audienceAuthors2">Настраивайте обложку, шрифты, фоны и цвета</li>
+          <li data-i18n="landing.audienceAuthors3">Добавляйте звуки перелистывания и атмосферную музыку</li>
+          <li data-i18n="landing.audienceAuthors4">Публикуйте и делитесь ссылкой с читателями</li>
+          <li data-i18n="landing.audienceAuthors5">Создайте авторскую полку со всеми работами</li>
+        </ul>
+      </div>
+
+      <div class="landing-audience-card">
+        <div class="landing-audience-icon">
+          <svg width="44" height="44" viewBox="0 0 48 48" fill="none">
+            <rect x="6" y="6" width="36" height="28" rx="3" stroke="#C4943C" stroke-width="2" fill="none"/>
+            <circle cx="17" cy="17" r="4" stroke="#C4943C" stroke-width="1.5" fill="none"/>
+            <path d="M6 30 L16 22 L24 28 L32 18 L42 26" stroke="#C4943C" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
+            <rect x="12" y="38" width="24" height="4" rx="2" stroke="#8B6914" stroke-width="1.5" fill="none" opacity="0.4"/>
+          </svg>
+        </div>
+        <h3 class="landing-audience-title" data-i18n="landing.audiencePhotographers">Фотографам</h3>
+        <ul class="landing-audience-list">
+          <li data-i18n="landing.audiencePhotographers1">Создавайте альбомы для клиентов: свадьбы, портреты, репортажи</li>
+          <li data-i18n="landing.audiencePhotographers2">Каждая фотография — на отдельной странице с эффектом листания</li>
+          <li data-i18n="landing.audiencePhotographers3">Кастомизируйте обложку и оформление под свой стиль</li>
+          <li data-i18n="landing.audiencePhotographers4">Собирайте портфолио с wow-эффектом</li>
+          <li data-i18n="landing.audiencePhotographers5">Отправляйте ссылку вместо архива с файлами</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Как это работает -->
+  <section class="landing-steps">
+    <h2 class="landing-section-title" data-i18n="landing.stepsTitle">Как это работает</h2>
+    <div class="landing-steps-grid">
+      <div class="landing-step">
+        <div class="landing-step-number">1</div>
+        <div class="landing-step-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="18" x2="12" y2="12"/>
+            <line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+        </div>
+        <h3 class="landing-step-title" data-i18n="landing.step1Title">Загрузите</h3>
+        <p class="landing-step-desc" data-i18n="landing.step1Desc">Текст, фотографии или готовый файл — TXT, DOCX, EPUB, FB2</p>
+      </div>
+      <div class="landing-step-arrow" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 6 15 12 9 18"/></svg>
+      </div>
+      <div class="landing-step">
+        <div class="landing-step-number">2</div>
+        <div class="landing-step-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="13.5" cy="6.5" r="2.5"/>
+            <path d="M17 2H7a5 5 0 0 0-5 5v10a5 5 0 0 0 5 5h10a5 5 0 0 0 5-5V7a5 5 0 0 0-5-5z"/>
+            <path d="M2 17l5-5c.928-.893 2.072-.893 3 0l5 5"/>
+            <path d="M14 14l1-1c.928-.893 2.072-.893 3 0l4 4"/>
+          </svg>
+        </div>
+        <h3 class="landing-step-title" data-i18n="landing.step2Title">Оформите</h3>
+        <p class="landing-step-desc" data-i18n="landing.step2Desc">Обложка, шрифты, звуки перелистывания, атмосфера</p>
+      </div>
+      <div class="landing-step-arrow" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 6 15 12 9 18"/></svg>
+      </div>
+      <div class="landing-step">
+        <div class="landing-step-number">3</div>
+        <div class="landing-step-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+            <polyline points="16 6 12 2 8 6"/>
+            <line x1="12" y1="2" x2="12" y2="15"/>
+          </svg>
+        </div>
+        <h3 class="landing-step-title" data-i18n="landing.step3Title">Поделитесь</h3>
+        <p class="landing-step-desc" data-i18n="landing.step3Desc">Опубликуйте и отправьте ссылку читателям или клиентам</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Возможности -->
+  <section class="landing-features">
+    <h2 class="landing-section-title" data-i18n="landing.featuresTitle">Возможности</h2>
+    <div class="landing-features-grid">
+
+      <div class="landing-feature">
+        <div class="landing-feature-icon">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <path d="M6 8 C6 8 10 4 16 12 C22 4 26 8 26 8 L26 28 L6 28 Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+            <path d="M16 12 L16 28" stroke="currentColor" stroke-width="1" opacity="0.4"/>
+          </svg>
+        </div>
+        <h3 class="landing-feature-title" data-i18n="landing.feature3d">3D-перелистывание</h3>
+        <p class="landing-feature-desc" data-i18n="landing.feature3dDesc">Реалистичная физика, тени и анимация переворота страниц</p>
+      </div>
+
+      <div class="landing-feature">
+        <div class="landing-feature-icon">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <path d="M8 22 Q8 8 16 8 Q24 8 24 22" stroke="currentColor" stroke-width="1.5" fill="none"/>
+            <circle cx="16" cy="24" r="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+            <path d="M12 19 Q12 12 16 12 Q20 12 20 19" stroke="currentColor" stroke-width="1" fill="none" opacity="0.5"/>
+          </svg>
+        </div>
+        <h3 class="landing-feature-title" data-i18n="landing.featureSound">Звуковое оформление</h3>
+        <p class="landing-feature-desc" data-i18n="landing.featureSoundDesc">Шелест страниц, дождь, камин, кафе — создайте атмосферу</p>
+      </div>
+
+      <div class="landing-feature">
+        <div class="landing-feature-icon">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="10" stroke="currentColor" stroke-width="1.5" fill="none"/>
+            <path d="M16 6 L16 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M16 22 L16 26" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M6 16 L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M22 16 L26 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="16" cy="16" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
+          </svg>
+        </div>
+        <h3 class="landing-feature-title" data-i18n="landing.featureCustom">Полная кастомизация</h3>
+        <p class="landing-feature-desc" data-i18n="landing.featureCustomDesc">Обложка, шрифты, цвета, текстуры страниц — всё настраивается</p>
+      </div>
+
+      <div class="landing-feature">
+        <div class="landing-feature-icon">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect x="5" y="5" width="22" height="16" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+            <circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1" fill="none"/>
+            <path d="M5 18 L11 14 L17 18 L22 13 L27 17" stroke="currentColor" stroke-width="1" fill="none"/>
+            <rect x="9" y="24" width="14" height="3" rx="1.5" stroke="currentColor" stroke-width="1" fill="none" opacity="0.5"/>
+          </svg>
+        </div>
+        <h3 class="landing-feature-title" data-i18n="landing.featureAlbums">Фотоальбомы</h3>
+        <p class="landing-feature-desc" data-i18n="landing.featureAlbumsDesc">Лайтбокс, кроппер, полноэкранные страницы с изображениями</p>
+      </div>
+
+      <div class="landing-feature">
+        <div class="landing-feature-icon">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect x="9" y="4" width="14" height="24" rx="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
+            <line x1="13" y1="8" x2="19" y2="8" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+            <circle cx="16" cy="24" r="1.5" stroke="currentColor" stroke-width="1" fill="none" opacity="0.5"/>
+            <path d="M12 15 L14 17 L20 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 class="landing-feature-title" data-i18n="landing.featureMobile">Мобильная версия</h3>
+        <p class="landing-feature-desc" data-i18n="landing.featureMobileDesc">Свайп-перелистывание на телефонах и планшетах</p>
+      </div>
+
+      <div class="landing-feature">
+        <div class="landing-feature-icon">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="12" r="5" stroke="currentColor" stroke-width="1.5" fill="none"/>
+            <path d="M8 26 C8 21 11 18 16 18 C21 18 24 21 24 26" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path d="M24 10 L27 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+            <rect x="26" y="5" width="3" height="6" rx="1" stroke="currentColor" stroke-width="1" fill="none" opacity="0.5" transform="rotate(-45 27.5 8)"/>
+          </svg>
+        </div>
+        <h3 class="landing-feature-title" data-i18n="landing.featureProfiles">Авторские профили</h3>
+        <p class="landing-feature-desc" data-i18n="landing.featureProfilesDesc">Публичная полка с работами и персональной ссылкой</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Showcase: public books -->
+  <section class="landing-showcase" id="landing-showcase" hidden>
+    <h2 class="landing-section-title" data-i18n="landing.showcaseTitle">Что создают наши пользователи</h2>
+    <div class="landing-showcase-grid" id="landing-showcase-grid"></div>
+  </section>
+
+  <!-- CTA финальный -->
+  <section class="landing-final-cta">
+    <h2 class="landing-final-cta-title" data-i18n="landing.ctaTitle">Готовы создать свой первый фолиант?</h2>
+    <p class="landing-final-cta-text" data-i18n="landing.ctaText">Бесплатно. Без ограничений. С душой.</p>
+    <button type="button" class="landing-cta landing-cta--large" id="landing-cta" data-i18n="landing.ctaButton">Начать бесплатно</button>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <p class="landing-footer-text" data-i18n="landing.footer">Foliant &mdash; интерактивные книги и фотоальбомы с 3D&#8209;перелистыванием</p>
+  </footer>
+</div>

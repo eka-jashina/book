@@ -1,0 +1,230 @@
+/* ═══════════════════════════════════════════
+   ПРОФИЛЬ — Вкладка редактирования профиля
+   ═══════════════════════════════════════════ */
+
+/* Контейнер формы */
+.profile-edit-form {
+  max-width: 640px;
+}
+
+/* Превью профиля */
+.profile-edit-preview {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+}
+
+.profile-header--preview {
+  pointer-events: none;
+}
+
+/* Username input с @-префиксом */
+.profile-username-input {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.profile-username-prefix {
+  padding: 8px 0 8px 12px;
+  font-size: 15px;
+  color: var(--admin-text-secondary);
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-right: none;
+  border-radius: var(--admin-radius-sm) 0 0 var(--admin-radius-sm);
+  line-height: 1.4;
+}
+
+.profile-username-input .form-input {
+  border-radius: 0 var(--admin-radius-sm) var(--admin-radius-sm) 0;
+}
+
+/* Валидация username */
+.form-validation {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.form-validation--success {
+  color: var(--admin-success);
+}
+
+.form-validation--error {
+  color: var(--admin-danger);
+}
+
+.form-validation--neutral {
+  color: var(--admin-text-secondary);
+}
+
+/* Счётчик символов */
+.char-counter {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--admin-text-tertiary);
+  text-align: right;
+}
+
+/* Textarea */
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+/* Аватар */
+.profile-avatar-upload {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.profile-avatar-current {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.profile-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--admin-header-text);
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.profile-avatar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profile-avatar-actions .form-hint {
+  margin-top: 4px;
+}
+
+/* Публикация — видимость книги */
+.publish-visibility-selector {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.publish-visibility-option {
+  flex: 1;
+  min-width: 160px;
+  cursor: pointer;
+}
+
+.publish-visibility-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.publish-visibility-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 12px;
+  border: 2px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  text-align: center;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.publish-visibility-card strong {
+  font-size: 14px;
+}
+
+.publish-visibility-card span {
+  font-size: 12px;
+  color: var(--admin-text-secondary);
+}
+
+.publish-visibility-option input[type="radio"]:checked + .publish-visibility-card {
+  border-color: var(--admin-primary);
+  background: var(--admin-primary-lighter);
+}
+
+.publish-visibility-option input[type="radio"]:focus-visible + .publish-visibility-card {
+  outline: 2px solid var(--admin-primary);
+  outline-offset: 2px;
+}
+
+/* Slug (адрес книги) */
+.slug-preview {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--admin-text-secondary);
+  font-family: monospace;
+  word-break: break-all;
+}
+
+.slug-status {
+  margin-top: 4px;
+  font-size: 12px;
+  min-height: 16px;
+}
+
+.slug-status--ok {
+  color: var(--admin-success, #22c55e);
+}
+
+.slug-status--error {
+  color: var(--admin-danger);
+}
+
+.slug-status--checking {
+  color: var(--admin-text-tertiary);
+}
+
+/* Ссылка для шаринга */
+.share-link-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.share-link-row .form-input {
+  flex: 1;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .publish-visibility-selector {
+    flex-direction: column;
+  }
+
+  .profile-avatar-upload {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .share-link-row {
+    flex-direction: column;
+  }
+
+  .share-link-row .form-input {
+    width: 100%;
+  }
+}

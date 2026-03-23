@@ -1,0 +1,62 @@
+/**
+ * LANDING — КОНТЕЙНЕР
+ *
+ * Палитра «Книжная полка» и базовая разметка лендинга.
+ */
+
+/* ═══════════════════════════════════════════
+   КОНТЕЙНЕР
+   ═══════════════════════════════════════════ */
+
+.landing-screen {
+  /* ── Палитра «Книжная полка» ─────────────── */
+  --lnd-bg: #1a120b;
+  --lnd-bg-warm: #1e1510;
+  --lnd-bg-section: #16100a;
+  --lnd-bg-card: #241a12;
+  --lnd-bg-card-hover: #2c2018;
+  --lnd-bg-footer: #120d08;
+  --lnd-gold: #c4943c;
+  --lnd-gold-light: #d4a84c;
+  --lnd-gold-dim: #8b6914;
+  --lnd-gold-glow: rgb(196, 148, 60, 0.15);
+  --lnd-gold-glow-strong: rgb(196, 148, 60, 0.25);
+  --lnd-text: #f2e9d8;
+  --lnd-text-secondary: rgb(242, 233, 216, 0.75);
+  --lnd-text-muted: rgb(242, 233, 216, 0.55);
+  --lnd-text-faint: rgb(242, 233, 216, 0.35);
+  --lnd-border: rgb(196, 148, 60, 0.12);
+  --lnd-border-card: rgb(196, 148, 60, 0.18);
+  --lnd-burgundy: #6b2f3a;
+  --lnd-leather: #3a2a1f;
+
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden auto;
+  background: var(--lnd-bg);
+  color: var(--lnd-text);
+  scroll-behavior: smooth;
+  font-family: Georgia, 'Times New Roman', serif;
+  animation: screen-fade-in 0.4s ease both;
+}
+
+.landing-screen[hidden] {
+  display: none;
+}
+
+/* Скрытие остальных экранов при показе лендинга */
+body[data-screen="landing"] .scene,
+body[data-screen="landing"] .chapter-bg,
+body[data-screen="landing"] .bookshelf-screen {
+  display: none;
+}
+
+/* Скрытие лендинга при показе других экранов */
+body[data-screen="reader"] .landing-screen,
+body[data-screen="bookshelf"] .landing-screen,
+body[data-screen="account"] .landing-screen {
+  display: none;
+}

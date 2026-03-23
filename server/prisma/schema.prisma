@@ -1,0 +1,275 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // Append ?connection_limit=N&pool_timeout=N to DATABASE_URL for pool tuning
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email              String    @unique @db.VarChar(255)
+  passwordHash       String?   @map("password_hash") @db.VarChar(255)
+  displayName        String?   @map("display_name") @db.VarChar(100)
+  avatarUrl          String?   @map("avatar_url") @db.VarChar(500)
+  username           String?   @unique @db.VarChar(40)
+  bio                String?   @db.VarChar(500)
+  googleId           String?   @unique @map("google_id") @db.VarChar(255)
+  resetToken         String?   @unique @map("reset_token") @db.VarChar(255)
+  resetTokenExpiresAt DateTime? @map("reset_token_expires_at") @db.Timestamptz()
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt          DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  books              Book[]
+  readingFonts       ReadingFont[]
+  globalSettings     GlobalSettings?
+  readingProgress    ReadingProgress[]
+  readingPreferences ReadingPreferences[]
+  readingSessions    ReadingSession[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model Book {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  title            String    @default("") @db.VarChar(500)
+  author           String    @default("") @db.VarChar(500)
+  type             String    @default("book") @db.VarChar(20)
+  position         Int       @default(0)
+  visibility       String    @default("draft") @db.VarChar(20)
+  description      String?   @db.VarChar(2000)
+  publishedAt      DateTime? @map("published_at") @db.Timestamptz()
+  coverBg          String    @default("") @map("cover_bg") @db.VarChar(500)
+  coverBgMobile    String    @default("") @map("cover_bg_mobile") @db.VarChar(500)
+  coverBgMode      String    @default("default") @map("cover_bg_mode") @db.VarChar(20)
+  coverBgCustomUrl String?   @map("cover_bg_custom_url") @db.VarChar(500)
+  slug             String?   @db.VarChar(100)
+  deletedAt        DateTime? @map("deleted_at") @db.Timestamptz()
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapters        Chapter[]
+  ambients        Ambient[]
+  appearance      BookAppearance?
+  sounds          BookSounds?
+  defaultSettings BookDefaultSettings?
+  decorativeFont     DecorativeFont?
+  readingProgress    ReadingProgress[]
+  readingPreferences ReadingPreferences[]
+  readingSessions    ReadingSession[]
+
+  @@unique([userId, slug])
+  @@index([userId])
+  @@index([userId, position])
+  @@index([userId, deletedAt])
+  @@index([visibility, publishedAt])
+  @@map("books")
+}
+
+model Chapter {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bookId      String   @map("book_id") @db.Uuid
+  title       String   @default("") @db.VarChar(500)
+  position    Int      @default(0)
+  filePath    String?  @map("file_path") @db.VarChar(500)
+  htmlContent String?  @map("html_content") @db.Text
+  bg          String   @default("") @db.VarChar(500)
+  bgMobile    String   @default("") @map("bg_mobile") @db.VarChar(500)
+  albumData   Json?    @map("album_data")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@index([bookId])
+  @@index([bookId, position])
+  @@map("chapters")
+}
+
+model BookAppearance {
+  id                    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bookId                String   @unique @map("book_id") @db.Uuid
+  fontMin               Int      @default(14) @map("font_min")
+  fontMax               Int      @default(22) @map("font_max")
+  // Light theme
+  lightCoverBgStart     String   @default("#3a2d1f") @map("light_cover_bg_start") @db.VarChar(20)
+  lightCoverBgEnd       String   @default("#2a2016") @map("light_cover_bg_end") @db.VarChar(20)
+  lightCoverText        String   @default("#f2e9d8") @map("light_cover_text") @db.VarChar(20)
+  lightCoverBgImageUrl  String?  @map("light_cover_bg_image_url") @db.VarChar(500)
+  lightPageTexture      String   @default("default") @map("light_page_texture") @db.VarChar(20)
+  lightCustomTextureUrl String?  @map("light_custom_texture_url") @db.VarChar(500)
+  lightBgPage           String   @default("#fdfcf8") @map("light_bg_page") @db.VarChar(20)
+  lightBgApp            String   @default("#e6e3dc") @map("light_bg_app") @db.VarChar(20)
+  // Dark theme
+  darkCoverBgStart      String   @default("#111111") @map("dark_cover_bg_start") @db.VarChar(20)
+  darkCoverBgEnd        String   @default("#000000") @map("dark_cover_bg_end") @db.VarChar(20)
+  darkCoverText         String   @default("#eaeaea") @map("dark_cover_text") @db.VarChar(20)
+  darkCoverBgImageUrl   String?  @map("dark_cover_bg_image_url") @db.VarChar(500)
+  darkPageTexture       String   @default("none") @map("dark_page_texture") @db.VarChar(20)
+  darkCustomTextureUrl  String?  @map("dark_custom_texture_url") @db.VarChar(500)
+  darkBgPage            String   @default("#1e1e1e") @map("dark_bg_page") @db.VarChar(20)
+  darkBgApp             String   @default("#121212") @map("dark_bg_app") @db.VarChar(20)
+  updatedAt             DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@map("book_appearance")
+}
+
+model BookSounds {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bookId       String   @unique @map("book_id") @db.Uuid
+  pageFlipUrl  String   @default("sounds/page-flip.mp3") @map("page_flip_url") @db.VarChar(500)
+  bookOpenUrl  String   @default("sounds/cover-flip.mp3") @map("book_open_url") @db.VarChar(500)
+  bookCloseUrl String   @default("sounds/cover-flip.mp3") @map("book_close_url") @db.VarChar(500)
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@map("book_sounds")
+}
+
+model BookDefaultSettings {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bookId        String   @unique @map("book_id") @db.Uuid
+  font          String   @default("georgia") @db.VarChar(100)
+  fontSize      Int      @default(18) @map("font_size")
+  theme         String   @default("light") @db.VarChar(20)
+  soundEnabled  Boolean  @default(true) @map("sound_enabled")
+  soundVolume   Float    @default(0.3) @map("sound_volume") @db.Real
+  ambientType   String   @default("none") @map("ambient_type") @db.VarChar(100)
+  ambientVolume Float    @default(0.5) @map("ambient_volume") @db.Real
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@map("book_default_settings")
+}
+
+model Ambient {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bookId     String   @map("book_id") @db.Uuid
+  ambientKey String   @map("ambient_key") @db.VarChar(100)
+  label      String   @db.VarChar(200)
+  shortLabel String?  @map("short_label") @db.VarChar(50)
+  icon       String?  @db.VarChar(20)
+  fileUrl    String?  @map("file_url") @db.VarChar(500)
+  visible    Boolean  @default(true)
+  builtin    Boolean  @default(false)
+  position   Int      @default(0)
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@index([bookId])
+  @@map("ambients")
+}
+
+model DecorativeFont {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bookId    String   @unique @map("book_id") @db.Uuid
+  name      String   @db.VarChar(200)
+  fileUrl   String   @map("file_url") @db.VarChar(500)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@map("decorative_fonts")
+}
+
+model ReadingFont {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  fontKey   String   @map("font_key") @db.VarChar(100)
+  label     String   @db.VarChar(200)
+  family    String   @db.VarChar(300)
+  builtin   Boolean  @default(false)
+  enabled   Boolean  @default(true)
+  fileUrl   String?  @map("file_url") @db.VarChar(500)
+  position  Int      @default(0)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("reading_fonts")
+}
+
+model GlobalSettings {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String   @unique @map("user_id") @db.Uuid
+  fontMin       Int      @default(14) @map("font_min")
+  fontMax       Int      @default(22) @map("font_max")
+  visFontSize   Boolean  @default(true) @map("vis_font_size")
+  visTheme      Boolean  @default(true) @map("vis_theme")
+  visFont       Boolean  @default(true) @map("vis_font")
+  visFullscreen Boolean  @default(true) @map("vis_fullscreen")
+  visSound      Boolean  @default(true) @map("vis_sound")
+  visAmbient    Boolean  @default(true) @map("vis_ambient")
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("global_settings")
+}
+
+model ReadingProgress {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  bookId    String   @map("book_id") @db.Uuid
+  page      Int      @default(0)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId])
+  @@index([userId, bookId])
+  @@map("reading_progress")
+}
+
+model ReadingSession {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  bookId     String   @map("book_id") @db.Uuid
+  startPage  Int      @default(0) @map("start_page")
+  endPage    Int      @default(0) @map("end_page")
+  pagesRead  Int      @default(0) @map("pages_read")
+  durationSec Int     @default(0) @map("duration_sec")
+  startedAt  DateTime @default(now()) @map("started_at") @db.Timestamptz()
+  endedAt    DateTime @default(now()) @map("ended_at") @db.Timestamptz()
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, bookId])
+  @@index([bookId, endedAt])
+  @@map("reading_sessions")
+}
+
+model ReadingPreferences {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  bookId        String   @map("book_id") @db.Uuid
+  font          String   @default("georgia") @db.VarChar(100)
+  fontSize      Int      @default(18) @map("font_size")
+  theme         String   @default("light") @db.VarChar(20)
+  soundEnabled  Boolean  @default(true) @map("sound_enabled")
+  soundVolume   Float    @default(0.3) @map("sound_volume") @db.Real
+  ambientType   String   @default("none") @map("ambient_type") @db.VarChar(100)
+  ambientVolume Float    @default(0.5) @map("ambient_volume") @db.Real
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId])
+  @@index([userId, bookId])
+  @@map("reading_preferences")
+}

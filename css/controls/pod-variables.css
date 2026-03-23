@@ -1,0 +1,99 @@
+/**
+ * POD VARIABLES
+ *
+ * Общие CSS-переменные для pod-компонентов.
+ * Централизует стилизацию тем, устраняя дублирование.
+ */
+
+/* ═══════════════════════════════════════════
+   LIGHT THEME (default)
+   ═══════════════════════════════════════════ */
+
+:root {
+  /* Контейнер Pod */
+  --pod-bg: rgb(0, 0, 0, 0.08);
+  --pod-border: none;
+
+  /* Разделители */
+  --pod-divider: rgb(139, 69, 19, 0.2);
+
+  /* Кнопки */
+  --pod-btn-bg: rgb(139, 69, 19, 0.15);
+  --pod-btn-bg-hover: rgb(139, 69, 19, 0.25);
+  --pod-btn-bg-active: rgb(139, 69, 19, 0.35);
+  --pod-btn-border-active: rgb(139, 69, 19, 0.6);
+
+  /* Акцент (прогресс, переключатели) */
+  --pod-accent: rgb(139, 69, 19, 0.8);
+  --pod-accent-gradient: linear-gradient(90deg, rgb(139, 69, 19, 0.6), rgb(139, 69, 19, 0.9));
+
+  /* Поля ввода */
+  --pod-input-bg: rgb(139, 69, 19, 0.1);
+  --pod-input-bg-hover: rgb(139, 69, 19, 0.15);
+  --pod-input-focus-border: rgb(139, 69, 19, 0.4);
+
+  /* Трек слайдера / toggle / progress */
+  --pod-track-bg: var(--pod-btn-bg);
+
+  /* Ползунок слайдера */
+  --pod-slider-thumb: linear-gradient(135deg, #8b4513, #5d3a1a);
+
+  /* Стрелка выпадающего списка (закодированный SVG) */
+  --pod-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%238b4513' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+
+  /* Индикатор ошибки */
+  --pod-error: #c0392b;
+}
+
+/* ═══════════════════════════════════════════
+   DARK THEME
+   ═══════════════════════════════════════════ */
+
+html[data-theme="dark"] {
+  --pod-bg: rgb(255, 255, 255, 0.08);
+  --pod-border: none;
+  --pod-divider: rgb(255, 255, 255, 0.15);
+  --pod-btn-bg: rgb(255, 255, 255, 0.1);
+  --pod-btn-bg-hover: rgb(255, 255, 255, 0.18);
+  --pod-btn-bg-active: rgb(200, 160, 110, 0.5);
+  --pod-btn-border-active: rgb(200, 160, 110, 0.75);
+  --pod-track-bg: var(--pod-btn-bg);
+  --pod-accent: rgb(200, 150, 100, 0.7);
+  --pod-accent-gradient: linear-gradient(90deg, rgb(200, 150, 100, 0.5), rgb(200, 150, 100, 0.8));
+  --pod-input-bg: rgb(255, 255, 255, 0.08);
+  --pod-input-bg-hover: rgb(255, 255, 255, 0.12);
+  --pod-input-focus-border: rgb(200, 150, 100, 0.4);
+  --pod-slider-thumb: linear-gradient(135deg, #c8966d, #a07850);
+  --pod-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23c8966d' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  --pod-error: #e74c3c;
+}
+
+/* ═══════════════════════════════════════════
+   B&W THEME
+   ═══════════════════════════════════════════ */
+
+html[data-theme="bw"] {
+  /* Панель управления в ЧБ теме имеет чёрный фон (--cover-front-bg: #000),
+     поэтому все pod-переменные инвертированы: белое на чёрном */
+  --pod-bg: rgb(255, 255, 255, 0.08);
+  --pod-border: 1px solid #fff;
+  --pod-divider: rgb(255, 255, 255, 0.3);
+  --pod-btn-bg: transparent;
+  --pod-btn-bg-hover: #fff;
+  --pod-btn-bg-active: #fff;
+  --pod-btn-border-active: #fff;
+
+  /* В B&W теме hover/active инвертирует цвет текста */
+  --pod-btn-color-hover: #000;
+  --pod-btn-color-active: #000;
+  --pod-toggle-thumb: #000;
+  --pod-track-bg: rgb(255, 255, 255, 0.25);
+  --pod-accent: #fff;
+  --pod-accent-gradient: #fff;
+  --pod-input-bg: transparent;
+  --pod-input-bg-hover: rgb(255, 255, 255, 0.1);
+  --pod-input-focus-border: #fff;
+  --pod-slider-thumb: #fff;
+  --pod-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  --pod-error: #f66;
+}

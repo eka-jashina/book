@@ -1,0 +1,348 @@
+/* Админ-панель — экраны (screen views), редактор, карточки режимов */
+
+/* === Screen Views === */
+.screen-view {
+  display: none;
+}
+
+.screen-view.active {
+  display: block;
+}
+
+/* === Кнопка «Назад» === */
+.screen-back-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px 6px 10px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  border-radius: var(--admin-radius-sm);
+  font-family: var(--admin-font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--admin-text-secondary);
+  cursor: pointer;
+  transition: all var(--admin-transition);
+  white-space: nowrap;
+}
+
+.btn-back:hover {
+  color: var(--admin-text);
+  border-color: var(--admin-text-secondary);
+  background: var(--admin-bg);
+}
+
+.screen-back-row h2 {
+  font-size: 20px;
+  font-weight: 700;
+  flex: 1;
+  min-width: 0;
+}
+
+/* === Mode Selector === */
+.mode-selector-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.mode-selector-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.mode-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.mode-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 20px;
+  border: 2px solid var(--admin-border);
+  background: var(--admin-surface);
+  border-radius: var(--admin-radius);
+  cursor: pointer;
+  transition: all var(--admin-transition);
+  text-align: center;
+  font-family: var(--admin-font);
+}
+
+.mode-card:hover {
+  border-color: var(--admin-primary);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.08);
+  transform: translateY(-2px);
+}
+
+.mode-card:active {
+  transform: translateY(0);
+}
+
+.mode-card-icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: var(--admin-bg);
+  color: var(--admin-primary);
+}
+
+.mode-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+
+.mode-card-desc {
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+  line-height: 1.4;
+}
+
+/* === Editor === */
+.editor-title {
+  font-size: 20px;
+  font-weight: 700;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Индикатор сохранения */
+.save-indicator {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-family: var(--admin-font);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.save-indicator.visible {
+  display: inline-flex;
+}
+
+.save-indicator--saving {
+  color: var(--admin-text-tertiary);
+}
+
+.save-indicator--saved {
+  color: var(--admin-success);
+}
+
+.save-indicator--saved svg {
+  animation: save-check-appear 0.3s ease;
+}
+
+@keyframes save-check-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.save-indicator--error {
+  color: var(--admin-danger);
+}
+
+.save-indicator.fade-out {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.editor-tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--admin-bg);
+  border-radius: var(--admin-radius-sm);
+  padding: 3px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+}
+
+.editor-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+/* Градиентная маска для индикации скролла */
+.editor-tabs-wrapper {
+  position: relative;
+}
+
+.editor-tabs-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 32px;
+  height: 100%;
+  background: linear-gradient(to right, transparent, var(--admin-bg));
+  pointer-events: none;
+  border-radius: 0 var(--admin-radius-sm) var(--admin-radius-sm) 0;
+  opacity: 0;
+  transition: opacity var(--admin-transition);
+}
+
+.editor-tabs-wrapper.has-scroll::after {
+  opacity: 1;
+}
+
+.editor-tabs-wrapper.scrolled-end::after {
+  opacity: 0;
+}
+
+.editor-tab {
+  flex: 0 0 auto;
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  font-family: var(--admin-font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--admin-text-secondary);
+  cursor: pointer;
+  transition: all var(--admin-transition);
+  white-space: nowrap;
+}
+
+.editor-tab:hover {
+  color: var(--admin-text);
+  background: var(--admin-surface);
+}
+
+.editor-tab.active {
+  color: var(--admin-primary);
+  background: var(--admin-surface);
+  box-shadow: var(--admin-shadow);
+  font-weight: 600;
+}
+
+.editor-panel {
+  display: none;
+}
+
+.editor-panel.active {
+  display: block;
+}
+
+/* === Album Editor View === */
+.album-editor-form .form-group {
+  margin-bottom: 16px;
+}
+
+.album-hide-toggle {
+  vertical-align: middle;
+}
+
+.album-hide-label {
+  font-size: 14px;
+  color: var(--admin-text);
+  margin-left: 8px;
+}
+
+.album-add-page-btn {
+  margin-top: 16px;
+}
+
+/* === Empty state === */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 20px;
+  text-align: center;
+  color: var(--admin-text-secondary);
+  animation: empty-state-in 0.4s ease-out;
+}
+
+.empty-state[hidden] {
+  display: none;
+}
+
+@keyframes empty-state-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.empty-state svg {
+  opacity: 0.3;
+}
+
+.empty-hint {
+  font-size: 13px;
+  color: var(--admin-text-tertiary);
+}
+
+/* === Fieldset description === */
+.fieldset-description {
+  color: var(--admin-text-secondary);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* === Responsive === */
+@media (max-width: 640px) {
+  .mode-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .mode-card {
+    padding: 24px 16px;
+  }
+
+  .editor-tabs {
+    gap: 1px;
+    padding: 2px;
+  }
+
+  .editor-tab {
+    padding: 10px 12px;
+    font-size: 13px;
+    min-height: 44px;
+  }
+
+  .screen-back-row {
+    flex-wrap: wrap;
+  }
+
+  .screen-back-row .btn-danger {
+    margin-left: auto;
+  }
+}

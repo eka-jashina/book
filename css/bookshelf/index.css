@@ -1,0 +1,12 @@
+/**
+ * BOOKSHELF — INDEX
+ *
+ * Порядок импорта важен для каскадирования.
+ */
+
+@import url('./bookshelf-layout.css');
+@import url('./bookshelf-shelf.css');
+@import url('./bookshelf-card.css');
+@import url('./bookshelf-actions.css');
+@import url('./bookshelf-profile.css');
+@import url('./bookshelf-responsive.css');

@@ -1,0 +1,86 @@
+    <!-- Модальное окно редактирования главы -->
+    <dialog class="admin-modal admin-modal--chapter" id="chapterModal">
+      <form class="modal-form" id="chapterForm" method="dialog">
+        <h3 class="modal-title" id="modalTitle" data-i18n="admin.modal.chapter.addTitle">Добавить главу</h3>
+        <div class="form-group">
+          <label class="form-label" for="chapterId" data-i18n="admin.modal.chapter.idLabel">ID главы</label>
+          <input class="form-input" type="text" id="chapterId" data-i18n-placeholder="admin.modal.chapter.idPlaceholder" placeholder="part_4" required>
+          <span class="form-hint" data-i18n="admin.modal.chapter.idHint">Уникальный идентификатор (латиница, цифры, _)</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="chapterTitle" data-i18n="admin.modal.chapter.titleLabel">Заголовок главы</label>
+          <input class="form-input" type="text" id="chapterTitle" data-i18n-placeholder="admin.modal.chapter.titlePlaceholder" placeholder="Глава 1. Название главы">
+          <span class="form-hint" data-i18n="admin.modal.chapter.titleHint">Отображается в содержании. Если HTML-файл уже содержит &lt;h2&gt;, заполнять не нужно</span>
+        </div>
+
+        <!-- Переключатель режима ввода -->
+        <div class="form-group">
+          <label class="form-label" data-i18n="admin.modal.chapter.contentLabel">Контент главы</label>
+          <div class="chapter-input-toggle" id="chapterInputToggle">
+            <button type="button" class="chapter-input-toggle-btn active" data-input-mode="upload">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+              <span data-i18n="admin.modal.chapter.uploadMode">Загрузить файл</span>
+            </button>
+            <button type="button" class="chapter-input-toggle-btn" data-input-mode="editor">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+              <span data-i18n="admin.modal.chapter.editorMode">Редактор</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Режим: загрузка файла -->
+        <div class="form-group chapter-input-panel" id="chapterUploadPanel">
+          <input type="file" id="chapterFileInput" accept=".doc,.docx,.html,.htm,.txt" hidden>
+          <div class="chapter-file-dropzone" id="chapterFileDropzone">
+            <svg viewBox="0 0 24 24" width="28" height="28">
+              <path fill="currentColor" d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
+            </svg>
+            <p class="chapter-file-text" data-i18n="admin.modal.chapter.dropzoneText">Перетащите файл или нажмите для выбора</p>
+            <p class="chapter-file-hint" data-i18n="admin.modal.chapter.dropzoneHint">doc, docx, html, txt</p>
+          </div>
+          <div class="chapter-file-info" id="chapterFileInfo" hidden>
+            <span class="chapter-file-name" id="chapterFileName"></span>
+            <button type="button" class="chapter-file-remove" id="chapterFileRemove" data-i18n-title="admin.modal.chapter.removeFile">&times;</button>
+          </div>
+        </div>
+
+        <!-- Режим: WYSIWYG-редактор -->
+        <div class="form-group chapter-input-panel" id="chapterEditorPanel" hidden>
+          <div class="chapter-editor-container" id="chapterEditorContainer"></div>
+        </div>
+
+        <div class="form-group setting-card--texture">
+          <label class="form-label" data-i18n="admin.modal.chapter.bgLabel">Фон главы</label>
+          <div class="texture-selector">
+            <div class="texture-options">
+              <button class="texture-option active" type="button" data-chapter-bg-mode="none" data-i18n-title="admin.modal.chapter.bgNone">
+                <span class="texture-thumb texture-thumb--none"></span>
+                <span class="texture-option-label" data-i18n="admin.modal.chapter.bgNone">Нет</span>
+              </button>
+              <label class="texture-option texture-option--upload" data-i18n-title="admin.modal.chapter.bgCustom">
+                <span class="texture-thumb texture-thumb--upload" id="chapterBgThumb">
+                  <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+                    <path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/>
+                  </svg>
+                </span>
+                <span class="texture-option-label" data-i18n="admin.modal.chapter.bgCustom">Своя</span>
+                <input type="file" id="chapterBgFileInput" accept="image/*" hidden>
+              </label>
+            </div>
+            <div class="texture-custom-info" id="chapterBgCustomInfo" hidden>
+              <span class="texture-custom-name" id="chapterBgCustomName" data-i18n="admin.modal.chapter.bgCustomImageName">Своё изображение</span>
+              <button class="texture-custom-remove" type="button" id="chapterBgRemove" data-i18n-title="admin.modal.chapter.bgCustomImageRemove">
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                  <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <input type="hidden" id="chapterBg" value="">
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" type="button" id="cancelModal" data-i18n="common.cancel">Отмена</button>
+          <button class="btn btn-primary" type="submit" id="saveChapter" data-i18n="common.save">Сохранить</button>
+        </div>
+      </form>
+    </dialog>

@@ -1,0 +1,152 @@
+/**
+ * SHEET STYLES
+ *
+ * Анимированный лист переворота страницы.
+ * Три фазы: lift -> rotate -> drop
+ *
+ */
+
+.sheet {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 10;
+  width: 50%;
+  height: 100%;
+  opacity: 0;
+  transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  transform-origin: left center;
+  transform: translateZ(0) rotateY(0deg);
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* Показываем только во время переворота */
+.book[data-state="flipping"] .sheet {
+  z-index: 20;
+  opacity: 1;
+  visibility: visible;
+  will-change: transform;
+}
+
+/* Направление "назад" - ось справа */
+.sheet[data-direction="prev"] {
+  left: 0;
+  transform-origin: right center;
+}
+
+/* ═══════════════════════════════════════════
+   ФАЗЫ АНИМАЦИИ
+   ═══════════════════════════════════════════ */
+
+.sheet[data-phase="lift"] {
+  transition: transform var(--timing-lift) ease-out;
+  transform: translateZ(1px) rotateY(0deg);
+}
+
+.sheet[data-phase="rotate"][data-direction="next"] {
+  transition: transform var(--timing-rotate) cubic-bezier(0.25, 0.6, 0.25, 1);
+  transform: translateZ(1px) rotateY(-180deg);
+}
+
+.sheet[data-phase="rotate"][data-direction="prev"] {
+  transition: transform var(--timing-rotate) cubic-bezier(0.25, 0.6, 0.25, 1);
+  transform: translateZ(1px) rotateY(180deg);
+}
+
+.sheet[data-phase="drop"][data-direction="next"] {
+  transition: transform var(--timing-drop) ease-in;
+  transform: translateZ(0) rotateY(-180deg);
+}
+
+.sheet[data-phase="drop"][data-direction="prev"] {
+  transition: transform var(--timing-drop) ease-in;
+  transform: translateZ(0) rotateY(180deg);
+}
+
+/* Отключение transition (используется при drag) */
+.sheet.no-transition {
+  transition: none !important;
+}
+
+/* ═══════════════════════════════════════════
+   СТОРОНЫ ЛИСТА
+   ═══════════════════════════════════════════ */
+
+.side {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background-color: var(--bg-page);
+  background-image: var(--bg-page-image);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  /* Обе версии для кросс-браузерности */
+  backface-visibility: hidden;
+  backface-visibility: hidden;
+  transition: background-color var(--timing-transition);
+}
+
+.side[data-face="back"] {
+  transform: rotateY(180deg);
+}
+
+/* ═══════════════════════════════════════════
+   ТЕНИ ЛИСТА
+   ═══════════════════════════════════════════ */
+
+/*
+ * Тени корешка на sheet.
+ *
+ * Производительность: background, filter: blur() и width ФИКСИРОВАНЫ.
+ * Интенсивность управляется только через opacity (compositing-only,
+ * без layout/paint). Это критично при drag — 60fps обновлений.
+ *
+ * Ранее каждый кадр менял width + gradient-color + blur → layout + paint + blur.
+ */
+.sheet .side::after {
+  position: absolute;
+  top: 0;
+  width: 25px;
+  height: 100%;
+  opacity: var(--spine-shadow-opacity, 0);
+  will-change: opacity;
+  transition: opacity 0.35s ease-in-out;
+  pointer-events: none;
+  content: "";
+}
+
+.book[data-state="flipping"] .sheet .side[data-face="front"]::after {
+  left: 0;
+  background: radial-gradient(
+    ellipse at left center,
+    rgb(0, 0, 0, 0.35),
+    transparent 70%
+  );
+  filter: blur(18px);
+}
+
+.book[data-state="flipping"] .sheet .side[data-face="back"]::after {
+  right: 0;
+  background: radial-gradient(
+    ellipse at right center,
+    rgb(0, 0, 0, 0.35),
+    transparent 70%
+  );
+  filter: blur(18px);
+}
+
+/* Инверсия для направления "prev" */
+.sheet[data-direction="prev"] .side[data-face="front"]::after {
+  left: auto;
+  right: 0;
+}
+
+.sheet[data-direction="prev"] .side[data-face="back"]::after {
+  right: auto;
+  left: 0;
+}

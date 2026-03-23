@@ -1,0 +1,46 @@
+        <!-- ═══════════════════════════════════════ -->
+        <!-- ЭКРАН: ЭКСПОРТ/ИМПОРТ                  -->
+        <!-- ═══════════════════════════════════════ -->
+        <section class="admin-panel" data-panel="export" role="tabpanel" hidden>
+          <div class="panel-header">
+            <h2 data-i18n="admin.export.title">Экспорт и импорт</h2>
+            <p class="panel-description" data-i18n="admin.export.description">Сохраните конфигурацию в файл или восстановите из файла</p>
+          </div>
+
+          <div class="export-grid">
+            <div class="export-card">
+              <h3 data-i18n="admin.export.exportTitle">Экспорт конфигурации</h3>
+              <p data-i18n="admin.export.exportDesc">Скачайте текущую конфигурацию книги в формате JSON</p>
+              <button class="btn btn-primary" id="exportConfig" type="button">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                  <path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                </svg>
+                <span data-i18n="admin.export.downloadButton">Скачать JSON</span>
+              </button>
+            </div>
+            <div class="export-card">
+              <h3 data-i18n="admin.export.importTitle">Импорт конфигурации</h3>
+              <p data-i18n="admin.export.importDesc">Загрузите ранее сохранённую конфигурацию из JSON-файла</p>
+              <label class="btn btn-secondary upload-btn">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                  <path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/>
+                </svg>
+                <span data-i18n="admin.export.uploadButton">Загрузить JSON</span>
+                <input type="file" id="importConfig" accept=".json" hidden>
+              </label>
+            </div>
+            <div class="export-card">
+              <h3 data-i18n="admin.export.resetAllTitle">Сбросить всё</h3>
+              <p data-i18n="admin.export.resetAllDesc">Удалить все настройки и вернуть конфигурацию по умолчанию</p>
+              <button class="btn btn-danger" id="resetAll" type="button" data-i18n="common.reset">Сбросить</button>
+            </div>
+          </div>
+
+          <div class="json-preview">
+            <div class="json-preview-header">
+              <h3 data-i18n="admin.export.currentConfig">Текущая конфигурация</h3>
+              <button class="btn btn-small" id="copyJson" type="button" data-i18n="common.copy">Копировать</button>
+            </div>
+            <pre class="json-code" id="jsonPreview"></pre>
+          </div>
+        </section>

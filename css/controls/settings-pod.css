@@ -1,0 +1,334 @@
+/**
+ * SETTINGS POD
+ *
+ * Панель настроек: размер шрифта, тема, выбор шрифта.
+ *
+ * Темы определяются через CSS-переменные в pod-variables.css
+ */
+
+/* ═══════════════════════════════════════════
+   КОНТЕЙНЕР
+   ═══════════════════════════════════════════ */
+
+.settings-pod {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: var(--pod-bg);
+  border: var(--pod-border);
+  border-radius: 12px;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition:
+    opacity 0.28s ease,
+    transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+    display 0.28s allow-discrete;
+}
+
+.settings-pod[hidden] {
+  display: none;
+  opacity: 0;
+  transform: translateY(-10px) scale(0.97);
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-section[hidden] {
+  display: none;
+}
+
+.settings-section:not(:last-child) {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--pod-divider);
+}
+
+/* Убираем border у последней видимой секции, если за ней только скрытые */
+.settings-section:not([hidden], :has(~ .settings-section:not([hidden]))) {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.settings-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9em;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.settings-icon {
+  opacity: 0.7;
+}
+
+/* ═══════════════════════════════════════════
+   FONT SIZE STEPPER
+   ═══════════════════════════════════════════ */
+
+.font-size-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.stepper-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--btn-size-md);
+  height: var(--btn-size-md);
+  font-size: 1.2em;
+  font-weight: 600;
+  color: inherit;
+  background: var(--pod-btn-bg);
+  border: var(--pod-border);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.stepper-btn:hover {
+  background: var(--pod-btn-bg-hover);
+  color: var(--pod-btn-color-hover, inherit);
+  transform: scale(1.05);
+}
+
+.stepper-btn:active {
+  transform: scale(0.95);
+}
+
+.stepper-value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  height: var(--btn-size-md);
+  padding: 0 8px;
+  font-size: 1em;
+  font-weight: 700;
+  background: var(--pod-input-bg);
+  border: var(--pod-border);
+  border-radius: 8px;
+}
+
+/* ═══════════════════════════════════════════
+   THEME SEGMENTED CONTROL
+   ═══════════════════════════════════════════ */
+
+.theme-segmented {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--pod-input-bg);
+  border: var(--pod-border);
+  border-radius: 10px;
+}
+
+.theme-segment {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 6px;
+  font-size: 0.7em;
+  font-weight: 500;
+  color: inherit;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.theme-segment svg {
+  transition: transform 0.2s ease;
+}
+
+.theme-segment:hover {
+  opacity: 1;
+  color: var(--pod-btn-color-hover, inherit);
+  background: var(--pod-btn-bg-hover);
+}
+
+.theme-segment:hover svg {
+  transform: scale(1.1);
+}
+
+.theme-segment[data-active="true"] {
+  opacity: 1;
+  color: var(--pod-btn-color-active, inherit);
+  background: var(--pod-btn-bg-active);
+  border-color: var(--pod-btn-border-active);
+  box-shadow: 0 2px 6px rgb(0, 0, 0, 0.1);
+}
+
+/* ═══════════════════════════════════════════
+   FONT SELECT
+   ═══════════════════════════════════════════ */
+
+.font-select-modern {
+  width: 100%;
+  padding: 8px 12px;
+  padding-right: 36px;
+  font-size: 0.9em;
+  font-weight: 500;
+  color: inherit;
+  background-color: var(--pod-input-bg);
+  background-image: var(--pod-select-arrow);
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  border: var(--pod-border);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  appearance: none;
+}
+
+.font-select-modern:hover {
+  background-color: var(--pod-input-bg-hover);
+}
+
+.font-select-modern:focus {
+  border-color: var(--pod-input-focus-border);
+  box-shadow: 0 0 0 3px rgb(0, 0, 0, 0.05);
+}
+
+/* ═══════════════════════════════════════════
+   FULLSCREEN BUTTON
+   ═══════════════════════════════════════════ */
+
+.fullscreen-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 16px;
+  font-size: 0.9em;
+  font-weight: 500;
+  color: inherit;
+  background: var(--pod-btn-bg);
+  border: var(--pod-border);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.fullscreen-btn:hover {
+  background: var(--pod-btn-bg-hover);
+  transform: scale(1.02);
+}
+
+.fullscreen-btn:active {
+  transform: scale(0.98);
+}
+
+/* Иконки и текст в обычном состоянии (не fullscreen) */
+.fullscreen-btn .fullscreen-exit,
+.fullscreen-btn .fullscreen-text-exit {
+  display: none;
+}
+
+.fullscreen-btn .fullscreen-enter,
+.fullscreen-btn .fullscreen-text-enter {
+  display: inline;
+}
+
+/* Иконки и текст в fullscreen состоянии (через CSS :fullscreen) */
+:fullscreen .fullscreen-btn .fullscreen-enter,
+:fullscreen .fullscreen-btn .fullscreen-text-enter {
+  display: none;
+}
+
+:fullscreen .fullscreen-btn .fullscreen-exit,
+:fullscreen .fullscreen-btn .fullscreen-text-exit {
+  display: inline;
+}
+
+:fullscreen .fullscreen-btn {
+  color: var(--pod-btn-color-active, inherit);
+  background: var(--pod-btn-bg-active);
+  border-color: var(--pod-btn-border-active);
+}
+
+.fullscreen-icon {
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE (Desktop)
+   ═══════════════════════════════════════════ */
+
+@media (min-width: 801px) {
+  .settings-pod {
+    max-width: 240px;
+    min-width: 200px;
+    margin-bottom: 0;
+  }
+
+  .settings-section:not(:last-child) {
+    padding-bottom: 8px;
+  }
+
+  .settings-section-header {
+    font-size: 0.8em;
+  }
+
+  .font-size-stepper {
+    gap: 2px;
+  }
+
+  .stepper-btn {
+    width: var(--btn-size-sm);
+    height: var(--btn-size-sm);
+    font-size: 1.1em;
+  }
+
+  .stepper-value {
+    min-width: var(--btn-size-md);
+    height: var(--btn-size-sm);
+    font-size: 0.9em;
+  }
+
+  .theme-segmented {
+    gap: 2px;
+    padding: 4px;
+  }
+
+  .theme-segment {
+    padding: 6px 4px;
+    font-size: 0.65em;
+  }
+
+  .theme-segment svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .font-select-modern {
+    padding: 8px 10px;
+    font-size: 0.85em;
+    padding-right: 32px;
+  }
+
+  .fullscreen-btn {
+    padding: 8px 12px;
+    font-size: 0.8em;
+  }
+
+  .fullscreen-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+}

@@ -1,0 +1,210 @@
+/**
+ * PAGE STYLES
+ *
+ * Статические страницы с двойной буферизацией.
+ * Левая и правая страницы книги, их состояния и тени.
+ */
+
+/* ═══════════════════════════════════════════
+   БАЗОВЫЕ СТИЛИ СТРАНИЦЫ
+   ═══════════════════════════════════════════ */
+
+.page {
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-page);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  background-image: var(--bg-page-image);
+  transition:
+    background-color var(--timing-transition),
+    opacity var(--timing-transition),
+    visibility 0s var(--timing-transition);
+}
+
+/* ═══════════════════════════════════════════
+   ПОЗИЦИОНИРОВАНИЕ (левая/правая)
+   ═══════════════════════════════════════════ */
+
+.page[data-side="left"] {
+  left: 0;
+  border-right: 1px solid var(--border-page);
+  transform-origin: right center;
+}
+
+.page[data-side="right"] {
+  right: 0;
+  transform-origin: left center;
+}
+
+/* ═══════════════════════════════════════════
+   СОСТОЯНИЯ ВИДИМОСТИ
+   ═══════════════════════════════════════════ */
+
+/* По умолчанию страницы скрыты */
+.page {
+  visibility: hidden;
+  opacity: 0;
+}
+
+/* Активная страница видима */
+.page[data-active="true"] {
+  visibility: visible;
+  opacity: 1;
+  transition:
+    background-color var(--timing-transition),
+    opacity var(--timing-transition),
+    visibility 0s;
+}
+
+/* Буферная страница визуально скрыта, но paint-кэш сохранён.
+   opacity: 0.001 (не 0) заставляет браузер рисовать содержимое,
+   включая background-image. При swapBuffers() переход к opacity: 1
+   использует готовый кэш — нет белого промаргивания фона. */
+.page[data-buffer="true"] {
+  z-index: 0;
+  opacity: 0.001 !important;
+  visibility: hidden !important;
+  pointer-events: none;
+}
+
+/* Скрытие страницы при закрытии книги */
+.page.closing-hidden {
+  visibility: hidden;
+}
+
+
+
+/* Активная страница поднимается при перелистывании */
+.book[data-state="flipping"] .page[data-active="true"] {
+  z-index: 5;
+}
+
+/* ═══════════════════════════════════════════
+   КОНТЕНТ СТРАНИЦЫ
+   ═══════════════════════════════════════════ */
+
+.page-content {
+  box-sizing: border-box;
+  padding-right: 2em;
+  padding-left: 2em;
+  overflow-wrap: break-word;
+}
+
+.cols {
+  padding-top: 2em;
+  padding-bottom: 2em;
+}
+
+
+/* ═══════════════════════════════════════════
+   ТЕНИ СТРАНИЦ (inset shadows)
+   Создают эффект объёма у корешка книги
+   ═══════════════════════════════════════════ */
+
+.page[data-side="left"] {
+  box-shadow:
+    inset -1px 0 0 var(--paper-highlight),
+    inset -4px 0 6px rgb(0, 0, 0, 0.04),
+    inset -10px 0 18px var(--spine-soft);
+}
+
+.page[data-side="right"] {
+  box-shadow:
+    inset 1px 0 0 var(--paper-highlight),
+    inset 4px 0 6px rgb(0, 0, 0, 0.04),
+    inset 10px 0 18px var(--spine-soft);
+}
+
+/* ═══════════════════════════════════════════
+   ТЕНЬ КОРЕШКА (::after pseudo-element)
+   Градиентная тень для реалистичности
+   ═══════════════════════════════════════════ */
+
+.page::after {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  pointer-events: none;
+  content: "";
+}
+
+.page[data-side="left"]::after {
+  right: 0;
+  width: var(--spine-shadow-width);
+  background: linear-gradient(
+    to right,
+    var(--spine-dark) 0%,
+    var(--spine-mid) 15%,
+    var(--spine-soft) 40%,
+    transparent 75%,
+    var(--paper-highlight) 100%
+  );
+  filter: blur(var(--spine-shadow-blur));
+}
+
+.page[data-side="right"]::after {
+  left: 0;
+  width: var(--spine-shadow-width);
+  background: linear-gradient(
+    to left,
+    var(--spine-dark) 0%,
+    var(--spine-mid) 15%,
+    var(--spine-soft) 40%,
+    transparent 75%,
+    var(--paper-highlight) 100%
+  );
+  filter: blur(var(--spine-shadow-blur));
+}
+
+/* ═══════════════════════════════════════════
+   КРАЙ СТРАНИЦ (закрытая книга)
+   Визуальный эффект стопки страниц справа
+   ═══════════════════════════════════════════ */
+
+.pages-edge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 5;
+  width: 50%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--page-edge-base),
+    var(--page-edge-base) 2px,
+    var(--page-edge-alt) 3px
+  );
+  border-radius: 0 12px 12px 0;
+  transition: opacity 0.6s ease-in-out;
+}
+
+.book:not([data-state="closed"]) .pages-edge {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════
+   FIREFOX FIXES
+   ═══════════════════════════════════════════ */
+
+@supports (-moz-appearance: none) {
+  .page-content h2 {
+    display: block;
+    visibility: visible;
+    opacity: 1;
+    /* Принудительная композиция слоя */
+    isolation: isolate;
+  }
+
+  /* Firefox: изоляция каждой статьи предотвращает наложение картинок
+     между главами, не затрагивая TOC (section.toc) */
+  .page-content article {
+    contain: paint layout;
+  }
+}

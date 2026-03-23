@@ -1,0 +1,242 @@
+/* Админ-панель — звуки и амбиенты */
+
+/* === Селектор звуков (по аналогии с texture-selector) === */
+
+.sound-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sound-options {
+  display: flex;
+  gap: 12px;
+}
+
+.sound-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 2px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-surface);
+  cursor: pointer;
+  transition: all var(--admin-transition);
+  overflow: hidden;
+  font-family: var(--admin-font);
+}
+
+.sound-option:hover {
+  border-color: var(--admin-primary);
+}
+
+.sound-option.active {
+  border-color: var(--admin-primary);
+  box-shadow: var(--admin-focus-ring);
+}
+
+.sound-option-icon {
+  width: 80px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--admin-text-secondary);
+  background: var(--admin-bg);
+  border-radius: 6px 6px 0 0;
+}
+
+.sound-option.active .sound-option-icon {
+  color: var(--admin-primary);
+}
+
+.sound-option-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--admin-text-secondary);
+  padding: 4px 8px 6px;
+}
+
+.sound-option.active .sound-option-label {
+  color: var(--admin-primary);
+  font-weight: 600;
+}
+
+.sound-option--upload {
+  border-style: dashed;
+}
+
+.sound-option--upload.active {
+  border-style: solid;
+}
+
+.sound-option-icon--upload {
+  color: var(--admin-text-secondary);
+}
+
+/* Информация о загруженном файле */
+.sound-custom-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--admin-bg);
+  border-radius: var(--admin-radius-sm);
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+}
+
+.sound-custom-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sound-custom-remove {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--admin-text-secondary);
+  cursor: pointer;
+  transition: all var(--admin-transition);
+  flex-shrink: 0;
+}
+
+.sound-custom-remove:hover {
+  color: var(--admin-danger);
+  background: var(--admin-danger-light);
+}
+
+/* Кнопка прослушивания */
+.sound-preview-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-surface);
+  color: var(--admin-text-secondary);
+  font-size: 12px;
+  font-family: var(--admin-font);
+  cursor: pointer;
+  transition: all var(--admin-transition);
+  align-self: flex-start;
+}
+
+.sound-preview-btn:hover {
+  border-color: var(--admin-primary);
+  color: var(--admin-primary);
+}
+
+.sound-preview-btn.playing {
+  border-color: var(--admin-primary);
+  color: var(--admin-primary);
+  background: var(--admin-primary-light, rgb(59, 130, 246, 0.08));
+}
+
+/* === Карточки амбиентов (раскрывающиеся, по аналогии с chapter-card) === */
+.ambient-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ambient-card {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px;
+  background: var(--admin-surface);
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow);
+  transition: box-shadow var(--admin-transition), opacity var(--admin-transition);
+}
+
+.ambient-card:hover {
+  box-shadow: var(--admin-shadow-md);
+}
+
+.ambient-card.hidden-ambient {
+  opacity: 0.5;
+}
+
+.ambient-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.ambient-card-header[data-ambient-toggle-expand] {
+  cursor: pointer;
+}
+
+.ambient-expand-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--admin-text-secondary);
+  transition: transform 0.2s;
+}
+
+.ambient-card--expanded .ambient-expand-icon {
+  transform: rotate(90deg);
+}
+
+.ambient-card-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  min-width: 32px;
+  text-align: center;
+}
+
+.ambient-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ambient-card-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ambient-card-meta {
+  font-size: 12px;
+  color: var(--admin-text-secondary);
+}
+
+.ambient-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.ambient-card-actions .chapter-action-btn.delete {
+  width: 32px;
+  height: 32px;
+}
+
+/* Тело раскрытой карточки */
+.ambient-card-body {
+  display: none;
+  padding: 16px 0 4px;
+  border-top: 1px solid var(--admin-border);
+  margin-top: 16px;
+}
+
+.ambient-card--expanded .ambient-card-body {
+  display: block;
+}
+
+.ambient-card--expanded {
+  box-shadow: var(--admin-shadow-md);
+}

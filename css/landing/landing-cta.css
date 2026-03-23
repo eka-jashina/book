@@ -1,0 +1,72 @@
+/**
+ * LANDING — ФИНАЛЬНЫЙ CTA
+ */
+
+/* ═══════════════════════════════════════════
+   ФИНАЛЬНЫЙ CTA
+   ═══════════════════════════════════════════ */
+
+.landing-final-cta {
+  padding: 80px 24px;
+  text-align: center;
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 50%, var(--lnd-gold-glow) 0%, transparent 60%),
+    var(--lnd-bg-warm);
+}
+
+.landing-final-cta-title {
+  margin: 0;
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 700;
+  color: var(--lnd-text);
+}
+
+.landing-final-cta-text {
+  margin: 12px 0 0;
+  font-size: 16px;
+  color: var(--lnd-text-muted);
+  font-style: italic;
+}
+
+/* ═══════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════ */
+
+.landing-footer {
+  padding: 32px 24px;
+  text-align: center;
+  border-top: 1px solid var(--lnd-border);
+  background: var(--lnd-bg-footer);
+}
+
+.landing-footer-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--lnd-text-faint);
+}
+
+/* ═══════════════════════════════════════════
+   ДЕКОРАТИВНЫЕ ЭЛЕМЕНТЫ
+   ═══════════════════════════════════════════ */
+
+/* Тонкая горизонтальная полоса как «полка» между секциями */
+.landing-audience::before,
+.landing-features::before {
+  content: '';
+  display: block;
+  width: 200px;
+  max-width: 40%;
+  height: 1px;
+  margin: 0 auto 48px;
+  background: linear-gradient(90deg, transparent, var(--lnd-gold-dim), transparent);
+}
+
+/* Тонкие разделительные линии между секциями */
+.landing-steps::after {
+  content: '';
+  display: block;
+  width: 80px;
+  height: 1px;
+  margin: 48px auto 0;
+  background: linear-gradient(90deg, transparent, rgb(196, 148, 60, 0.3), transparent);
+}

@@ -1,0 +1,93 @@
+/* Личный кабинет — сброс и базовые стили */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--admin-font);
+  background: var(--admin-bg);
+  color: var(--admin-text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* === Хедер === */
+.admin-header {
+  background: var(--admin-header-bg);
+  color: var(--admin-header-text);
+  border-bottom: none;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.admin-header-inner {
+  max-width: var(--admin-max-width);
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-logo {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--admin-header-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-badge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgb(255, 255, 255, 0.15); /* на тёмном header-фоне */
+  color: var(--admin-header-text);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.admin-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--admin-header-text);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: opacity var(--admin-transition);
+}
+
+.admin-nav-link:hover {
+  opacity: 0.7;
+}
+
+/* === Основной контент === */
+.admin-main {
+  max-width: var(--admin-max-width);
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.panel-description--spaced {
+  margin-bottom: 20px;
+}
+
+/* Универсальный отступ сверху для одиночных кнопок */
+.btn--top {
+  margin-top: 16px;
+}

@@ -1,0 +1,146 @@
+/* Админ-панель — настройки */
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.setting-card {
+  background: var(--admin-surface);
+  border-radius: var(--admin-radius);
+  padding: 20px;
+  box-shadow: var(--admin-shadow);
+}
+
+.setting-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 12px;
+}
+
+.setting-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  font-family: var(--admin-font);
+  font-size: 14px;
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  cursor: pointer;
+}
+
+.setting-range-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.setting-range {
+  flex: 1;
+  accent-color: var(--admin-primary);
+}
+
+.setting-range-value {
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 40px;
+  text-align: right;
+}
+
+/* Группа кнопок (тема/амбиент) */
+.setting-theme-group,
+.setting-ambient-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.setting-theme-btn,
+.setting-ambient-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-surface);
+  font-family: var(--admin-font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--admin-text-secondary);
+  cursor: pointer;
+  transition: all var(--admin-transition);
+}
+
+.setting-theme-btn:hover,
+.setting-ambient-btn:hover {
+  border-color: var(--admin-primary);
+  color: var(--admin-primary);
+}
+
+.setting-theme-btn.active,
+.setting-ambient-btn.active {
+  background: var(--admin-primary);
+  border-color: var(--admin-primary);
+  color: white;
+}
+
+/* Тоггл */
+.setting-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.admin-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.admin-toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--admin-border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background var(--admin-transition);
+}
+
+.admin-toggle-slider::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform var(--admin-transition);
+}
+
+.admin-toggle input:checked + .admin-toggle-slider {
+  background: var(--admin-primary);
+}
+
+.admin-toggle input:checked + .admin-toggle-slider::before {
+  transform: translateX(20px);
+}
+
+.setting-toggle-label {
+  font-size: 14px;
+  color: var(--admin-text-secondary);
+}

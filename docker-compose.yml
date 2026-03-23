@@ -1,0 +1,153 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: flipbook
+      POSTGRES_USER: flipbook
+      POSTGRES_PASSWORD: flipbook_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    tmpfs:
+      - /tmp
+      - /run
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flipbook"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 60s
+
+  minio:
+    image: minio/minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  minio-init:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: "no"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set myminio http://minio:9000 minioadmin minioadmin;
+      mc mb myminio/flipbook-uploads --ignore-existing;
+      mc anonymous set download myminio/flipbook-uploads;
+      mc version enable myminio/flipbook-uploads;
+      "
+
+  migrate:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+    environment:
+      DATABASE_URL: postgresql://flipbook:flipbook_dev@postgres:5432/flipbook?connection_limit=5&pool_timeout=10
+    entrypoint: ["./node_modules/.bin/prisma", "migrate", "deploy"]
+
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "4000:4000"
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    environment:
+      PORT: 4000
+      NODE_ENV: development
+      DATABASE_URL: postgresql://flipbook:flipbook_dev@postgres:5432/flipbook?connection_limit=10&pool_timeout=10
+      SESSION_SECRET: dev-session-secret-change-in-production-min32chars
+      CSRF_SECRET: dev-csrf-secret-must-differ-from-session-secret
+      SESSION_MAX_AGE: 604800000
+      SESSION_SECURE: "false"
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-placeholder}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-placeholder}
+      GOOGLE_CALLBACK_URL: http://localhost:4000/api/auth/google/callback
+      S3_ENDPOINT: http://minio:9000
+      S3_BUCKET: flipbook-uploads
+      S3_REGION: us-east-1
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin
+      S3_FORCE_PATH_STYLE: "true"
+      S3_PUBLIC_URL: http://localhost:9000/flipbook-uploads
+      CORS_ORIGIN: http://localhost:3000
+      APP_URL: http://localhost:3000
+    volumes:
+      - ./server/src:/app/src
+      - ./server/prisma:/app/prisma
+
+volumes:
+  pgdata:
+  minio_data:

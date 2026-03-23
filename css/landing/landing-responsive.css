@@ -1,0 +1,324 @@
+/**
+ * LANDING — АДАПТИВНОСТЬ И ТЕМЫ
+ *
+ * Медиа-запросы + переопределения для светлой и чёрно-белой тем.
+ */
+
+/* ═══════════════════════════════════════════
+   МОБИЛЬНАЯ АДАПТИВНОСТЬ
+   ═══════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .landing-hero {
+    min-height: 90vh;
+    min-height: 90dvh;
+    padding: 48px 20px;
+  }
+
+  .landing-hero-illustration {
+    display: none;
+  }
+
+  .landing-hero-tabs {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .landing-tab {
+    justify-content: center;
+  }
+
+  .landing-audience-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .landing-audience {
+    padding: 60px 20px;
+  }
+
+  .landing-audience-card {
+    padding: 28px 24px;
+  }
+
+  .landing-steps-grid {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .landing-step-arrow {
+    padding-top: 0;
+    transform: rotate(90deg);
+  }
+
+  .landing-step {
+    max-width: 100%;
+  }
+
+  .landing-steps {
+    padding: 60px 20px;
+  }
+
+  .landing-features-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .landing-features {
+    padding: 60px 20px;
+  }
+
+  .landing-showcase-grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 16px;
+  }
+
+  .landing-showcase {
+    padding: 60px 20px;
+  }
+
+  .landing-final-cta {
+    padding: 60px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .landing-features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-feature {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-align: left;
+    padding: 20px;
+  }
+
+  .landing-feature-icon {
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+
+  .landing-tab-panels {
+    min-height: 180px;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   СВЕТЛАЯ ТЕМА
+   ═══════════════════════════════════════════ */
+
+html:not([data-theme="dark"], [data-theme="bw"]) .landing-screen {
+  --lnd-bg: #e2d4bc;
+  --lnd-bg-warm: #d9cab0;
+  --lnd-bg-section: #d4c4a8;
+  --lnd-bg-card: #efe8da;
+  --lnd-bg-card-hover: #e8dfce;
+  --lnd-bg-footer: #c8b898;
+  --lnd-gold: #96700e;
+  --lnd-gold-light: #ad8422;
+  --lnd-gold-dim: #7a5a08;
+  --lnd-gold-glow: rgb(150, 112, 14, 0.15);
+  --lnd-gold-glow-strong: rgb(150, 112, 14, 0.25);
+  --lnd-text: #2a1e10;
+  --lnd-text-secondary: rgb(42, 30, 16, 0.78);
+  --lnd-text-muted: rgb(42, 30, 16, 0.55);
+  --lnd-text-faint: rgb(42, 30, 16, 0.35);
+  --lnd-border: rgb(120, 88, 30, 0.2);
+  --lnd-border-card: rgb(120, 88, 30, 0.22);
+  --lnd-burgundy: #7a3240;
+  --lnd-leather: #5c3e28;
+}
+
+html:not([data-theme="dark"], [data-theme="bw"]) .landing-hero-glow {
+  background: radial-gradient(
+    ellipse 60% 50% at 50% 30%,
+    rgb(150, 112, 14, 0.18) 0%,
+    rgb(140, 80, 30, 0.08) 40%,
+    transparent 70%
+  );
+}
+
+html:not([data-theme="dark"], [data-theme="bw"]) .landing-hero-particles {
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, rgb(150, 112, 14, 0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 60%, rgb(150, 112, 14, 0.2) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 50% 15%, rgb(150, 112, 14, 0.22) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 45%, rgb(150, 112, 14, 0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 70%, rgb(150, 112, 14, 0.15) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 20% 80%, rgb(150, 112, 14, 0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 85%, rgb(150, 112, 14, 0.15) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 25%, rgb(150, 112, 14, 0.2) 0%, transparent 100%);
+}
+
+html:not([data-theme="dark"], [data-theme="bw"]) .landing-hero-title {
+  filter: none;
+}
+
+html:not([data-theme="dark"], [data-theme="bw"]) .landing-logo {
+  filter: drop-shadow(0 2px 8px rgb(139, 105, 20, 0.2));
+}
+
+html:not([data-theme="dark"], [data-theme="bw"]) .landing-lang-select {
+  background-color: rgb(239, 232, 218, 0.9);
+  color: var(--lnd-text-secondary);
+  border-color: var(--lnd-border-card);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2396700e' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}
+
+html:not([data-theme="dark"], [data-theme="bw"]) .landing-lang-select option {
+  background: #efe8da;
+  color: var(--lnd-text);
+}
+
+html:not([data-theme="dark"], [data-theme="bw"]) .landing-book-cover {
+  box-shadow:
+    0 4px 16px rgb(0, 0, 0, 0.15),
+    0 1px 3px rgb(0, 0, 0, 0.1),
+    inset 0 1px 0 rgb(255, 255, 255, 0.3);
+}
+
+html:not([data-theme="dark"], [data-theme="bw"]) .landing-audience-card:hover {
+  box-shadow: 0 8px 32px rgb(0, 0, 0, 0.1);
+}
+
+html:not([data-theme="dark"], [data-theme="bw"]) .landing-feature:hover {
+  box-shadow: 0 6px 24px rgb(0, 0, 0, 0.08);
+}
+
+html:not([data-theme="dark"], [data-theme="bw"]) .landing-cta {
+  color: #fff;
+  box-shadow:
+    0 4px 16px rgb(150, 112, 14, 0.3),
+    0 1px 3px rgb(0, 0, 0, 0.2);
+}
+
+html:not([data-theme="dark"], [data-theme="bw"]) .landing-book-3d__pages {
+  background: repeating-linear-gradient(
+    0deg,
+    #ddd0b8 0,
+    #ddd0b8 1px,
+    #c8b898 1px,
+    #c8b898 2px
+  );
+}
+
+/* ═══════════════════════════════════════════
+   ЧЁРНО-БЕЛАЯ ТЕМА
+   ═══════════════════════════════════════════ */
+
+html[data-theme="bw"] .landing-screen {
+  --lnd-bg: #fff;
+  --lnd-bg-warm: #f5f5f5;
+  --lnd-bg-section: #fafafa;
+  --lnd-bg-card: #fff;
+  --lnd-bg-card-hover: #f5f5f5;
+  --lnd-bg-footer: #f0f0f0;
+  --lnd-gold: #000;
+  --lnd-gold-light: #333;
+  --lnd-gold-dim: #666;
+  --lnd-gold-glow: rgb(0, 0, 0, 0.05);
+  --lnd-gold-glow-strong: rgb(0, 0, 0, 0.1);
+  --lnd-text: #000;
+  --lnd-text-secondary: rgb(0, 0, 0, 0.7);
+  --lnd-text-muted: rgb(0, 0, 0, 0.5);
+  --lnd-text-faint: rgb(0, 0, 0, 0.3);
+  --lnd-border: rgb(0, 0, 0, 0.15);
+  --lnd-border-card: rgb(0, 0, 0, 0.2);
+  --lnd-burgundy: #333;
+  --lnd-leather: #666;
+}
+
+html[data-theme="bw"] .landing-hero-glow,
+html[data-theme="bw"] .landing-hero-particles {
+  display: none;
+}
+
+html[data-theme="bw"] .landing-hero-title {
+  background: none;
+  -webkit-text-fill-color: #000;
+  filter: none;
+}
+
+html[data-theme="bw"] .landing-logo {
+  filter: grayscale(100%);
+}
+
+html[data-theme="bw"] .landing-book-3d__cover {
+  background: #000;
+}
+
+html[data-theme="bw"] .landing-book-3d__spine {
+  background: linear-gradient(90deg, #333 0%, #000 100%);
+}
+
+html[data-theme="bw"] .landing-book-3d__pages {
+  background: repeating-linear-gradient(
+    0deg,
+    #fff 0,
+    #fff 1px,
+    #ccc 1px,
+    #ccc 2px
+  );
+}
+
+html[data-theme="bw"] .landing-book-3d__ornament {
+  border-color: rgb(255, 255, 255, 0.3);
+}
+
+html[data-theme="bw"] .landing-cta {
+  background: #000;
+  color: #fff;
+  box-shadow: none;
+}
+
+html[data-theme="bw"] .landing-cta:hover {
+  background: #333;
+  box-shadow: none;
+}
+
+html[data-theme="bw"] .landing-book-cover {
+  box-shadow:
+    0 4px 16px rgb(0, 0, 0, 0.2),
+    0 1px 3px rgb(0, 0, 0, 0.15);
+}
+
+html[data-theme="bw"] .landing-audience-card {
+  border-color: rgb(0, 0, 0, 0.15);
+}
+
+html[data-theme="bw"] .landing-audience-card::before {
+  background: #000;
+}
+
+html[data-theme="bw"] .landing-audience-card:hover {
+  border-color: rgb(0, 0, 0, 0.3);
+  box-shadow: 0 8px 32px rgb(0, 0, 0, 0.1);
+}
+
+html[data-theme="bw"] .landing-section-title::after {
+  background: linear-gradient(90deg, transparent, #000, transparent);
+}
+
+html[data-theme="bw"] .landing-audience::before,
+html[data-theme="bw"] .landing-features::before {
+  background: linear-gradient(90deg, transparent, #000, transparent);
+}
+
+html[data-theme="bw"] .landing-steps::after {
+  background: linear-gradient(90deg, transparent, rgb(0, 0, 0, 0.3), transparent);
+}
+
+html[data-theme="bw"] .landing-lang-select {
+  background-color: rgb(255, 255, 255, 0.9);
+  color: #000;
+  border-color: #000;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}
+
+html[data-theme="bw"] .landing-lang-select option {
+  background: #fff;
+  color: #000;
+}

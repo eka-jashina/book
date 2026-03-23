@@ -1,0 +1,83 @@
+/* Админ-панель — кнопки */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: var(--admin-radius-sm);
+  font-family: var(--admin-font);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--admin-transition);
+}
+
+.btn-primary {
+  background: var(--admin-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--admin-primary-hover);
+}
+
+.btn-secondary {
+  background: var(--admin-bg);
+  color: var(--admin-text);
+  border: 1px solid var(--admin-border);
+}
+
+.btn-secondary:hover {
+  background: var(--admin-border);
+}
+
+.btn-danger {
+  background: var(--admin-danger);
+  color: white;
+}
+
+.btn-danger:hover {
+  background: var(--admin-danger-hover);
+}
+
+/* Размерный модификатор — не перебивает цветовой вариант */
+.btn-small {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* Нейтральная кнопка по умолчанию (когда нет цветового варианта) */
+.btn-small:not(.btn-primary, .btn-secondary, .btn-danger) {
+  background: var(--admin-bg);
+  color: var(--admin-text-secondary);
+  border: 1px solid var(--admin-border);
+}
+
+.btn-small:not(.btn-primary, .btn-secondary, .btn-danger):hover {
+  background: var(--admin-border);
+}
+
+/* Hidden */
+.btn[hidden] {
+  display: none;
+}
+
+/* Disabled */
+.btn:disabled,
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Утилита: отступ сверху для panel-actions */
+.panel-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.panel-actions--top {
+  margin-top: 20px;
+}

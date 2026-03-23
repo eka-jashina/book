@@ -1,0 +1,252 @@
+/**
+ * CSS CUSTOM PROPERTIES (Design Tokens)
+ *
+ * Централизованное хранилище всех настраиваемых значений.
+ * JavaScript читает эти значения через getComputedStyle.
+ *
+ */
+
+/* ═══════════════════════════════════════════
+   ANIMATABLE CUSTOM PROPERTIES
+   Позволяют браузеру анимировать значения через transitions
+   ═══════════════════════════════════════════ */
+
+@property --spine-shadow-opacity {
+  syntax: '<number>';
+  initial-value: 0;
+  inherits: true;
+}
+
+:root {
+  /* ═══════════════════════════════════════════
+     ТАЙМИНГИ АНИМАЦИЙ
+     ═══════════════════════════════════════════ */
+  --timing-lift: 240ms;           /* Подъём страницы */
+  --timing-rotate: 900ms;         /* Вращение страницы */
+  --timing-drop: 160ms;           /* Опускание страницы */
+  --timing-cover: 1200ms;         /* Открытие/закрытие обложки */
+  --timing-wrap: 300ms;           /* Расширение контейнера */
+  --timing-transition: 300ms;     /* Общие переходы */
+  --timing-blur: 600ms;           /* Снятие blur placeholder */
+  --timing-swap-next: 30ms;        /* Задержка смены закрытого буфера (вперёд) */
+  --timing-swap-prev: 100ms;      /* Задержка смены закрытого буфера (назад) */
+  --timing-resize-debounce: 150ms;/* Дебаунс ресайза */
+
+  /* ═══════════════════════════════════════════
+     РАЗМЕРЫ И ПОРОГИ
+     ═══════════════════════════════════════════ */
+  --font-min: 14px;
+  --font-max: 22px;
+  --font-default: 18px;
+  --swipe-threshold: 20px;        /* Мин. расстояние свайпа */
+  --swipe-vertical-limit: 30px;   /* Макс. вертикальное отклонение */
+
+  /* ═══════════════════════════════════════════
+     3D И ТЕНИ
+     ═══════════════════════════════════════════ */
+  --perspective: 1600px;
+  --spine-shadow-width: 8px;
+  --spine-shadow-blur: 4px;
+  --page-edge-noise: 2.6px;
+  --pages-depth: 10px;
+  --pages-count: 6;
+
+  /* ═══════════════════════════════════════════
+     ШКАЛА ОТСТУПОВ (Spacing Scale)
+     ─────────────────────────────────────────
+     Базовая единица: 4px.
+     Используйте эти токены вместо жёстко заданных
+     значений для единообразных отступов.
+
+     2xs  2px   — микро-зазоры (hint-текст)
+     xs   4px   — минимальный (label↔input)
+     sm   8px   — малый (padding ячеек, gap полей)
+     md  16px   — средний (gap формы, section padding)
+     lg  24px   — большой (header margin, section gap)
+     xl  32px   — модалка padding
+     2xl 40px   — крупные секции
+     3xl 48px   — hero-блоки
+     ═══════════════════════════════════════════ */
+  --spacing-2xs: 2px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 40px;
+  --spacing-3xl: 48px;
+
+  /* ═══════════════════════════════════════════
+     СКРУГЛЕНИЯ (Border Radius)
+     ─────────────────────────────────────────
+     sm   6px  — badge, chip, toast
+     md   8px  — input, кнопка
+     lg  12px  — модалка, карточка
+     ═══════════════════════════════════════════ */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* ═══════════════════════════════════════════
+     КНОПКИ (Button Tokens)
+     ─────────────────────────────────────────
+     Три размера:
+       sm  32px — компактные иконки, TOC
+       md  40px — вторичные кнопки, мобильные nav
+       lg  44px — основные кнопки, touch targets (WCAG)
+     ═══════════════════════════════════════════ */
+  --btn-size-sm: 32px;
+  --btn-size-md: 40px;
+  --btn-size-lg: 44px;
+  --btn-height: var(--btn-size-lg);
+  --btn-padding-y: 12px;
+  --btn-padding-x: 16px;
+  --btn-font-size: 15px;
+  --btn-font-weight: 600;
+  --btn-radius: var(--radius-md);
+  --btn-transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  --btn-sm-padding-y: 8px;
+  --btn-sm-padding-x: 12px;
+  --btn-sm-font-size: 13px;
+
+  /* ═══════════════════════════════════════════
+     Z-INDEX ШКАЛА
+     ═══════════════════════════════════════════ */
+  --z-debug: 9000;
+  --z-overlay: 10000;
+  --z-toast: 11000;
+
+  /* ═══════════════════════════════════════════
+     ОВЕРЛЕИ И ФОНЫ-ЗАТЕМНЕНИЯ
+     ═══════════════════════════════════════════ */
+  --color-overlay: rgb(0, 0, 0, 0.6);
+  --color-overlay-light: rgb(0, 0, 0, 0.3);
+  --color-overlay-dim: rgb(0, 0, 0, 0.5);
+  --color-overlay-heavy: rgb(0, 0, 0, 0.8);
+  --color-overlay-backdrop: rgb(0, 0, 0, 0.85);
+  --color-overlay-scrim: rgb(0, 0, 0, 0.92);
+
+  /* Светлые оверлеи (поверх тёмного фона) */
+  --color-overlay-on-dark: rgb(255, 255, 255, 0.15);
+  --color-overlay-on-dark-hover: rgb(255, 255, 255, 0.3);
+
+  /* Промо / тёмная модалка (install-prompt, offline на светлом фоне) */
+  --color-dark-modal-bg: rgb(30, 30, 46, 0.95);
+  --color-dark-modal-text: #fff;
+
+  /* B&W тема — оверлейные поверхности */
+  --color-bw-surface: #333;
+  --color-bw-surface-alt: #555;
+
+  /* ═══════════════════════════════════════════
+     DEBUG PANEL
+     ═══════════════════════════════════════════ */
+  --debug-text: #0f0;
+  --debug-bg: rgb(0, 0, 0, 0.8);
+
+  /* ═══════════════════════════════════════════
+     CONTROLS (ридер)
+     ═══════════════════════════════════════════ */
+  --controls-accent: #a52a2a;
+  --color-error-banner-bg: #f44;
+  --color-error-banner-text: #fff;
+
+  /* ═══════════════════════════════════════════
+     ЦВЕТА UI (светлая тема)
+     ═══════════════════════════════════════════ */
+  --color-accent: #5b6abf;
+  --color-accent-hover: #4a59a8;
+  --color-accent-focus: rgb(91, 106, 191, 0.15);
+  --color-accent-text: #fff;
+  --color-surface: #fff;
+  --color-surface-alt: #fafafa;
+  --color-surface-hover: #f5f5f5;
+  --color-text-primary: #1a1a2e;
+  --color-text-secondary: #666;
+  --color-text-tertiary: #999;
+  --color-text-placeholder: #aaa;
+  --color-border: #ddd;
+  --color-border-hover: #ccc;
+  --color-error-bg: #fef2f2;
+  --color-error-text: #b91c1c;
+  --color-divider: #e0e0e0;
+
+  /* ═══════════════════════════════════════════
+     КОМПОНЕНТНЫЕ ЦВЕТА (светлая тема)
+     ─────────────────────────────────────────
+     Семантические токены для конкретных компонентов.
+     Переопределяются в themes.css для dark / bw.
+     ═══════════════════════════════════════════ */
+
+  /* Placeholder изображений (shimmer-gradient) */
+  --color-img-placeholder: #d4cfc7;
+  --color-img-placeholder-alt: #e8e4dc;
+
+  /* Индикатор загрузки */
+  --loading-overlay: rgb(255, 255, 255, 0.4);
+  --loading-dot: rgb(139, 69, 19, 0.6);
+  --loading-text: rgb(139, 69, 19, 0.7);
+
+  /* TOC (оглавление) — интерактивные состояния */
+  --toc-hover: rgb(139, 69, 19, 0.12);
+  --toc-active: rgb(139, 69, 19, 0.18);
+  --toc-focus-ring: rgb(139, 69, 19, 0.5);
+  --toc-focus-bg: rgb(139, 69, 19, 0.08);
+
+  /* ═══════════════════════════════════════════
+     ЦВЕТА (СВЕТЛАЯ ТЕМА)
+     ═══════════════════════════════════════════ */
+  --bg-app: #e6e3dc;
+  --bg-book: #fdfcf8;
+  --bg-page: #fdfcf8;
+  --bg-page-alt: #f3f2ed;
+  --text-main: #1f1f1f;
+  --text-muted: #555;
+  --border-page: rgb(0, 0, 0, 0.08);
+
+  /* Край страниц */
+  --page-edge-base: #f3f1ea;
+  --page-edge-alt: #e6e3dc;
+  --page-edge-contrast: rgb(0, 0, 0, 0.18);
+  --pages-color: #f3f2ed;
+  --pages-shadow: rgb(0, 0, 0, 0.18);
+
+  /* Тени */
+  --shadow-book:
+    0 2px 4px rgb(0, 0, 0, 0.08),
+    0 8px 16px rgb(0, 0, 0, 0.12),
+    0 30px 60px rgb(0, 0, 0, 0.28);
+  --shadow-page: rgb(0, 0, 0, 0.18);
+
+  /* Корешок */
+  --spine-dark: rgb(0, 0, 0, 0.45);
+  --spine-mid: rgb(0, 0, 0, 0.22);
+  --spine-soft: rgb(0, 0, 0, 0.08);
+  --paper-highlight: rgb(255, 255, 255, 0.35);
+
+  /* Обложка */
+  --cover-front-bg: linear-gradient(135deg, #3a2d1f, #2a2016);
+  --cover-front-text: #f2e9d8;
+  --cover-back-bg: #fdfcf8;
+
+  /* Текстура страницы */
+  --bg-page-image: url("/images/backgrounds/bg-page.webp");
+
+  /* ═══════════════════════════════════════════
+     НАСТРОЙКИ ЧИТАЛКИ
+     ═══════════════════════════════════════════ */
+  --reader-font-size: var(--font-default);
+  --reader-font-family: georgia, serif;
+  --decorative-font: tolkiencyr, sans-serif;
+
+  /* ═══════════════════════════════════════════
+     ПАГИНАЦИЯ
+     ═══════════════════════════════════════════ */
+  --pages-per-flip: 2;
+  --pagination-chunk-size: 5;
+  --pagination-yield-interval: 16ms;
+
+  /* Debug переменные */
+  --current-page: 0;
+  --total-pages: 0;
+}

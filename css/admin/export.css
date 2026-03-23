@@ -1,0 +1,65 @@
+/* Админ-панель — экспорт/импорт */
+
+.export-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.export-card {
+  background: var(--admin-surface);
+  border-radius: var(--admin-radius);
+  padding: 24px;
+  box-shadow: var(--admin-shadow);
+}
+
+.export-card h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.export-card p {
+  font-size: 14px;
+  color: var(--admin-text-secondary);
+  margin-bottom: 16px;
+}
+
+.upload-btn {
+  cursor: pointer;
+}
+
+/* JSON Preview */
+.json-preview {
+  background: var(--admin-surface);
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow);
+  overflow: hidden;
+}
+
+.json-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.json-preview-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.json-code {
+  padding: 20px;
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--admin-text);
+  background: var(--admin-bg);
+  overflow-x: auto;
+  max-height: 400px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}

@@ -1,0 +1,53 @@
+            <!-- === Таб: Обложка === -->
+            <div class="editor-panel active" data-editor-panel="cover" role="tabpanel">
+              <fieldset class="setting-fieldset">
+                <legend class="setting-fieldset-legend" data-i18n="admin.cover.infoSection">Информация</legend>
+                <div class="settings-grid settings-grid--inner">
+                  <div class="setting-card">
+                    <label class="setting-label" for="coverTitle" data-i18n="admin.cover.titleLabel">Заголовок книги</label>
+                    <input class="form-input" type="text" id="coverTitle" value="Sample Book" data-i18n-placeholder="admin.cover.titlePlaceholder" placeholder="Название книги">
+                  </div>
+                  <div class="setting-card">
+                    <label class="setting-label" for="coverAuthor" data-i18n="admin.cover.authorLabel">Автор</label>
+                    <input class="form-input" type="text" id="coverAuthor" value="Flipbook Demo" data-i18n-placeholder="admin.cover.authorPlaceholder" placeholder="Имя автора">
+                  </div>
+                  <div class="setting-card setting-card--texture">
+                    <label class="setting-label" data-i18n="admin.cover.bgLabel">Фон-подложка</label>
+                    <div class="texture-selector">
+                      <div class="texture-options">
+                        <button class="texture-option active" type="button" data-bg-mode="default" data-i18n-title="admin.cover.bgDefault">
+                          <img src="images/backgrounds/bg-cover.webp" alt="По умолчанию" class="texture-thumb">
+                          <span class="texture-option-label" data-i18n="admin.cover.bgDefault">По умолчанию</span>
+                        </button>
+                        <button class="texture-option" type="button" data-bg-mode="none" data-i18n-title="admin.cover.bgNone">
+                          <span class="texture-thumb texture-thumb--none"></span>
+                          <span class="texture-option-label" data-i18n="admin.cover.bgNone">Нет</span>
+                        </button>
+                        <label class="texture-option texture-option--upload" data-i18n-title="admin.cover.bgCustom">
+                          <span class="texture-thumb texture-thumb--upload" id="bgCoverThumb">
+                            <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+                              <path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/>
+                            </svg>
+                          </span>
+                          <span class="texture-option-label" data-i18n="admin.cover.bgCustom">Своя</span>
+                          <input type="file" id="bgCoverFileInput" accept="image/*" hidden>
+                        </label>
+                      </div>
+                      <div class="texture-custom-info" id="bgCoverCustomInfo" hidden>
+                        <span class="texture-custom-name" id="bgCoverCustomName" data-i18n="admin.cover.customImageName">Своё изображение</span>
+                        <button class="texture-custom-remove" type="button" id="bgCoverRemove" data-i18n-title="admin.cover.customImageRemove">
+                          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                            <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    <input type="hidden" id="bgCoverMode" value="default">
+                  </div>
+                </div>
+              </fieldset>
+
+              <div class="panel-actions panel-actions--top">
+                <button class="btn btn-primary" id="saveCover" type="button" data-i18n="admin.cover.saveButton">Сохранить обложку</button>
+              </div>
+            </div>

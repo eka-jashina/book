@@ -1,0 +1,34 @@
+    <!-- Модальное окно добавления шрифта для чтения -->
+    <dialog class="admin-modal" id="readingFontModal">
+      <form class="modal-form" id="readingFontForm" method="dialog">
+        <h3 class="modal-title" id="readingFontModalTitle" data-i18n="admin.modal.font.addTitle">Добавить шрифт</h3>
+        <div class="form-group">
+          <label class="form-label" for="readingFontName" data-i18n="admin.modal.font.nameLabel">Название шрифта</label>
+          <input class="form-input" type="text" id="readingFontName" data-i18n-placeholder="admin.modal.font.namePlaceholder" placeholder="Мой шрифт" required>
+          <span class="form-hint" data-i18n="admin.modal.font.nameHint">Отображаемое название в списке выбора</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="admin.modal.font.fileLabel">Файл шрифта</label>
+          <label class="btn btn-secondary upload-btn">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/>
+            </svg>
+            <span id="readingFontUploadLabel" data-i18n="admin.modal.font.selectFile">Выбрать файл</span>
+            <input type="file" id="readingFontFileUpload" accept=".woff2,.woff,.ttf,.otf" hidden>
+          </label>
+          <span class="form-hint" data-i18n="admin.modal.font.fileHint">Форматы: .woff2, .woff, .ttf, .otf. Макс. 2 МБ</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="readingFontCategory" data-i18n="admin.modal.font.categoryLabel">Категория</label>
+          <select class="setting-select" id="readingFontCategory">
+            <option value="serif" data-i18n="admin.modal.font.categorySerif">Serif (с засечками)</option>
+            <option value="sans-serif" data-i18n="admin.modal.font.categorySansSerif">Sans-serif (без засечек)</option>
+            <option value="monospace" data-i18n="admin.modal.font.categoryMonospace">Monospace (моноширинный)</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" type="button" id="cancelReadingFontModal" data-i18n="common.cancel">Отмена</button>
+          <button class="btn btn-primary" type="submit" id="saveReadingFont" data-i18n="common.save">Сохранить</button>
+        </div>
+      </form>
+    </dialog>

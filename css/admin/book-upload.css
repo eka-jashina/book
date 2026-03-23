@@ -1,0 +1,154 @@
+/* Админ-панель — загрузка книги */
+
+.book-upload-area {
+  margin-top: 12px;
+}
+
+.book-upload-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 24px;
+  border: 2px dashed var(--admin-border);
+  border-radius: 12px;
+  background: var(--admin-bg-light);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.book-upload-dropzone[hidden] {
+  display: none;
+}
+
+.book-upload-dropzone:hover,
+.book-upload-dropzone.dragover {
+  border-color: var(--admin-border-active);
+  background: var(--admin-bg-hover);
+}
+
+.book-upload-dropzone svg {
+  color: var(--admin-icon-muted);
+  transition: color 0.2s;
+}
+
+.book-upload-dropzone:hover svg,
+.book-upload-dropzone.dragover svg {
+  color: var(--admin-border-active);
+}
+
+.book-upload-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--admin-text-secondary);
+  margin: 0;
+}
+
+.book-upload-hint {
+  font-size: 13px;
+  color: var(--admin-icon-muted);
+  margin: 0;
+}
+
+.book-upload-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px 24px;
+  border: 2px solid var(--admin-border);
+  border-radius: 12px;
+  background: var(--admin-bg-light);
+}
+
+.book-upload-progress[hidden] {
+  display: none;
+}
+
+.book-upload-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--admin-border);
+  border-top-color: var(--admin-border-active);
+  border-radius: 50%;
+  animation: book-upload-spin 0.8s linear infinite;
+}
+
+@keyframes book-upload-spin {
+  to { transform: rotate(360deg); }
+}
+
+.book-upload-status {
+  font-size: 14px;
+  color: var(--admin-text-secondary);
+  margin: 0;
+}
+
+.book-upload-result {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border: 2px solid var(--admin-border-active);
+  border-radius: 12px;
+  background: var(--admin-bg-light);
+}
+
+.book-upload-result[hidden] {
+  display: none;
+}
+
+.book-upload-result-info {
+  flex: 1;
+}
+
+.book-upload-result-info h4 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  color: var(--admin-text);
+}
+
+.book-upload-result-info p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+}
+
+.book-upload-result-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Разделитель «— или —» */
+.create-book-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+  color: var(--admin-text-secondary);
+  font-size: 14px;
+}
+
+/* Кнопка «Создать пустую книгу» */
+.create-book-empty-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 15px;
+}
+
+@media (max-width: 768px) {
+  .book-upload-result {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .book-upload-result-actions {
+    flex-wrap: wrap;
+  }
+}

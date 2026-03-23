@@ -1,0 +1,128 @@
+# Security scanning — npm audit + Trivy для Docker-образов
+# Запускается при push в main и на pull requests
+
+name: Security Scan
+
+on:
+  push:
+    branches: ['main']
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'server/package.json'
+      - 'server/package-lock.json'
+      - 'Dockerfile'
+      - 'server/Dockerfile'
+      - '.github/workflows/security.yml'
+  pull_request:
+    branches: ['main']
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'server/package.json'
+      - 'server/package-lock.json'
+      - 'Dockerfile'
+      - 'server/Dockerfile'
+      - '.github/workflows/security.yml'
+  # Еженедельный запуск (понедельник 06:00 UTC) — полное сканирование
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  # npm audit — проверка зависимостей на известные уязвимости
+  npm-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    strategy:
+      matrix:
+        directory: ['.', 'server']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: cd ${{ matrix.directory }} && npm ci
+
+      - name: Run npm audit
+        run: cd ${{ matrix.directory }} && npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Run npm audit (JSON report)
+        run: cd ${{ matrix.directory }} && npm audit --json > npm-audit-${{ matrix.directory == '.' && 'frontend' || 'server' }}.json || true
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-${{ matrix.directory == '.' && 'frontend' || 'server' }}
+          path: ${{ matrix.directory }}/npm-audit-*.json
+          retention-days: 30
+
+  # Trivy — сканирование Docker-образа сервера
+  trivy-image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build server image
+        run: docker build -t flipbook-server:scan ./server
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'flipbook-server:scan'
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+
+      - name: Run Trivy (SARIF report)
+        uses: aquasecurity/trivy-action@master
+        if: always()
+        with:
+          image-ref: 'flipbook-server:scan'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+
+      - name: Upload Trivy SARIF report
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # Trivy — сканирование файловой системы (IaC, секреты, лицензии)
+  trivy-fs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Trivy filesystem scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+          scanners: 'vuln,secret,misconfig'

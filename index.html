@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <title>Foliant — Интерактивные книги и фотоальбомы с 3D-перелистыванием</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Foliant — платформа для создания интерактивных книг и фотоальбомов с реалистичным 3D-перелистыванием. Для авторов и фотографов.">
+    <meta name="author" content="Ekaterina Yashina">
+    <link rel="canonical" href="https://eka-jashina.github.io/flipbook/">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Foliant — Интерактивные книги и фотоальбомы с 3D-перелистыванием">
+    <meta property="og:description" content="Создавайте интерактивные книги и фотоальбомы с реалистичным 3D-перелистыванием. Для авторов и фотографов.">
+    <meta property="og:image" content="https://eka-jashina.github.io/flipbook/icons/icon-512.png">
+    <meta property="og:url" content="https://eka-jashina.github.io/flipbook/">
+    <meta property="og:locale" content="ru_RU">
+    <meta property="og:site_name" content="Foliant">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Foliant — Интерактивные книги и фотоальбомы с 3D-перелистыванием">
+    <meta name="twitter:description" content="Создавайте интерактивные книги и фотоальбомы с реалистичным 3D-перелистыванием.">
+    <meta name="twitter:image" content="https://eka-jashina.github.io/flipbook/icons/icon-512.png">
+
+    <!-- Plausible Analytics (privacy-friendly, no cookies) -->
+    <script defer data-domain="eka-jashina.github.io" src="https://plausible.io/js/script.js"></script>
+
+    <!-- CSP is set dynamically by the server via Helmet (see server/src/app.ts).
+         The server adds S3_PUBLIC_URL origin to img-src / media-src automatically. -->
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter&family=Roboto&family=Open+Sans&family=Merriweather&family=Libre+Baskerville&display=swap"
+      rel="stylesheet"
+    >
+
+    <!-- Предзагрузка -->
+    <link rel="preload" fetchpriority="high" as="image" href="images/backgrounds/bg-cover.webp" type="image/webp" media="(min-width: 769px)">
+    <link rel="preload" fetchpriority="high" as="image" href="images/backgrounds/bg-cover-mobile.webp" type="image/webp" media="(max-width: 768px)">
+    <link rel="preload" href="fonts/tolkiencyr.woff2" as="font" crossorigin="anonymous">
+
+    <!-- Главный CSS (импортирует все модули) -->
+    <link rel="stylesheet" href="css/index.css">
+
+    <!-- Применение темы до первой отрисовки (предотвращение FOUC) -->
+    <script>
+      (function() {
+        try {
+          var t = localStorage.getItem('flipbook-theme');
+          if (t === 'dark' || t === 'bw') document.documentElement.dataset.theme = t;
+        } catch(e) {}
+      })();
+    </script>
+  </head>
+
+  <body data-debug="false" data-screen="bookshelf">
+    <!-- Skip navigation -->
+    <a class="skip-link" href="#book" data-i18n="book.skipLink">Перейти к книге</a>
+
+    <!-- Фоновые изображения глав (два слоя для кроссфейда) -->
+    <div class="chapter-bg">
+      <div class="bg" data-active="false"></div>
+      <div class="bg" data-active="false"></div>
+    </div>
+
+    <!-- Панель отладки -->
+    <div class="debug-info" id="debugInfo">
+      <div>State: <span id="debugState">-</span></div>
+      <div>Pages: <span id="debugTotal">0</span></div>
+      <div>Current: <span id="debugCurrent">0</span></div>
+      <div>Cache: <span id="debugCache">0</span></div>
+      <div>Memory: <span id="debugMemory">-</span></div>
+      <div>Listeners: <span id="debugListeners">0</span></div>
+    </div>
+
+    <!-- Error message в HTML-->
+    <div class="error-message" id="errorMessage" hidden role="alert">
+      <span id="errorText"></span>
+    </div>
+
+    <!-- Screen reader announcements (visually hidden) -->
+    <div id="sr-announcer" class="sr-only" aria-live="polite" aria-atomic="true" role="status"></div>
+
+    <!--#include "html/partials/reader/landing.html" -->
+    <!--#include "html/partials/reader/bookshelf.html" -->
+    <!--#include "html/partials/reader/account.html" -->
+
+    <main class="scene">
+      <!--#include "html/partials/reader/book-container.html" -->
+      <!--#include "html/partials/reader/controls.html" -->
+
+      <!-- Embed: ссылка «Открыть на Foliant» (Phase 6) -->
+      <a class="embed-open-link" id="embed-open-link" target="_blank" rel="noopener" hidden data-i18n="embed.openOnFlipbook">
+        Открыть на Foliant
+      </a>
+      <!-- Embed: watermark -->
+      <a class="embed-watermark" id="embed-watermark" target="_blank" rel="noopener" hidden data-i18n="embed.poweredBy">
+        Powered by Foliant
+      </a>
+    </main>
+
+    <!--#include "html/partials/reader/pwa.html" -->
+    <!--#include "html/partials/reader/templates.html" -->
+    <!--#include "html/partials/admin/templates.html" -->
+
+    <!-- ES Module entry point -->
+    <script type="module" src="js/index.js"></script>
+  </body>
+</html>

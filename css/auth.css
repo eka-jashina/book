@@ -1,0 +1,445 @@
+/**
+ * AUTH MODAL STYLES
+ *
+ * Модальное окно аутентификации (логин/регистрация).
+ * Тёплая книжная палитра, согласованная с лендингом:
+ * тёмное дерево, золото, пергамент.
+ *
+ * Spacing:  --spacing-{2xs..3xl}  (см. variables.css)
+ * Buttons:  --btn-*               (см. variables.css)
+ * Radii:    --radius-{sm,md,lg}
+ */
+
+/* ═══════════════════════════════════════════
+   ПАЛИТРА (локальные токены)
+   ═══════════════════════════════════════════ */
+
+.auth-overlay {
+  --auth-bg: #241a12;
+  --auth-bg-alt: #1e1510;
+  --auth-text: #f2e9d8;
+  --auth-text-secondary: rgb(242, 233, 216, 0.7);
+  --auth-text-muted: rgb(242, 233, 216, 0.45);
+  --auth-gold: #c4943c;
+  --auth-gold-hover: #d4a84c;
+  --auth-gold-dim: rgb(196, 148, 60, 0.2);
+  --auth-border: rgb(196, 148, 60, 0.18);
+  --auth-border-hover: rgb(196, 148, 60, 0.35);
+  --auth-input-bg: rgb(255, 255, 255, 0.06);
+  --auth-input-bg-focus: rgb(255, 255, 255, 0.1);
+  --auth-error-bg: rgb(180, 40, 40, 0.2);
+  --auth-error-text: #f08080;
+}
+
+/* ═══════════════════════════════════════════
+   ОВЕРЛЕЙ (backdrop)
+   ═══════════════════════════════════════════ */
+
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(10, 7, 4, 0.85);
+  backdrop-filter: blur(6px);
+  animation: auth-fade-in 0.3s ease;
+}
+
+/* ═══════════════════════════════════════════
+   МОДАЛКА
+   ═══════════════════════════════════════════ */
+
+.auth-modal {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: var(--spacing-md);
+  padding: var(--spacing-xl);
+  background: var(--auth-bg);
+  border: 1px solid var(--auth-border);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 4px 24px rgb(0, 0, 0, 0.4),
+    0 20px 60px rgb(0, 0, 0, 0.5);
+  animation: auth-slide-up 0.3s ease;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+/* ═══════════════════════════════════════════
+   КНОПКА ЗАКРЫТИЯ
+   ═══════════════════════════════════════════ */
+
+.auth-close-btn {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--auth-text-muted);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.auth-close-btn:hover {
+  color: var(--auth-text);
+  background: rgb(255, 255, 255, 0.08);
+}
+
+.auth-close-btn:focus-visible {
+  outline: 2px solid var(--auth-gold);
+  outline-offset: 2px;
+}
+
+/* ═══════════════════════════════════════════
+   ЗАГОЛОВОК
+   ═══════════════════════════════════════════ */
+
+.auth-modal-header {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.auth-modal-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--auth-gold);
+}
+
+.auth-modal-subtitle {
+  margin: var(--spacing-xs) 0 0;
+  font-size: 14px;
+  color: var(--auth-text-secondary);
+}
+
+/* ═══════════════════════════════════════════
+   ФОРМА
+   ═══════════════════════════════════════════ */
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.auth-field[hidden] {
+  display: none;
+}
+
+.auth-label {
+  font-size: var(--btn-sm-font-size);
+  font-weight: 500;
+  color: var(--auth-text-secondary);
+}
+
+.auth-hint {
+  font-size: 12px;
+  color: var(--auth-text-muted);
+}
+
+.auth-required {
+  color: var(--auth-error-text);
+}
+
+.auth-username-validation {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.auth-username-validation--success {
+  color: #66bb6a;
+}
+
+.auth-username-validation--error {
+  color: var(--auth-error-text);
+}
+
+.auth-username-validation--neutral {
+  color: var(--auth-text-muted);
+}
+
+/* ═══════════════════════════════════════════
+   ИНПУТЫ
+   ═══════════════════════════════════════════ */
+
+.auth-input {
+  padding: var(--btn-sm-padding-y) var(--btn-sm-padding-x);
+  border: 1px solid var(--auth-border);
+  border-radius: var(--btn-radius);
+  font-size: var(--btn-font-size);
+  font-family: inherit;
+  color: var(--auth-text);
+  background: var(--auth-input-bg);
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: var(--auth-gold);
+  box-shadow: 0 0 0 3px var(--auth-gold-dim);
+  background: var(--auth-input-bg-focus);
+}
+
+.auth-input::placeholder {
+  color: var(--auth-text-muted);
+}
+
+/* ═══════════════════════════════════════════
+   ОШИБКА
+   ═══════════════════════════════════════════ */
+
+.auth-error {
+  padding: var(--spacing-sm) var(--btn-sm-padding-x);
+  border-radius: var(--radius-sm);
+  background: var(--auth-error-bg);
+  color: var(--auth-error-text);
+  font-size: var(--btn-sm-font-size);
+  line-height: 1.4;
+}
+
+/* ═══════════════════════════════════════════
+   КНОПКА SUBMIT (primary — золото)
+   ═══════════════════════════════════════════ */
+
+.auth-submit {
+  padding: var(--btn-padding-y);
+  border: none;
+  border-radius: var(--btn-radius);
+  background: var(--auth-gold);
+  color: #1a120b;
+  font-size: var(--btn-font-size);
+  font-weight: var(--btn-font-weight);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-submit:hover:not(:disabled) {
+  background: var(--auth-gold-hover);
+}
+
+.auth-submit:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--auth-gold-dim);
+}
+
+.auth-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════════
+   РАЗДЕЛИТЕЛЬ «или»
+   ═══════════════════════════════════════════ */
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: var(--spacing-lg) 0 var(--spacing-md);
+  color: var(--auth-text-muted);
+  font-size: var(--btn-sm-font-size);
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--auth-border);
+}
+
+/* ═══════════════════════════════════════════
+   КНОПКА GOOGLE OAUTH (outline — тёплый)
+   ═══════════════════════════════════════════ */
+
+.auth-google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--btn-padding-y) var(--btn-padding-x);
+  border: 1px solid var(--auth-border);
+  border-radius: var(--btn-radius);
+  background: var(--auth-input-bg);
+  color: var(--auth-text);
+  font-size: var(--btn-font-size);
+  font-weight: 500;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.auth-google-btn:hover {
+  background: rgb(255, 255, 255, 0.1);
+  border-color: var(--auth-border-hover);
+}
+
+.auth-google-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--auth-gold-dim);
+}
+
+.auth-google-icon {
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════
+   ПЕРЕКЛЮЧЕНИЕ РЕЖИМА (login ↔ register)
+   ═══════════════════════════════════════════ */
+
+.auth-switch {
+  margin-top: var(--spacing-md);
+  text-align: center;
+  font-size: var(--btn-sm-font-size);
+  color: var(--auth-text-secondary);
+}
+
+.auth-switch-btn {
+  background: none;
+  border: none;
+  color: var(--auth-gold);
+  font-size: var(--btn-sm-font-size);
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.auth-switch-btn:hover {
+  color: var(--auth-gold-hover);
+}
+
+.auth-switch-btn:focus-visible {
+  outline: 2px solid var(--auth-gold);
+  outline-offset: 2px;
+  border-radius: var(--spacing-2xs);
+}
+
+/* ═══════════════════════════════════════════
+   АНИМАЦИИ
+   ═══════════════════════════════════════════ */
+
+@keyframes auth-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes auth-slide-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   МОБИЛЬНЫЕ (≤ 480px)
+   ═══════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  .auth-modal {
+    padding: var(--spacing-lg) var(--spacing-md);
+    margin: var(--spacing-sm);
+  }
+
+  .auth-modal-title {
+    font-size: 20px;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   СВЕТЛАЯ ТЕМА
+   ═══════════════════════════════════════════ */
+
+html:not([data-theme="dark"], [data-theme="bw"]) .auth-overlay {
+  --auth-bg: #efe8da;
+  --auth-bg-alt: #e5dcc8;
+  --auth-text: #2a1e10;
+  --auth-text-secondary: rgb(42, 30, 16, 0.72);
+  --auth-text-muted: rgb(42, 30, 16, 0.45);
+  --auth-gold: #96700e;
+  --auth-gold-hover: #ad8422;
+  --auth-gold-dim: rgb(150, 112, 14, 0.18);
+  --auth-border: rgb(120, 88, 30, 0.22);
+  --auth-border-hover: rgb(120, 88, 30, 0.38);
+  --auth-input-bg: rgb(60, 40, 10, 0.05);
+  --auth-input-bg-focus: rgb(60, 40, 10, 0.08);
+  --auth-error-bg: rgb(160, 40, 40, 0.1);
+  --auth-error-text: #a0382e;
+
+  background: rgb(42, 30, 16, 0.45);
+}
+
+html:not([data-theme="dark"], [data-theme="bw"]) .auth-modal {
+  box-shadow:
+    0 4px 24px rgb(0, 0, 0, 0.15),
+    0 20px 60px rgb(0, 0, 0, 0.2);
+}
+
+html:not([data-theme="dark"], [data-theme="bw"]) .auth-submit {
+  color: #fff;
+}
+
+html:not([data-theme="dark"], [data-theme="bw"]) .auth-close-btn:hover {
+  background: rgb(0, 0, 0, 0.06);
+}
+
+/* ═══════════════════════════════════════════
+   ЧЁРНО-БЕЛАЯ ТЕМА
+   ═══════════════════════════════════════════ */
+
+html[data-theme="bw"] .auth-overlay {
+  --auth-bg: #fff;
+  --auth-bg-alt: #f5f5f5;
+  --auth-text: #000;
+  --auth-text-secondary: rgb(0, 0, 0, 0.7);
+  --auth-text-muted: rgb(0, 0, 0, 0.45);
+  --auth-gold: #000;
+  --auth-gold-hover: #333;
+  --auth-gold-dim: rgb(0, 0, 0, 0.1);
+  --auth-border: #000;
+  --auth-border-hover: #333;
+  --auth-input-bg: #f5f5f5;
+  --auth-input-bg-focus: #eee;
+  --auth-error-bg: #fee;
+  --auth-error-text: #900;
+
+  background: rgb(0, 0, 0, 0.4);
+}
+
+html[data-theme="bw"] .auth-modal {
+  border-color: #000;
+  box-shadow: 0 4px 24px rgb(0, 0, 0, 0.15);
+}
+
+html[data-theme="bw"] .auth-submit {
+  color: #fff;
+}
+
+html[data-theme="bw"] .auth-close-btn:hover {
+  background: rgb(0, 0, 0, 0.06);
+}

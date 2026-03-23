@@ -1,0 +1,68 @@
+            <!-- === Таб: Настройки чтения === -->
+            <div class="editor-panel" data-editor-panel="defaults" role="tabpanel">
+              <p class="panel-description panel-description--spaced" data-i18n="admin.defaults.description">Значения, которые читатель увидит при первом открытии этой книги</p>
+
+              <fieldset class="setting-fieldset">
+                <legend class="setting-fieldset-legend" data-i18n="admin.defaults.readingSection">Чтение</legend>
+                <div class="settings-grid settings-grid--inner">
+                  <div class="setting-card">
+                    <label class="setting-label" for="defaultFont" data-i18n="admin.defaults.fontLabel">Шрифт</label>
+                    <select class="setting-select" id="defaultFont">
+                      <option value="georgia">Georgia</option>
+                      <option value="merriweather">Merriweather</option>
+                      <option value="libre-baskerville">Libre Baskerville</option>
+                      <option value="inter">Inter</option>
+                      <option value="roboto">Roboto</option>
+                      <option value="open-sans">Open Sans</option>
+                    </select>
+                  </div>
+                  <div class="setting-card">
+                    <label class="setting-label" for="defaultFontSize" data-i18n="admin.defaults.fontSizeLabel">Размер шрифта</label>
+                    <div class="setting-range-row">
+                      <input class="setting-range" type="range" id="defaultFontSize" min="14" max="22" value="18">
+                      <span class="setting-range-value" id="fontSizeValue">18px</span>
+                    </div>
+                  </div>
+                  <div class="setting-card">
+                    <label class="setting-label" data-i18n="admin.defaults.themeLabel">Тема</label>
+                    <div class="setting-theme-group" id="defaultTheme">
+                      <button class="setting-theme-btn active" type="button" data-theme="light" data-i18n="admin.appearance.lightTheme">Светлая</button>
+                      <button class="setting-theme-btn" type="button" data-theme="dark" data-i18n="admin.appearance.darkTheme">Тёмная</button>
+                      <button class="setting-theme-btn" type="button" data-theme="bw" data-i18n="admin.defaults.themeBW">Ч/Б</button>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset class="setting-fieldset setting-fieldset--top">
+                <legend class="setting-fieldset-legend" data-i18n="admin.defaults.soundSection">Звук</legend>
+                <div class="settings-grid settings-grid--inner">
+                  <div class="setting-card">
+                    <label class="setting-label" data-i18n="admin.defaults.pageSoundLabel">Звук перелистывания</label>
+                    <div class="setting-toggle-row">
+                      <label class="admin-toggle">
+                        <input type="checkbox" id="defaultSound" checked>
+                        <span class="admin-toggle-slider"></span>
+                      </label>
+                      <span class="setting-toggle-label" id="soundLabel" data-i18n="admin.defaults.soundEnabled">Включён</span>
+                    </div>
+                  </div>
+                  <div class="setting-card">
+                    <label class="setting-label" for="defaultVolume" data-i18n="admin.defaults.volumeLabel">Громкость</label>
+                    <div class="setting-range-row">
+                      <input class="setting-range" type="range" id="defaultVolume" min="0" max="100" value="30">
+                      <span class="setting-range-value" id="volumeValue">30%</span>
+                    </div>
+                  </div>
+                  <div class="setting-card">
+                    <label class="setting-label" data-i18n="admin.defaults.ambientLabel">Атмосфера</label>
+                    <div class="setting-ambient-group" id="defaultAmbient"></div>
+                  </div>
+                </div>
+              </fieldset>
+
+              <div class="panel-actions panel-actions--top">
+                <button class="btn btn-primary" id="saveSettings" type="button" data-i18n="common.save">Сохранить</button>
+                <button class="btn btn-secondary" id="resetSettings" type="button" data-i18n="common.reset">Сбросить</button>
+              </div>
+            </div>

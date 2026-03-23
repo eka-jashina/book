@@ -1,0 +1,361 @@
+/**
+ * AUDIO POD
+ *
+ * Панель аудио-контроля: звуки переворота, фоновая музыка,
+ * переключатели и слайдеры громкости.
+ *
+ * Темы определяются через CSS-переменные в pod-variables.css
+ */
+
+/* ═══════════════════════════════════════════
+   КОНТЕЙНЕР
+   ═══════════════════════════════════════════ */
+
+.audio-pod {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+  padding: 12px;
+  background: var(--pod-bg);
+  border: var(--pod-border);
+  border-radius: 12px;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition:
+    opacity 0.28s ease,
+    transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+    display 0.28s allow-discrete;
+}
+
+.audio-pod[hidden] {
+  display: none;
+  opacity: 0;
+  transform: translateY(-10px) scale(0.97);
+}
+
+.audio-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.audio-section[hidden] {
+  display: none;
+}
+
+.audio-section:not(:last-child) {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--pod-divider);
+}
+
+/* Убираем border у последней видимой секции, если за ней только скрытые */
+.audio-section:not([hidden], :has(~ .audio-section:not([hidden]))) {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.audio-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9em;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.audio-icon {
+  opacity: 0.7;
+}
+
+.audio-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ═══════════════════════════════════════════
+   TOGGLE SWITCH
+   ═══════════════════════════════════════════ */
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  width: 44px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background-color: var(--pod-track-bg);
+  border-radius: 24px;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.toggle-slider::before {
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  width: 16px;
+  height: 16px;
+  background-color: var(--pod-toggle-thumb, var(--cover-front-text));
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgb(0, 0, 0, 0.2);
+  transition: 0.3s;
+  content: "";
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: var(--pod-accent);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
+
+.toggle-switch input:focus + .toggle-slider {
+  box-shadow: 0 0 0 2px var(--pod-input-focus-border);
+}
+
+.toggle-switch:hover {
+  transform: none;
+}
+
+/* ═══════════════════════════════════════════
+   VOLUME CONTROL (Slider with Icons)
+   ═══════════════════════════════════════════ */
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.vol-icon {
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.volume-control:hover .vol-icon {
+  opacity: 0.9;
+}
+
+.volume-slider {
+  flex: 1;
+  height: 6px;
+  padding: 0;
+  background: var(--pod-track-bg);
+  border-radius: 3px;
+  cursor: pointer;
+  appearance: none;
+  appearance: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--pod-slider-thumb);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgb(0, 0, 0, 0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  appearance: none;
+  appearance: none;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 3px 8px rgb(0, 0, 0, 0.3);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--pod-slider-thumb);
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgb(0, 0, 0, 0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.volume-slider::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 3px 8px rgb(0, 0, 0, 0.3);
+}
+
+/* Неактивное состояние (через CSS :has()) */
+.audio-row:has(.toggle-switch input:not(:checked)) .volume-control {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════
+   AMBIENT PILLS (выбор фона)
+   ═══════════════════════════════════════════ */
+
+.ambient-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ambient-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 56px;
+  padding: 8px 12px;
+  font-size: 0.75em;
+  background: var(--pod-btn-bg);
+  border: 2px solid transparent;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.ambient-pill:hover {
+  background: var(--pod-btn-bg-hover);
+  color: var(--pod-btn-color-hover, inherit);
+  transform: translateY(-1px);
+}
+
+.ambient-pill[data-active="true"] {
+  color: var(--pod-btn-color-active, inherit);
+  background: var(--pod-btn-bg-active);
+  border-color: var(--pod-btn-border-active);
+  box-shadow: 0 2px 8px rgb(0, 0, 0, 0.15);
+}
+
+.ambient-pill-icon {
+  font-size: 1.4em;
+  line-height: 1;
+}
+
+.ambient-pill-label {
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+/* Ряд громкости ambient */
+.ambient-volume-row {
+  display: none;
+  margin-top: 4px;
+  opacity: 0;
+  transform: scaleY(0.8);
+  transform-origin: top center;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s cubic-bezier(0.34, 1.4, 0.64, 1),
+    display 0.25s allow-discrete;
+}
+
+.ambient-volume-row.visible {
+  display: flex;
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+/* ═══════════════════════════════════════════
+   AMBIENT PILL LOADING STATE
+   ═══════════════════════════════════════════ */
+
+.ambient-pill[data-loading="true"] {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.ambient-pill[data-loading="true"] .ambient-pill-icon {
+  position: relative;
+}
+
+.ambient-pill[data-loading="true"] .ambient-pill-icon::after {
+  position: absolute;
+  inset: -2px;
+  border: 2px solid transparent;
+  border-top-color: var(--pod-accent);
+  border-radius: 50%;
+  animation: pill-spin 0.8s linear infinite;
+  content: '';
+}
+
+@keyframes pill-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════ */
+
+@media (max-width: 600px) {
+  .audio-pod {
+    max-width: 100%;
+  }
+
+  .ambient-pills {
+    justify-content: center;
+  }
+
+  .ambient-pill {
+    flex: 1;
+    min-width: 60px;
+    max-width: 80px;
+  }
+}
+
+@media (min-width: 801px) {
+  .audio-pod {
+    max-width: 260px;
+    min-width: 220px;
+  }
+
+  .audio-section:not(:last-child) {
+    padding-bottom: 8px;
+  }
+
+  .audio-section-header {
+    font-size: 0.8em;
+  }
+
+  .toggle-switch {
+    width: 40px;
+    height: 20px;
+  }
+
+  .toggle-slider::before {
+    height: 16px;
+    width: 16px;
+  }
+
+  .toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(18px);
+  }
+
+  .ambient-pill {
+    padding: 6px 8px;
+    font-size: 0.7em;
+    min-width: 48px;
+  }
+
+  .ambient-pill-icon {
+    font-size: 1.2em;
+  }
+}

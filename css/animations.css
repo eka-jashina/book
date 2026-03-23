@@ -1,0 +1,247 @@
+/**
+ * ANIMATIONS
+ *
+ * Keyframe анимации.
+ */
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   FALLBACK — Плавное появление экранов (без View Transitions API)
+   ═══════════════════════════════════════════ */
+
+@keyframes screen-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Личный кабинет — entry animation */
+.account-screen:not([hidden]) {
+  animation: screen-fade-in 0.35s ease both;
+}
+
+/* ═══════════════════════════════════════════
+   VIEW TRANSITIONS — Переходы между экранами
+   ═══════════════════════════════════════════ */
+
+/* --- Переход → Ридер ---------------------------------------------------- */
+:root[data-vt="to-reader"]::view-transition-old(root) {
+  animation: 420ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-scale-out;
+}
+
+:root[data-vt="to-reader"]::view-transition-new(root) {
+  animation: 560ms cubic-bezier(0, 0, 0.2, 1) both vt-blur-in;
+}
+
+/* --- Переход → Книжная полка -------------------------------------------- */
+:root[data-vt="to-shelf"]::view-transition-old(root) {
+  animation: 380ms cubic-bezier(0.4, 0, 1, 1) both vt-slide-down-out;
+}
+
+:root[data-vt="to-shelf"]::view-transition-new(root) {
+  animation: 480ms cubic-bezier(0, 0, 0.2, 1) both vt-scale-in;
+}
+
+/* --- Переход → Лендинг -------------------------------------------------- */
+:root[data-vt="to-landing"]::view-transition-old(root) {
+  animation: 350ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-scale-out;
+}
+
+:root[data-vt="to-landing"]::view-transition-new(root) {
+  animation: 500ms cubic-bezier(0, 0, 0.2, 1) both vt-slide-up-in;
+}
+
+/* --- Переход → Личный кабинет ------------------------------------------- */
+:root[data-vt="to-account"]::view-transition-old(root) {
+  animation: 350ms cubic-bezier(0.4, 0, 1, 1) both vt-slide-left-out;
+}
+
+:root[data-vt="to-account"]::view-transition-new(root) {
+  animation: 450ms cubic-bezier(0, 0, 0.2, 1) both vt-slide-left-in;
+}
+
+/* ═══════════════════════════════════════════
+   KEYFRAMES — View Transitions
+   ═══════════════════════════════════════════ */
+
+/* Уход с блюром и масштабом (универсальный) */
+@keyframes vt-fade-scale-out {
+  from {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    filter: blur(4px);
+    transform: scale(1.03);
+  }
+}
+
+/* Появление из блюра (ридер) */
+@keyframes vt-blur-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
+  }
+}
+
+/* Уход вниз (к полке) */
+@keyframes vt-slide-down-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.97) translateY(10px);
+  }
+}
+
+/* Появление с масштабом (полка) */
+@keyframes vt-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Появление снизу вверх (лендинг) */
+@keyframes vt-slide-up-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Уход влево (к кабинету) */
+@keyframes vt-slide-left-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+
+/* Появление справа (кабинет) */
+@keyframes vt-slide-left-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   НАЧАЛЬНЫЕ СТИЛИ — Плавное появление элементов при mount
+   Используется с transition-behavior: allow-discrete
+   ═══════════════════════════════════════════ */
+
+@starting-style {
+  .settings-pod:not([hidden]) {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+
+  .audio-pod:not([hidden]) {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+
+  .ambient-volume-row.visible {
+    opacity: 0;
+    transform: scaleY(0.8);
+  }
+}
+
+/**
+ * Accessibility: отключение анимаций для пользователей,
+ * предпочитающих уменьшенное движение.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Сохраняем видимость элементов, но убираем анимацию */
+  .book-wrap,
+  .book,
+  .cover,
+  .sheet,
+  .page {
+    transition: none !important;
+  }
+
+  /* Мгновенные переходы для view transitions */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,46 @@
+    <!-- Книжная полка (стартовый экран) -->
+    <div class="bookshelf-screen" id="bookshelf-screen" hidden>
+      <div class="bookshelf-header">
+        <div class="bookshelf-header-top">
+          <div class="bookshelf-header-spacer"></div>
+          <h1 class="bookshelf-title" data-i18n="bookshelf.title">Книжная полка</h1>
+          <div class="bookshelf-header-actions" id="bookshelf-theme-toggle"></div>
+        </div>
+        <span class="bookshelf-subtitle" id="bookshelf-subtitle"></span>
+      </div>
+      <div class="bookshelf-shelves" id="bookshelf-shelves"></div>
+      <div class="bookshelf-actions" id="bookshelf-actions">
+        <div class="bookshelf-add-wrapper">
+          <button type="button" class="bookshelf-add-btn" data-action="add-book" data-i18n-aria-label="bookshelf.createBook" aria-label="Создать книгу">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+            </svg>
+            <span data-i18n="bookshelf.createBook">Создать книгу</span>
+          </button>
+          <div class="bookshelf-type-popover" id="bookshelf-type-popover" hidden>
+            <div class="bookshelf-type-popover-title" data-i18n="bookshelf.chooseType">Что создаём?</div>
+            <div class="bookshelf-type-popover-options" id="bookshelf-type-options"></div>
+          </div>
+        </div>
+      </div>
+      <div class="bookshelf-empty" id="bookshelf-empty" hidden>
+        <div class="bookshelf-empty-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" width="48" height="48">
+            <path fill="currentColor" d="M8 6h6v36H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zm8 0h4v36h-4zm6 0h4v36h-4zm10.24-.96 9.66 2.58a2 2 0 0 1 1.42 2.45l-9.32 34.86a2 2 0 0 1-2.45 1.42l-3.55-.95V6z"/>
+          </svg>
+        </div>
+        <div class="bookshelf-empty-text" data-i18n="bookshelf.empty">Книги пока не добавлены</div>
+        <div class="bookshelf-add-wrapper">
+          <button type="button" class="bookshelf-add-btn" data-action="add-book" data-i18n-aria-label="bookshelf.createBook" aria-label="Создать книгу">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+            </svg>
+            <span data-i18n="bookshelf.createBook">Создать книгу</span>
+          </button>
+          <div class="bookshelf-type-popover" id="bookshelf-type-popover-empty" hidden>
+            <div class="bookshelf-type-popover-title" data-i18n="bookshelf.chooseType">Что создаём?</div>
+            <div class="bookshelf-type-popover-options" id="bookshelf-type-options-empty"></div>
+          </div>
+        </div>
+      </div>
+    </div>

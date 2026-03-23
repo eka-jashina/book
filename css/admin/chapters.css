@@ -1,0 +1,397 @@
+/* Админ-панель — список глав */
+
+.chapters-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chapter-card {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px;
+  background: var(--admin-surface);
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow);
+  transition: box-shadow var(--admin-transition);
+}
+
+.chapter-card:hover {
+  box-shadow: var(--admin-shadow-md);
+}
+
+.chapter-drag {
+  cursor: grab;
+  color: var(--admin-text-secondary);
+  flex-shrink: 0;
+}
+
+.chapter-drag:active {
+  cursor: grabbing;
+}
+
+.chapter-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.chapter-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.chapter-meta {
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chapter-type-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 10px;
+  vertical-align: middle;
+}
+
+.chapter-type-badge--album {
+  background: var(--admin-primary-light);
+  color: var(--admin-primary);
+}
+
+.chapter-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.chapter-action-btn {
+  width: var(--btn-size-md);
+  height: var(--btn-size-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-surface);
+  color: var(--admin-text-secondary);
+  cursor: pointer;
+  transition: all var(--admin-transition);
+}
+
+.chapter-action-btn:hover {
+  color: var(--admin-text);
+  border-color: var(--admin-text-secondary);
+}
+
+.chapter-action-btn.delete:hover {
+  color: var(--admin-danger);
+  border-color: var(--admin-danger);
+}
+
+/* === Дропзона импорта книги в табе глав === */
+
+.chapters-import-dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 20px;
+  border: 2px dashed var(--admin-border);
+  border-radius: var(--admin-radius);
+  background: var(--admin-bg-light);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  margin-bottom: 16px;
+}
+
+.chapters-import-dropzone:hover,
+.chapters-import-dropzone.dragover {
+  border-color: var(--admin-primary);
+  background: var(--admin-bg-hover);
+}
+
+.chapters-import-dropzone.loading {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.chapters-import-dropzone svg {
+  color: var(--admin-text-secondary);
+  flex-shrink: 0;
+}
+
+.chapters-import-text {
+  font-size: 14px;
+  color: var(--admin-text-secondary);
+  margin: 0;
+}
+
+/* === Раскрытая карточка главы (inline-редактирование) === */
+
+.chapter-card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.chapter-expand-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--admin-text-secondary);
+  transition: transform 0.2s;
+}
+
+.chapter-card--expanded .chapter-expand-icon {
+  transform: rotate(90deg);
+}
+
+.chapter-card-body {
+  display: none;
+  padding: 16px 0 4px;
+  border-top: 1px solid var(--admin-border);
+  margin-top: 16px;
+}
+
+.chapter-card--expanded .chapter-card-body {
+  display: block;
+}
+
+.chapter-card--expanded {
+  box-shadow: var(--admin-shadow-md);
+}
+
+.chapter-card-body .form-group {
+  margin-bottom: 16px;
+}
+
+.chapter-card-body .form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin-text-secondary);
+  margin-bottom: 6px;
+}
+
+.chapter-card-body .form-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.chapter-inline-toggle {
+  display: inline-flex;
+  gap: 2px;
+  background: var(--admin-bg-light);
+  border-radius: var(--admin-radius-sm);
+  padding: 2px;
+  margin-bottom: 8px;
+}
+
+.chapter-inline-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  border: none;
+  border-radius: calc(var(--admin-radius-sm) - 2px);
+  background: transparent;
+  color: var(--admin-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.chapter-inline-toggle-btn.active {
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+}
+
+.chapter-inline-editor-container {
+  min-height: 200px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+}
+
+.chapter-inline-editor-container .ql-container {
+  min-height: 160px;
+}
+
+.chapter-inline-file-dropzone[hidden] {
+  display: none;
+}
+
+.chapter-inline-file-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 24px 16px;
+  border: 2px dashed var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-bg-light);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.chapter-inline-file-dropzone:hover,
+.chapter-inline-file-dropzone.dragover {
+  border-color: var(--admin-primary);
+  background: var(--admin-bg-hover);
+}
+
+.chapter-inline-file-dropzone.loading {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.chapter-inline-file-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-surface);
+}
+
+.chapter-inline-file-info[hidden] {
+  display: none;
+}
+
+.chapter-inline-file-name {
+  flex: 1;
+  font-size: 14px;
+  color: var(--admin-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Фон главы (texture-selector) — стили в appearance.css */
+
+/* === Загрузка файла главы (в модальном окне — legacy) === */
+
+.chapter-file-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 24px 16px;
+  border: 2px dashed var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-bg-light);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.chapter-file-dropzone[hidden] {
+  display: none;
+}
+
+.chapter-file-dropzone:hover,
+.chapter-file-dropzone.dragover {
+  border-color: var(--admin-primary);
+  background: var(--admin-bg-hover);
+}
+
+.chapter-file-dropzone.loading {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.chapter-file-dropzone svg {
+  color: var(--admin-text-secondary);
+  transition: color 0.2s;
+}
+
+.chapter-file-dropzone:hover svg,
+.chapter-file-dropzone.dragover svg {
+  color: var(--admin-primary, #7c6f5b);
+}
+
+.chapter-file-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--admin-text-secondary);
+  margin: 0;
+}
+
+.chapter-file-hint {
+  font-size: 12px;
+  color: var(--admin-text-secondary);
+  opacity: 0.7;
+  margin: 0;
+}
+
+.chapter-file-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-surface);
+}
+
+.chapter-file-info[hidden] {
+  display: none;
+}
+
+.chapter-file-name {
+  flex: 1;
+  font-size: 14px;
+  color: var(--admin-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chapter-file-remove {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-surface);
+  color: var(--admin-text-secondary);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chapter-file-remove:hover {
+  color: var(--admin-danger);
+  border-color: var(--admin-danger);
+}
+
+/* === Кнопка «Сохранить главу» === */
+
+.chapter-save-row {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  margin-top: 8px;
+  border-top: 1px solid var(--admin-border);
+}
+
+.chapter-save-btn {
+  min-width: 160px;
+  justify-content: center;
+}
+
+/* Empty state: стили определены в screens.css */

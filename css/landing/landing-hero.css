@@ -1,0 +1,334 @@
+/**
+ * LANDING — HERO
+ *
+ * Hero-секция: фон, частицы, заголовок, табы, CTA, 3D-книга, язык.
+ */
+
+/* ═══════════════════════════════════════════
+   HERO
+   ═══════════════════════════════════════════ */
+
+.landing-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 60px 24px;
+  overflow: hidden;
+}
+
+/* Декоративный фон */
+.landing-hero-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.landing-hero-glow {
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120%;
+  height: 80%;
+  background: radial-gradient(
+    ellipse 60% 50% at 50% 30%,
+    rgb(196, 148, 60, 0.12) 0%,
+    rgb(107, 47, 58, 0.06) 40%,
+    transparent 70%
+  );
+}
+
+.landing-hero-particles {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, rgb(196, 148, 60, 0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 60%, rgb(196, 148, 60, 0.2) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 50% 15%, rgb(196, 148, 60, 0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 45%, rgb(196, 148, 60, 0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 70%, rgb(196, 148, 60, 0.15) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 20% 80%, rgb(196, 148, 60, 0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 85%, rgb(196, 148, 60, 0.15) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 25%, rgb(196, 148, 60, 0.2) 0%, transparent 100%);
+  animation: landing-twinkle 6s ease-in-out infinite alternate;
+}
+
+@keyframes landing-twinkle {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.landing-hero-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 640px;
+  flex: 1;
+}
+
+/* Логотип */
+.landing-logo {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: center;
+  filter: drop-shadow(0 2px 8px rgb(196, 148, 60, 0.3));
+}
+
+.landing-hero-title {
+  margin: 0;
+  font-size: clamp(52px, 9vw, 88px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  background: linear-gradient(
+    135deg,
+    var(--lnd-text) 0%,
+    var(--lnd-gold-light) 50%,
+    var(--lnd-gold) 100%
+  );
+  background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 12px rgb(196, 148, 60, 0.2));
+}
+
+.landing-hero-tagline {
+  margin: 12px 0 0;
+  font-size: clamp(17px, 2.6vw, 22px);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--lnd-text-secondary);
+  letter-spacing: 0.02em;
+}
+
+/* Табы */
+.landing-hero-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 40px;
+  padding: 4px;
+  background: rgb(196, 148, 60, 0.08);
+  border-radius: 12px;
+  border: 1px solid var(--lnd-border);
+}
+
+.landing-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--lnd-text-muted);
+  font-size: 15px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.landing-tab:hover {
+  color: var(--lnd-text-secondary);
+}
+
+.landing-tab--active {
+  background: var(--lnd-gold-glow-strong);
+  color: var(--lnd-gold-light);
+  box-shadow: 0 1px 4px rgb(0, 0, 0, 0.2);
+}
+
+/* Панели табов */
+.landing-tab-panels {
+  position: relative;
+  min-height: 140px;
+  margin-top: 24px;
+}
+
+.landing-tab-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+
+.landing-tab-panel--active {
+  position: relative;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.landing-tab-text {
+  margin: 0;
+  font-size: clamp(15px, 2.2vw, 17px);
+  line-height: 1.7;
+  color: var(--lnd-text-secondary);
+}
+
+/* CTA */
+.landing-cta {
+  display: inline-block;
+  margin-top: 28px;
+  padding: 14px 40px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--lnd-gold) 0%, var(--lnd-gold-dim) 100%);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow:
+    0 4px 16px rgb(196, 148, 60, 0.3),
+    0 1px 3px rgb(0, 0, 0, 0.3);
+  letter-spacing: 0.02em;
+}
+
+.landing-cta:hover {
+  background: linear-gradient(135deg, var(--lnd-gold-light) 0%, var(--lnd-gold) 100%);
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 24px rgb(196, 148, 60, 0.4),
+    0 2px 6px rgb(0, 0, 0, 0.3);
+}
+
+.landing-cta:active {
+  transform: translateY(0);
+  box-shadow:
+    0 2px 8px rgb(196, 148, 60, 0.3),
+    0 1px 2px rgb(0, 0, 0, 0.3);
+}
+
+.landing-cta--large {
+  padding: 16px 48px;
+  font-size: 18px;
+}
+
+/* 3D-книга (декоративная) */
+.landing-hero-illustration {
+  position: absolute;
+  right: 8%;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 0;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.landing-book-3d {
+  width: 140px;
+  height: 200px;
+  position: relative;
+  transform: perspective(600px) rotateY(-25deg) rotateX(5deg);
+  transform-style: preserve-3d;
+}
+
+.landing-book-3d__cover {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--lnd-gold-dim) 0%, #5a3d14 100%);
+  border-radius: 4px;
+  box-shadow: 4px 4px 20px rgb(0, 0, 0, 0.5);
+}
+
+.landing-book-3d__ornament {
+  position: absolute;
+  inset: 20% 15%;
+  border: 1px solid rgb(196, 148, 60, 0.3);
+  border-radius: 2px;
+}
+
+.landing-book-3d__spine {
+  position: absolute;
+  left: -16px;
+  top: 0;
+  bottom: 0;
+  width: 16px;
+  background: linear-gradient(90deg, #3a2810 0%, #5a3d14 100%);
+  border-radius: 4px 0 0 4px;
+  transform: rotateY(90deg);
+  transform-origin: right center;
+}
+
+.landing-book-3d__pages {
+  position: absolute;
+  right: -4px;
+  top: 4px;
+  bottom: 4px;
+  width: 4px;
+  background: repeating-linear-gradient(
+    0deg,
+    #f2e9d8 0,
+    #f2e9d8 1px,
+    #e0d5c0 1px,
+    #e0d5c0 2px
+  );
+  border-radius: 0 2px 2px 0;
+}
+
+/* ═══════════════════════════════════════════
+   ПОДСКАЗКА В AUTH-ФОРМЕ
+   ═══════════════════════════════════════════ */
+
+.auth-hint {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  margin-top: var(--spacing-2xs);
+}
+
+/* ═══════════════════════════════════════════
+   ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА
+   ═══════════════════════════════════════════ */
+
+.landing-lang {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.landing-lang-select {
+  appearance: none;
+  background: rgb(36, 26, 18, 0.7);
+  color: var(--lnd-text-secondary);
+  border: 1px solid var(--lnd-border-card);
+  border-radius: 6px;
+  padding: 6px 28px 6px 10px;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: border-color 0.2s, color 0.2s;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23c4943c' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.landing-lang-select:hover {
+  border-color: var(--lnd-gold-dim);
+  color: var(--lnd-text);
+}
+
+.landing-lang-select:focus-visible {
+  outline: 2px solid var(--lnd-gold);
+  outline-offset: 2px;
+}
+
+.landing-lang-select option {
+  background: #241a12;
+  color: var(--lnd-text);
+}

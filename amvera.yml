@@ -1,0 +1,11 @@
+meta:
+  environment: docker
+  toolchain: docker
+
+build:
+  dockerfile: Dockerfile
+  skip: false
+
+run:
+  containerPort: 4000
+  persistenceMount: /data

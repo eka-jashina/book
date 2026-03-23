@@ -1,0 +1,103 @@
+/**
+ * IMAGES
+ *
+ * Стили изображений в контенте книги.
+ * Обтекание, позиционирование и адаптация.
+ */
+
+/* ═══════════════════════════════════════════
+   БАЗОВЫЕ СТИЛИ
+   ═══════════════════════════════════════════ */
+
+img {
+  display: block;
+  width: 100%;
+  height: 75vh;
+  height: 75dvh;
+  max-height: 100%;
+  margin-bottom: 0.3em;
+  object-fit: cover;
+  object-position: left center;
+  background: linear-gradient(135deg, var(--color-img-placeholder) 0%, var(--color-img-placeholder-alt) 50%, var(--color-img-placeholder) 100%);
+  background-size: 200% 200%;
+  transition: opacity var(--timing-blur) ease-out;
+}
+
+/* Пока изображение загружается - скрываем и показываем placeholder */
+img[data-loading="true"] {
+  opacity: 0;
+  animation: placeholder-shimmer 1.5s ease-in-out infinite;
+}
+
+img[data-loading="false"] {
+  opacity: 1;
+  animation: none;
+}
+
+/* Shimmer анимация для placeholder */
+@keyframes placeholder-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   ОБТЕКАНИЕ ТЕКСТОМ
+   ═══════════════════════════════════════════ */
+
+/* Картинка после параграфа - обтекание слева */
+p + img,
+p ~ img {
+  float: left;
+}
+
+/* Картинка перед заголовком или в конце статьи - без float */
+article > img:first-child,
+article > img:last-child,
+img + h2 {
+  float: none;
+}
+
+/* Заголовок после картинки - очищаем float */
+img + h2 {
+  display: block;
+  clear: both;
+}
+
+/* ═══════════════════════════════════════════
+   FIREFOX FIXES
+   ═══════════════════════════════════════════ */
+
+@supports (-moz-appearance: none) {
+  /* Firefox: изображения не должны выходить за границы колонки */
+  img {
+    overflow: hidden;
+    break-inside: avoid;
+    contain: paint;
+  }
+
+  /* Картинка перед заголовком или в конце статьи - точно без float */
+  article > img:first-child,
+  article > img:last-child {
+    float: none !important;
+  }
+
+  /* Заголовок после картинки - принудительный clearing */
+  img + h2 {
+    display: flow-root;
+    clear: both !important;
+    contain: layout;
+  }
+
+  /* Картинка в тексте - shape-outside для надёжности */
+  p + img,
+  p ~ img {
+    float: left;
+    shape-outside: inset(0);
+    shape-margin: 0.3em;
+  }
+}

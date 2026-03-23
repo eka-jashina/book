@@ -1,0 +1,221 @@
+# Grafana provisioning — правила алертинга для Flipbook.
+# Docs: https://grafana.com/docs/grafana/latest/alerting/set-up/provision-alerting-resources/file-provisioning/
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: default-email
+    receivers:
+      - uid: default-email
+        type: email
+        settings:
+          addresses: admin@flipbook.local
+        disableResolveMessage: false
+
+policies:
+  - orgId: 1
+    receiver: default-email
+    group_by: ['alertname', 'grafana_folder']
+    group_wait: 30s
+    group_interval: 5m
+    repeat_interval: 4h
+
+groups:
+  - orgId: 1
+    name: flipbook-alerts
+    folder: Flipbook
+    interval: 1m
+    rules:
+      # --- Сервер недоступен (health check endpoint не отвечает) ---
+      - uid: server-down
+        title: "Flipbook server is down"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: up{job="flipbook-server"}
+              instant: true
+              refId: A
+          - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [1]
+                  operator:
+                    type: and
+                  reducer:
+                    type: last
+              refId: C
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Flipbook server не отвечает более 1 минуты"
+          description: "Prometheus не может подключиться к flipbook-server. Проверьте контейнер и логи."
+
+      # --- Высокий процент ошибок (5xx > 5% за 5 минут) ---
+      - uid: high-error-rate
+        title: "High HTTP 5xx error rate"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                (
+                  sum(rate(http_requests_total{status_code=~"5.."}[5m])) /
+                  sum(rate(http_requests_total[5m]))
+                ) * 100
+              instant: true
+              refId: A
+          - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [5]
+                  operator:
+                    type: and
+                  reducer:
+                    type: last
+              refId: C
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Доля 5xx ошибок превышает 5%"
+          description: "За последние 5 минут более 5% HTTP-запросов вернули ошибку 5xx."
+
+      # --- Высокий latency (p95 > 2 секунды за 5 минут) ---
+      - uid: high-latency
+        title: "High request latency (p95)"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))
+              instant: true
+              refId: A
+          - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [2]
+                  operator:
+                    type: and
+                  reducer:
+                    type: last
+              refId: C
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "P95 latency превышает 2 секунды"
+          description: "95-й перцентиль времени ответа выше 2 секунд в течение 5 минут."
+
+      # --- Высокое потребление памяти Node.js (> 400 MB RSS) ---
+      - uid: high-memory
+        title: "High Node.js memory usage"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: process_resident_memory_bytes{job="flipbook-server"} / 1024 / 1024
+              instant: true
+              refId: A
+          - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [400]
+                  operator:
+                    type: and
+                  reducer:
+                    type: last
+              refId: C
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Node.js использует более 400 MB RSS"
+          description: "Потребление памяти сервером превышает 400 MB. Возможна утечка памяти."
+
+      # --- Медленные запросы к БД (p95 > 500ms) ---
+      - uid: slow-db-queries
+        title: "Slow database queries"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: histogram_quantile(0.95, sum(rate(db_query_duration_seconds_bucket[5m])) by (le))
+              instant: true
+              refId: A
+          - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0.5]
+                  operator:
+                    type: and
+                  reducer:
+                    type: last
+              refId: C
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "P95 запросов к БД превышает 500ms"
+          description: "95-й перцентиль запросов к базе данных выше 500ms. Возможна проблема с индексами или pool exhaustion."

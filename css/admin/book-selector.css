@@ -1,0 +1,134 @@
+/* Админ-панель — переключатель книг и под-табы */
+
+.book-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.book-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--admin-surface);
+  border: 2px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  cursor: pointer;
+  transition: all var(--admin-transition);
+  min-width: 180px;
+  flex: 1 1 180px;
+  max-width: 320px;
+}
+
+.book-card:hover {
+  border-color: var(--admin-primary);
+}
+
+.book-card.active {
+  border-color: var(--admin-primary);
+  border-left: 4px solid var(--admin-primary);
+  background: var(--admin-primary-lighter);
+  box-shadow: var(--admin-focus-ring);
+}
+
+.book-card:focus-visible {
+  outline: 2px solid var(--admin-primary);
+  outline-offset: 2px;
+}
+
+.book-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.book-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.book-card-meta {
+  font-size: 12px;
+  color: var(--admin-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.book-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.book-card-sort {
+  display: flex;
+  gap: 2px;
+}
+
+.book-card-sort .chapter-action-btn {
+  width: 28px;
+  height: 28px;
+}
+
+.book-card-active-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--admin-primary);
+  background: var(--admin-primary-light);
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* === Под-табы книг === */
+.book-subtabs {
+  display: flex;
+  gap: 4px;
+  background: var(--admin-bg);
+  border-radius: var(--admin-radius-sm);
+  padding: 3px;
+  margin-bottom: 20px;
+}
+
+.book-subtab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  font-family: var(--admin-font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--admin-text-secondary);
+  cursor: pointer;
+  transition: all var(--admin-transition);
+}
+
+.book-subtab:hover {
+  color: var(--admin-text);
+  background: var(--admin-surface);
+}
+
+.book-subtab.active {
+  color: var(--admin-primary);
+  background: var(--admin-surface);
+  box-shadow: var(--admin-shadow);
+  font-weight: 600;
+}
+
+.book-subtab-content {
+  display: none;
+}
+
+.book-subtab-content.active {
+  display: block;
+}

@@ -1,0 +1,420 @@
+/**
+ * BOOKSHELF — ДЕЙСТВИЯ И НАВИГАЦИЯ
+ *
+ * Кнопка «Назад к полке», анимации появления, пустое состояние,
+ * кнопка «Добавить книгу», поповер выбора типа, выбор режима создания.
+ */
+
+/* ═══════════════════════════════════════════
+   КНОПКА "НАЗАД К ПОЛКЕ" (в ридере)
+   ═══════════════════════════════════════════ */
+
+.back-to-shelf-btn {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: 0.85em;
+  font-weight: 600;
+  color: inherit;
+  background: var(--pod-btn-bg);
+  border: var(--pod-border);
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.back-to-shelf-btn:hover {
+  color: var(--pod-btn-color-hover, inherit);
+  background: var(--pod-btn-bg-hover);
+  transform: scale(1.02);
+}
+
+.back-to-shelf-btn:active {
+  transform: scale(0.97);
+}
+
+.back-to-shelf-btn svg {
+  flex-shrink: 0;
+}
+
+/* Показываем только если есть полка и пользователь — владелец */
+body[data-has-bookshelf="true"][data-reader-mode="owner"] .back-to-shelf-btn {
+  display: inline-flex;
+}
+
+/* Прячем ридер когда показана полка или аккаунт */
+body[data-screen="bookshelf"] .scene,
+body[data-screen="bookshelf"] .chapter-bg,
+body[data-screen="account"] .scene,
+body[data-screen="account"] .chapter-bg {
+  display: none;
+}
+
+body[data-screen="reader"] .bookshelf-screen,
+body[data-screen="account"] .bookshelf-screen {
+  display: none;
+}
+
+/* ═══════════════════════════════════════════
+   АНИМАЦИЯ ПОЯВЛЕНИЯ КНИГ
+   ═══════════════════════════════════════════ */
+
+@keyframes bookshelf-book-appear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bookshelf-book {
+  animation: bookshelf-book-appear 0.4s ease backwards;
+}
+
+.bookshelf-book:nth-child(1) { animation-delay: 0.05s; }
+.bookshelf-book:nth-child(2) { animation-delay: 0.1s; }
+.bookshelf-book:nth-child(3) { animation-delay: 0.15s; }
+.bookshelf-book:nth-child(4) { animation-delay: 0.2s; }
+.bookshelf-book:nth-child(5) { animation-delay: 0.25s; }
+.bookshelf-book:nth-child(6) { animation-delay: 0.3s; }
+
+/* ═══════════════════════════════════════════
+   ПУСТОЕ СОСТОЯНИЕ
+   ═══════════════════════════════════════════ */
+
+.bookshelf-empty[hidden] {
+  display: none;
+}
+
+.bookshelf-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  color: var(--shelf-text-faint);
+  text-align: center;
+  animation: bookshelf-empty-in 0.5s ease-out;
+}
+
+@keyframes bookshelf-empty-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bookshelf-empty-icon {
+  margin-bottom: 16px;
+  opacity: 0.4;
+  color: currentcolor;
+}
+
+.bookshelf-empty-text {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+/* ═══════════════════════════════════════════
+   КНОПКА «ДОБАВИТЬ КНИГУ»
+   ═══════════════════════════════════════════ */
+
+.bookshelf-actions {
+  width: 100%;
+  max-width: 960px;
+  padding: 20px 24px 40px;
+  text-align: center;
+}
+
+.bookshelf-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: 1px solid rgb(232, 220, 200, 0.25);
+  border-radius: 8px;
+  background: rgb(255, 255, 255, 0.08);
+  color: var(--shelf-text);
+  font-family: Georgia, serif;
+  font-size: 15px;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s cubic-bezier(0.34, 1.4, 0.64, 1),
+    box-shadow 0.25s ease;
+}
+
+.bookshelf-add-btn:hover {
+  background: rgb(255, 255, 255, 0.14);
+  border-color: rgb(232, 220, 200, 0.45);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgb(0, 0, 0, 0.25), 0 0 0 1px rgb(232, 220, 200, 0.1);
+}
+
+.bookshelf-add-btn:active {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgb(0, 0, 0, 0.2);
+}
+
+.bookshelf-add-btn svg {
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+/* ═══════════════════════════════════════════
+   ПОПОВЕР ВЫБОРА ТИПА (КНИГА / АЛЬБОМ)
+   ═══════════════════════════════════════════ */
+
+.bookshelf-add-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.bookshelf-type-popover[hidden] {
+  display: none;
+}
+
+.bookshelf-type-popover {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  min-width: 220px;
+  border-radius: 12px;
+  background: rgb(30, 22, 15, 0.94);
+  backdrop-filter: blur(16px);
+  box-shadow:
+    0 12px 40px rgb(0, 0, 0, 0.5),
+    inset 0 1px 0 rgb(255, 255, 255, 0.08);
+  animation: bookshelf-popover-appear 0.18s ease;
+}
+
+/* Стрелка вниз */
+.bookshelf-type-popover::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: rgb(30, 22, 15, 0.94);
+}
+
+@keyframes bookshelf-popover-appear {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(6px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+.bookshelf-type-popover-title {
+  text-align: center;
+  font-family: Georgia, serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--shelf-text-muted);
+  letter-spacing: 0.02em;
+}
+
+.bookshelf-type-popover-options {
+  display: flex;
+  gap: 8px;
+}
+
+.bookshelf-type-option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 12px;
+  border: 1px solid rgb(232, 220, 200, 0.12);
+  border-radius: 10px;
+  background: rgb(255, 255, 255, 0.04);
+  color: var(--shelf-text);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s cubic-bezier(0.34, 1.4, 0.64, 1);
+  font-family: Georgia, serif;
+  text-align: center;
+}
+
+.bookshelf-type-option:hover {
+  background: rgb(255, 255, 255, 0.1);
+  border-color: rgb(232, 220, 200, 0.3);
+  transform: translateY(-2px);
+}
+
+.bookshelf-type-option:active {
+  transform: translateY(0);
+}
+
+.bookshelf-type-option-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgb(232, 220, 200, 0.08);
+  color: var(--shelf-text);
+  transition: background 0.2s ease;
+}
+
+.bookshelf-type-option:hover .bookshelf-type-option-icon {
+  background: rgb(232, 220, 200, 0.15);
+}
+
+.bookshelf-type-option-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════
+   ЭКРАН ВЫБОРА РЕЖИМА (СОЗДАНИЕ КНИГИ)
+   ═══════════════════════════════════════════ */
+
+.bookshelf-mode-selector {
+  width: 100%;
+  max-width: 800px;
+  padding: 40px 24px 60px;
+  animation: bookshelf-book-appear 0.3s ease;
+}
+
+.bookshelf-mode-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.bookshelf-mode-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px 8px 12px;
+  margin-bottom: 24px;
+  border: 1px solid var(--shelf-border);
+  border-radius: 8px;
+  background: var(--shelf-bg-subtle);
+  color: var(--shelf-text-dim);
+  font-family: Georgia, serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bookshelf-mode-back:hover {
+  background: var(--shelf-bg-hover);
+  color: var(--shelf-text);
+  border-color: var(--shelf-border-hover);
+  transform: translateX(-3px);
+}
+
+.bookshelf-mode-title {
+  margin: 0 0 8px;
+  font-family: var(--decorative-font, Georgia, serif);
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--shelf-text);
+  letter-spacing: 0.03em;
+  text-shadow: 0 2px 4px rgb(0, 0, 0, 0.4);
+}
+
+.bookshelf-mode-desc {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-size: 14px;
+  color: var(--shelf-text-muted);
+}
+
+.bookshelf-mode-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.bookshelf-mode-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 20px;
+  border: 1px solid rgb(232, 220, 200, 0.15);
+  border-radius: 12px;
+  background: var(--shelf-bg-subtle);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.bookshelf-mode-card:hover {
+  background: var(--shelf-bg-hover);
+  border-color: var(--shelf-border-hover);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgb(0, 0, 0, 0.3);
+}
+
+.bookshelf-mode-card:active {
+  transform: translateY(-1px);
+}
+
+.bookshelf-mode-card-icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: rgb(232, 220, 200, 0.1);
+  color: var(--shelf-text);
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background 0.25s ease;
+}
+
+.bookshelf-mode-card:hover .bookshelf-mode-card-icon {
+  transform: scale(1.12);
+  background: rgb(232, 220, 200, 0.18);
+}
+
+.bookshelf-mode-card-title {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--shelf-text);
+}
+
+.bookshelf-mode-card-desc {
+  font-family: Georgia, serif;
+  font-size: 13px;
+  color: var(--shelf-text-muted);
+  line-height: 1.4;
+}

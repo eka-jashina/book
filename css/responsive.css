@@ -1,0 +1,118 @@
+/**
+ * RESPONSIVE STYLES
+ *
+ * Адаптация под разные размеры экранов.
+ */
+
+/* ═══════════════════════════════════════════
+   МОБИЛЬНЫЕ УСТРОЙСТВА
+   ═══════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  :root {
+    --pages-per-flip: 1;
+    --timing-swap-next: 0ms;
+  }
+
+  .scene {
+    padding-left: 0;
+    padding-right: 15px;
+    margin: 15px auto;
+  }
+
+  .book-wrap[data-state="closed"] {
+    width: 99%;
+  }
+
+  /* Левая страница минимальна */
+  .page[data-side="left"] {
+    width: 10%;
+    filter: brightness(0.95);
+    pointer-events: none;
+  }
+
+  .page[data-side="right"] {
+    width: 90%;
+  }
+
+  /* Лист адаптирован */
+  .sheet {
+    left: 10%;
+    width: 90%;
+  }
+
+  .sheet[data-direction="prev"] {
+    left: -80%;
+    width: 90%;
+  }
+
+  img {
+    object-position: center;
+    height: 72vh;
+    height: 72dvh;
+  }
+
+  /* Фотоальбом: адаптация высоты под мобильную книгу */
+  .photo-album {
+    height: calc(72vh - 5em);
+    height: calc(72dvh - 5em);
+  }
+
+  /* Жесты */
+  html,
+  body {
+    overscroll-behavior-x: none;
+  }
+
+  .scene,
+  .book-wrap,
+  .book {
+    touch-action: pan-y;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   ПЛАНШЕТЫ
+   ═══════════════════════════════════════════ */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .scene {
+    padding: 0 20px;
+    margin: 20px auto;
+  }
+
+  .book {
+    height: 75vh;
+    height: 75dvh;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   БОЛЬШИЕ ЭКРАНЫ
+   ═══════════════════════════════════════════ */
+
+@media (min-width: 1440px) {
+  .book {
+    height: 85vh;
+    height: 85dvh;
+    max-height: 1600px;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   PWA STANDALONE: СТАБИЛЬНАЯ ВЫСОТА
+   svh предотвращает обрезку контента при
+   появлении/скрытии системного gesture bar
+   ═══════════════════════════════════════════ */
+
+@media (display-mode: standalone) and (min-width: 769px) and (max-width: 1024px) {
+  .book {
+    height: 75svh;
+  }
+}
+
+@media (display-mode: standalone) and (min-width: 1440px) {
+  .book {
+    height: 85svh;
+  }
+}

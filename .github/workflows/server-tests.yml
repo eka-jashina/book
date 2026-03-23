@@ -1,0 +1,64 @@
+# Серверные тесты — отдельный workflow, не блокирует деплой на GitHub Pages
+
+name: Server Tests
+
+on:
+  push:
+    branches: ['main']
+    paths:
+      - 'server/**'
+  pull_request:
+    branches: ['main']
+    paths:
+      - 'server/**'
+  workflow_dispatch:
+
+jobs:
+  server-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: flipbook
+          POSTGRES_PASSWORD: flipbook_dev
+          POSTGRES_DB: flipbook_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://flipbook:flipbook_dev@localhost:5432/flipbook_test
+      SESSION_SECRET: ci-test-session-secret-at-least-32-characters-long
+      CSRF_SECRET: ci-test-csrf-secret-at-least-32-characters-long!!
+      SESSION_SECURE: 'false'
+      NODE_ENV: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install server dependencies
+        run: cd server && npm ci
+
+      - name: Generate Prisma client
+        run: cd server && npx prisma generate
+
+      - name: Run database migrations
+        run: cd server && npx prisma migrate deploy
+
+      - name: Run server tests
+        run: cd server && npm test

@@ -1,0 +1,50 @@
+/* Админ-панель — toast-уведомления */
+
+.admin-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--admin-text);
+  color: white;
+  padding: 12px 24px;
+  border-radius: var(--admin-radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--admin-shadow-md);
+  z-index: 10000;
+  transition: transform 300ms ease;
+}
+
+.admin-toast.visible {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Иконка типа уведомления */
+.admin-toast__icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  display: none;
+}
+
+.admin-toast[data-type] .admin-toast__icon {
+  display: block;
+}
+
+/* === Типы уведомлений === */
+
+.admin-toast[data-type="success"] {
+  background: var(--admin-success, #5a8a5e);
+}
+
+.admin-toast[data-type="error"] {
+  background: var(--admin-danger, #b44a3e);
+}
+
+.admin-toast[data-type="warning"] {
+  background: var(--admin-warning);
+}

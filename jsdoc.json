@@ -1,0 +1,52 @@
+{
+  "source": {
+    "include": ["js"],
+    "includePattern": ".+\\.js$",
+    "excludePattern": "(node_modules|dist)"
+  },
+  "plugins": ["plugins/markdown"],
+  "templates": {
+    "cleverLinks": true,
+    "monospaceLinks": true,
+    "default": {
+      "outputSourceFiles": true,
+      "includeDate": false
+    }
+  },
+  "opts": {
+    "destination": "docs",
+    "recurse": true,
+    "readme": "readme.md",
+    "template": "node_modules/clean-jsdoc-theme",
+    "theme_opts": {
+      "title": "Flipbook API Documentation",
+      "default_theme": "light",
+      "homepageTitle": "Flipbook - Interactive Book Reader",
+      "favicon": "public/icons/icon-192.png",
+      "menu": [
+        {
+          "title": "GitHub",
+          "link": "https://github.com/eka-jashina/flipbook",
+          "target": "_blank"
+        }
+      ],
+      "meta": [
+        {
+          "name": "description",
+          "content": "API documentation for Flipbook - an interactive e-book reader with 3D page-flip animations"
+        }
+      ],
+      "search": true,
+      "codepen": false,
+      "displayModuleHeader": true,
+      "sections": ["Classes", "Modules", "Namespaces", "Events", "Global"]
+    }
+  },
+  "markdown": {
+    "idInHeadings": true
+  },
+  "tags": {
+    "allowUnknownTags": true,
+    "dictionaries": ["jsdoc", "closure"]
+  }
+}

@@ -1,0 +1,356 @@
+/**
+ * BOOKSHELF — КАРТОЧКА КНИГИ
+ *
+ * 3D-книга на полке: обложка, корешок, тень, обёртка, контекстное меню, метки видимости.
+ */
+
+/* ═══════════════════════════════════════════
+   КНИГА НА ПОЛКЕ
+   ═══════════════════════════════════════════ */
+
+.bookshelf-book {
+  position: relative;
+  flex-shrink: 0;
+  width: 130px;
+  height: 185px;
+  padding: 0;
+  border: none;
+  border-radius: 4px 8px 8px 4px;
+  cursor: pointer;
+  perspective: 600px;
+  transition:
+    transform 0.35s cubic-bezier(0.34, 1.3, 0.64, 1),
+    filter 0.3s ease;
+  /* Сброс стилей кнопки */
+  background: none;
+  font: inherit;
+  outline: none;
+}
+
+.bookshelf-book:hover {
+  transform: perspective(700px) translateY(-12px) rotateY(-8deg) translateZ(6px);
+  z-index: 2;
+}
+
+.bookshelf-book:active {
+  transform: perspective(700px) translateY(-5px) rotateY(-4deg) scale(0.98);
+}
+
+.bookshelf-book:focus-visible {
+  outline: 2px solid var(--shelf-text);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* Обложка книги */
+.bookshelf-book-cover {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 12px;
+  border-radius: 4px 8px 8px 4px;
+  box-sizing: border-box;
+  overflow: hidden;
+  /* По умолчанию - тёмная обложка */
+  background: linear-gradient(135deg, #3a2d1f, #2a2016);
+  color: #f2e9d8;
+  box-shadow:
+    /* Тень от книги на полке */
+    2px 4px 12px rgb(0, 0, 0, 0.5),
+    /* Внутренний блик на краю */
+    inset -2px 0 4px rgb(0, 0, 0, 0.2),
+    inset 2px 0 4px rgb(255, 255, 255, 0.05);
+  transition: box-shadow 0.3s ease;
+}
+
+.bookshelf-book:hover .bookshelf-book-cover {
+  box-shadow:
+    4px 8px 20px rgb(0, 0, 0, 0.6),
+    inset -2px 0 4px rgb(0, 0, 0, 0.2),
+    inset 2px 0 4px rgb(255, 255, 255, 0.08);
+}
+
+/* Корешок книги (левая грань) */
+.bookshelf-book-cover::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 8px;
+  height: 100%;
+  background:
+    linear-gradient(90deg,
+      rgb(0, 0, 0, 0.3) 0%,
+      rgb(0, 0, 0, 0.1) 40%,
+      rgb(255, 255, 255, 0.05) 60%,
+      transparent 100%
+    );
+  border-radius: 4px 0 0 4px;
+}
+
+/* Текстура обложки */
+.bookshelf-book-cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      rgb(255, 255, 255, 0.02) 1px,
+      rgb(255, 255, 255, 0.02) 2px
+    );
+  pointer-events: none;
+  border-radius: 4px 8px 8px 4px;
+}
+
+/* Декоративная рамка на обложке */
+.bookshelf-book-frame {
+  position: absolute;
+  inset: 10px 8px;
+  border: 1px solid var(--shelf-bg-hover);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* Название книги */
+.bookshelf-book-title {
+  position: relative;
+  z-index: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: var(--decorative-font, Georgia, serif);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.3;
+  text-align: center;
+  text-shadow: 0 1px 3px rgb(0, 0, 0, 0.5);
+  overflow-wrap: break-word;
+}
+
+/* Автор */
+.bookshelf-book-author {
+  position: relative;
+  z-index: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: auto;
+  padding-top: 8px;
+  font-family: Georgia, serif;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.3;
+  text-align: center;
+  opacity: 0.7;
+  text-shadow: 0 1px 2px rgb(0, 0, 0, 0.4);
+}
+
+/* Тень под книгой на полке */
+.bookshelf-book-shadow {
+  position: absolute;
+  bottom: -4px;
+  left: 5%;
+  right: 5%;
+  height: 8px;
+  background: radial-gradient(
+    ellipse at center,
+    rgb(0, 0, 0, 0.5) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.bookshelf-book:hover .bookshelf-book-shadow {
+  opacity: 0.3;
+}
+
+/* ═══════════════════════════════════════════
+   ОБЁРТКА КНИГИ + КОНТЕКСТНОЕ МЕНЮ
+   ═══════════════════════════════════════════ */
+
+.bookshelf-book-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.bookshelf-book-menu[hidden] {
+  display: none;
+}
+
+.bookshelf-book-menu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  min-width: 150px;
+  border-radius: 10px;
+  background: rgb(30, 22, 15, 0.92);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 8px 32px rgb(0, 0, 0, 0.5),
+    inset 0 1px 0 rgb(255, 255, 255, 0.08);
+  animation: bookshelf-menu-appear 0.15s ease;
+}
+
+@keyframes bookshelf-menu-appear {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.bookshelf-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--shelf-text);
+  font-family: Georgia, serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    transform 0.18s cubic-bezier(0.34, 1.4, 0.64, 1);
+  text-align: left;
+}
+
+.bookshelf-menu-item:hover {
+  background: rgb(255, 255, 255, 0.1);
+  transform: translateX(3px);
+}
+
+.bookshelf-menu-item:active {
+  transform: translateX(1px);
+}
+
+.bookshelf-menu-item svg {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+/* Разделитель в меню */
+.bookshelf-menu-divider {
+  height: 1px;
+  margin: 4px 8px;
+  background: rgb(255, 255, 255, 0.08);
+}
+
+/* Заголовок секции видимости */
+.bookshelf-menu-label {
+  display: block;
+  padding: 4px 14px 2px;
+  font-family: Georgia, serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--shelf-text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Радио-индикатор выбора видимости */
+.bookshelf-menu-radio {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgb(255, 255, 255, 0.3);
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.bookshelf-menu-vis.is-active .bookshelf-menu-radio {
+  border-color: var(--shelf-accent, #e8dcc8);
+  background: var(--shelf-accent, #e8dcc8);
+  box-shadow: inset 0 0 0 2px rgb(30, 22, 15, 0.92);
+}
+
+/* Пункт видимости — чуть уже отступ */
+.bookshelf-menu-vis {
+  padding: 7px 14px;
+  font-size: 13px;
+}
+
+.bookshelf-menu-item--danger {
+  color: var(--shelf-danger);
+}
+
+.bookshelf-menu-item--danger:hover {
+  background: var(--shelf-danger-bg);
+}
+
+/* Поднимаем обёртку с открытым меню выше полки */
+.bookshelf-book-wrapper.menu-open {
+  z-index: 10;
+}
+
+/* Затемнение книги когда открыто меню */
+.bookshelf-book-wrapper.menu-open .bookshelf-book {
+  filter: brightness(0.4);
+  transform: none;
+}
+
+.bookshelf-book-wrapper.menu-open .bookshelf-book:hover {
+  transform: none;
+}
+
+/* ═══════════════════════════════════════════
+   МЕТКИ ВИДИМОСТИ КНИГ
+   ═══════════════════════════════════════════ */
+
+.bookshelf-book--draft {
+  opacity: 0.55;
+}
+
+.bookshelf-book--unlisted {
+  opacity: 0.75;
+}
+
+.bookshelf-book-badge {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgb(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.bookshelf-book--draft .bookshelf-book-badge {
+  color: var(--shelf-badge-draft);
+}
+
+.bookshelf-book--unlisted .bookshelf-book-badge {
+  color: var(--shelf-badge-unlisted);
+}

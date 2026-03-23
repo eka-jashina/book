@@ -1,0 +1,240 @@
+/**
+ * BOOK STYLES
+ *
+ * Обёртка и контейнер книги с 3D-эффектами.
+ * Состояния книги, курсоры и края страниц.
+ */
+
+/* ═══════════════════════════════════════════
+   ОБЁРТКА КНИГИ
+   Управляет перспективой и шириной контейнера
+   ═══════════════════════════════════════════ */
+
+.book-wrap {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  perspective: var(--perspective);
+  perspective: var(--perspective); /* для Safari */
+  transition: width var(--timing-wrap) ease-in-out;
+}
+
+/* Закрытая книга занимает половину ширины */
+.book-wrap[data-state="closed"] {
+  width: 50%;
+}
+
+/* Открытая книга занимает всю ширину */
+.book-wrap[data-state="opened"] {
+  width: 100%;
+}
+
+/* ═══════════════════════════════════════════
+   КНИГА (основной контейнер)
+   ═══════════════════════════════════════════ */
+
+.book {
+  position: relative;
+  width: 100%;
+  height: 80vh;
+  height: 80dvh;
+  margin: 0 auto;
+  background-color: var(--bg-book);
+  background-image: var(--bg-page-image);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  border-radius: 12px;
+  box-shadow: var(--shadow-book);
+  cursor: default;
+
+  /* 3D контекст для анимаций переворота */
+  transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  transform-origin: left;
+  /* Плавные переходы */
+  transition:
+    background-color var(--timing-transition),
+    box-shadow var(--timing-transition);
+}
+
+/* ═══════════════════════════════════════════
+   СОСТОЯНИЯ КНИГИ
+   ═══════════════════════════════════════════ */
+
+/* Состояние переворота (тени теперь управляются через opacity на sheet) */
+
+/* При закрытии убираем фон */
+.book[data-state="closing"] {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Скрываем страницы когда книга закрыта */
+.book[data-state="closed"] .page,
+.book[data-state="closed"] .sheet {
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Открытая обложка не кликабельна */
+.book[data-state="opened"] .cover {
+  pointer-events: none;
+}
+
+/* Скрываем левый край когда книга закрыта */
+.book-wrap[data-state="closed"] .book::before {
+  display: none;
+}
+
+/* ═══════════════════════════════════════════
+   CURSOR HINTS
+   Визуальные подсказки для пользователя
+   ═══════════════════════════════════════════ */
+
+/* Закрытая книга - обложка кликабельна */
+.book[data-state="closed"] .cover {
+  cursor: pointer;
+}
+
+.book[data-state="closed"] .cover:hover {
+  filter: brightness(1.05);
+}
+
+/* Во время переворота - блокируем взаимодействие */
+.book[data-state="flipping"] {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Зоны клика на страницах (только на десктопе) */
+@media (min-width: 769px) {
+  /* Левая страница - перелистывание назад */
+  .book[data-state="opened"] .page[data-side="left"]:hover {
+    cursor: pointer;
+  }
+
+  /* Правая страница - перелистывание вперёд */
+  .book[data-state="opened"] .page[data-side="right"]:hover {
+    cursor: pointer;
+  }
+
+  /* TOC имеет свой курсор, не перекрываем */
+  .book[data-state="opened"] .page.page--toc:hover {
+    cursor: default;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   КРАЯ СТРАНИЦ (::before и ::after)
+   Декоративные элементы слева и справа от книги
+   ═══════════════════════════════════════════ */
+
+.book::before,
+.book::after {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  z-index: 0;
+  width: var(--pages-depth);
+  filter: blur(0.35px);
+  content: "";
+}
+
+/* Левый край страниц */
+.book::before {
+  left: calc(-1 * var(--pages-depth));
+  background:
+    /* Горизонтальные линии - текстура страниц */
+    repeating-linear-gradient(
+      to bottom,
+      rgb(0, 0, 0, 0.1) 0,
+      rgb(0, 0, 0, 0.1) 1px,
+      transparent 2px,
+      transparent 4px
+    ),
+    /* Неровности края - 4 точки */
+    radial-gradient(
+      circle at 100% 10%,
+      transparent 0,
+      transparent calc(100% - var(--page-edge-noise)),
+      var(--page-edge-contrast) 100%
+    ),
+    radial-gradient(
+      circle at 100% 35%,
+      transparent 0,
+      transparent calc(100% - var(--page-edge-noise)),
+      var(--page-edge-contrast) 100%
+    ),
+    radial-gradient(
+      circle at 100% 65%,
+      transparent 0,
+      transparent calc(100% - var(--page-edge-noise)),
+      var(--page-edge-contrast) 100%
+    ),
+    radial-gradient(
+      circle at 100% 90%,
+      transparent 0,
+      transparent calc(100% - var(--page-edge-noise)),
+      var(--page-edge-contrast) 100%
+    ),
+    /* Тень от корешка */
+    linear-gradient(to right, rgb(0, 0, 0, 0.25), transparent);
+  border-radius: 6px 0 0 6px;
+}
+
+/* Правый край страниц */
+.book::after {
+  right: calc(-1 * var(--pages-depth));
+  background:
+    /* Горизонтальные линии - текстура страниц */
+    repeating-linear-gradient(
+      to bottom,
+      rgb(0, 0, 0, 0.08) 0,
+      rgb(0, 0, 0, 0.08) 1px,
+      transparent 2px,
+      transparent 4px
+    ),
+    /* Неровности края - 4 точки */
+    radial-gradient(
+      circle at 0% 12%,
+      transparent 0,
+      transparent calc(100% - var(--page-edge-noise)),
+      var(--page-edge-contrast) 100%
+    ),
+    radial-gradient(
+      circle at 0% 38%,
+      transparent 0,
+      transparent calc(100% - var(--page-edge-noise)),
+      var(--page-edge-contrast) 100%
+    ),
+    radial-gradient(
+      circle at 0% 62%,
+      transparent 0,
+      transparent calc(100% - var(--page-edge-noise)),
+      var(--page-edge-contrast) 100%
+    ),
+    radial-gradient(
+      circle at 0% 88%,
+      transparent 0,
+      transparent calc(100% - var(--page-edge-noise)),
+      var(--page-edge-contrast) 100%
+    ),
+    /* Тень от края */
+    linear-gradient(to left, rgb(0, 0, 0, 0.22), transparent);
+  border-radius: 0 6px 6px 0;
+}
+
+/* ═══════════════════════════════════════════
+   PWA STANDALONE: СТАБИЛЬНАЯ ВЫСОТА
+   В standalone режиме dvh может уменьшаться при
+   появлении системных элементов (gesture bar),
+   вызывая обрезку нижнего паддинга страниц.
+   svh — минимальная высота viewport, стабильна.
+   ═══════════════════════════════════════════ */
+
+@media (display-mode: standalone) {
+  .book {
+    height: 80svh;
+  }
+}

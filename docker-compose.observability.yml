@@ -1,0 +1,146 @@
+# Docker Compose overlay — бэкапы БД + observability (Prometheus + Loki + Grafana).
+#
+# Запуск:
+#   docker compose -f docker-compose.yml -f docker-compose.observability.yml up -d
+#
+# Доступ:
+#   Grafana:     http://localhost:3100  (admin / admin)
+#   Prometheus:  http://localhost:9090
+#   Loki API:    http://localhost:3200
+#
+# Ручной бэкап:
+#   docker compose -f docker-compose.yml -f docker-compose.observability.yml run --rm pg-backup
+
+services:
+  # --- Ежедневный бэкап PostgreSQL (3:00 UTC, хранение 7 дней) ---
+  pg-backup:
+    image: postgres:17-alpine
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://flipbook:flipbook_dev@postgres:5432/flipbook
+      BACKUP_RETENTION_DAYS: "7"
+      PGPASSWORD: flipbook_dev
+    volumes:
+      - ./scripts/backup-db.sh:/backup-db.sh:ro
+      - pg_backups:/backups
+    entrypoint: ["/bin/sh", "-c"]
+    # Cron: ежедневный бэкап в 3:00 UTC + запуск при старте
+    command:
+      - |
+        echo "=== Flipbook DB Backup Service ==="
+        # Начальный бэкап при запуске
+        BACKUP_DIR=/backups /bin/bash /backup-db.sh
+        # Установка cron-задачи
+        echo "0 3 * * * DATABASE_URL=$$DATABASE_URL BACKUP_DIR=/backups BACKUP_RETENTION_DAYS=$$BACKUP_RETENTION_DAYS /bin/bash /backup-db.sh >> /var/log/backup.log 2>&1" | crontab -
+        echo "Cron настроен: ежедневный бэкап в 03:00 UTC"
+        crond -f -l 2
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+
+  # --- Prometheus — сбор метрик (latency, error rates, ресурсы Node.js) ---
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=14d'
+      - '--storage.tsdb.path=/prometheus'
+    volumes:
+      - ./infra/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9090/-/healthy || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # --- Loki — агрегация логов ---
+  loki:
+    image: grafana/loki:3.0.0
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./infra/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    ports:
+      - "3200:3100"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3100/ready || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # --- Grafana — дашборды и визуализация логов ---
+  grafana:
+    image: grafana/grafana:11.0.0
+    depends_on:
+      loki:
+        condition: service_healthy
+      prometheus:
+        condition: service_healthy
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_HTTP_PORT: "3100"
+    volumes:
+      - ./infra/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+      - ./infra/grafana-alerting.yaml:/etc/grafana/provisioning/alerting/rules.yaml:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3100:3100"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+
+  # --- Переопределение сервера: логирование в Loki ---
+  server:
+    environment:
+      LOKI_URL: http://loki:3100
+    depends_on:
+      loki:
+        condition: service_healthy
+
+volumes:
+  pg_backups:
+  loki_data:
+  prometheus_data:
+  grafana_data:

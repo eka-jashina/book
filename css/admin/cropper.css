@@ -1,0 +1,155 @@
+/* Админ-панель — кадрирование фотографий */
+
+.photo-cropper {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-overlay-backdrop);
+  animation: cropper-fade-in 200ms ease;
+}
+
+@keyframes cropper-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* === Область изображения === */
+.photo-cropper__canvas {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+}
+
+.photo-cropper__img {
+  max-width: calc(100% - 40px);
+  max-height: calc(100% - 40px);
+  display: block;
+  pointer-events: none;
+}
+
+/* === Затемнение вокруг выделения === */
+.photo-cropper__dimming {
+  position: absolute;
+  inset: 0;
+  background: var(--color-overlay-dim);
+  pointer-events: none;
+}
+
+/* === Рамка выделения === */
+.photo-cropper__selection {
+  position: absolute;
+  border: 2px solid var(--color-dark-modal-text);
+  box-shadow: 0 0 0 1px rgb(0, 0, 0, 0.3);
+  cursor: move;
+}
+
+/* Сетка третей */
+.photo-cropper__selection::before,
+.photo-cropper__selection::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+/* Горизонтальные линии */
+.photo-cropper__selection::before {
+  inset: calc(100% / 3) 0;
+  height: 0;
+  border-top: 1px solid rgb(255, 255, 255, 0.3);
+  border-bottom: 1px solid rgb(255, 255, 255, 0.3);
+  /* Растягиваем через box-shadow для второй линии */
+  box-shadow: inset 0 calc(100% / 3 * -1 + 1px) 0 0 transparent;
+}
+
+/* Вертикальные линии через градиент */
+.photo-cropper__selection::after {
+  inset: 0 calc(100% / 3);
+  width: 0;
+  border-left: 1px solid rgb(255, 255, 255, 0.3);
+  border-right: 1px solid rgb(255, 255, 255, 0.3);
+}
+
+/* === Ручки изменения размера === */
+.photo-cropper__handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--color-dark-modal-text);
+  border: 1px solid var(--color-overlay-light);
+  border-radius: 2px;
+  z-index: 1;
+}
+
+/* Угловые ручки */
+.photo-cropper__handle--nw {
+  top: -5px;
+  left: -5px;
+  cursor: nw-resize;
+}
+
+.photo-cropper__handle--ne {
+  top: -5px;
+  right: -5px;
+  cursor: ne-resize;
+}
+
+.photo-cropper__handle--se {
+  bottom: -5px;
+  right: -5px;
+  cursor: se-resize;
+}
+
+.photo-cropper__handle--sw {
+  bottom: -5px;
+  left: -5px;
+  cursor: sw-resize;
+}
+
+/* Боковые ручки */
+.photo-cropper__handle--n {
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: n-resize;
+}
+
+.photo-cropper__handle--s {
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: s-resize;
+}
+
+.photo-cropper__handle--e {
+  top: 50%;
+  right: -5px;
+  transform: translateY(-50%);
+  cursor: e-resize;
+}
+
+.photo-cropper__handle--w {
+  top: 50%;
+  left: -5px;
+  transform: translateY(-50%);
+  cursor: w-resize;
+}
+
+/* === Панель кнопок === */
+.photo-cropper__actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--color-overlay);
+}
+
+.photo-cropper__btn {
+  min-width: 120px;
+}

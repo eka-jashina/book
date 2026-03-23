@@ -1,0 +1,22 @@
+/* Админ-панель — главный файл стилей (импорты модулей) */
+
+@import './variables.css';
+@import './base.css';
+@import './tabs.css';
+@import './buttons.css';
+@import './chapters.css';
+@import './settings.css';
+@import './appearance.css';
+@import './fonts.css';
+@import './sounds.css';
+@import './export.css';
+@import './modal.css';
+@import './editor.css';
+@import './toast.css';
+@import './book-selector.css';
+@import './book-upload.css';
+@import './album.css';
+@import './cropper.css';
+@import './profile.css';
+@import './screens.css';
+@import './responsive.css';

@@ -1,0 +1,356 @@
+    <!-- Личный кабинет (/account) -->
+    <div class="account-screen" id="account-screen" hidden>
+      <header class="admin-header">
+        <div class="admin-header-inner">
+          <h1 class="admin-logo">Foliant <span class="admin-badge" data-i18n="admin.badge">Личный кабинет</span></h1>
+          <nav class="admin-nav">
+            <div id="account-theme-toggle"></div>
+            <a class="admin-nav-link" id="accountToShelf" data-route="/">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                <path fill="currentColor" d="M21 11H6.83l3.58-3.59L9 6l-6 6 6 6 1.41-1.41L6.83 13H21z"/>
+              </svg>
+              <span data-i18n="admin.toShelf">К полке</span>
+            </a>
+          </nav>
+        </div>
+      </header>
+
+      <main class="admin-main">
+        <!-- Табы верхнего уровня -->
+        <div class="admin-tabs" role="tablist" data-i18n-aria-label="admin.tabsAria">
+          <button class="admin-tab active" role="tab" aria-selected="true" data-tab="books">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path fill="currentColor" d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
+            </svg>
+            <span data-i18n="admin.tabs.myBooks">Мои книги</span>
+          </button>
+          <button class="admin-tab" role="tab" aria-selected="false" data-tab="profile">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+            <span data-i18n="admin.tabs.profile">Профиль</span>
+          </button>
+          <button class="admin-tab" role="tab" aria-selected="false" data-tab="platform">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+            </svg>
+            <span data-i18n="admin.tabs.settings">Настройки</span>
+          </button>
+          <button class="admin-tab" role="tab" aria-selected="false" data-tab="export">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+            </svg>
+            <span data-i18n="admin.tabs.export">Экспорт</span>
+          </button>
+        </div>
+
+        <!-- Содержимое табов -->
+        <div class="admin-content">
+
+          <!-- ═══════════════════════════════════════ -->
+          <!-- ЭКРАН: МОИ КНИГИ                       -->
+          <!-- ═══════════════════════════════════════ -->
+          <section class="admin-panel active" data-panel="books" role="tabpanel">
+
+            <!-- ─── Вид: Книжная полка ─── -->
+            <div class="screen-view active" data-view="bookshelf" id="viewBookshelf">
+              <div class="panel-header">
+                <h2 data-i18n="admin.tabs.myBooks">Мои книги</h2>
+              </div>
+
+              <div class="book-selector" id="bookSelector">
+                <!-- Генерируется динамически -->
+              </div>
+
+              <button class="btn btn-primary" id="addBookBtn" type="button">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                  <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+                <span data-i18n="admin.addBook">Добавить книгу</span>
+              </button>
+            </div>
+
+            <!-- ─── Вид: Выбор типа (Книга / Альбом) ─── -->
+            <div class="screen-view" data-view="type-selector" id="viewTypeSelector" hidden>
+              <div class="screen-back-row">
+                <button class="btn-back" type="button" id="typeSelectorBack">
+                  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                    <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                  </svg>
+                  <span data-i18n="admin.toShelf">К полке</span>
+                </button>
+              </div>
+
+              <div class="mode-selector-header">
+                <h2 data-i18n="admin.createTypeQuestion">Что создаём?</h2>
+              </div>
+
+              <div class="mode-cards" id="modeCards">
+                <!-- Карточки типов генерируются из JS -->
+              </div>
+            </div>
+
+            <!-- ─── Вид: Создание книги (дропзона + пустая книга) ─── -->
+            <div class="screen-view" data-view="create-book" id="viewCreateBook" hidden>
+              <div class="screen-back-row">
+                <button class="btn-back" type="button" id="createBookBack">
+                  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                    <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                  </svg>
+                  <span data-i18n="common.back">Назад</span>
+                </button>
+                <h2 data-i18n="admin.newBook">Новая книга</h2>
+              </div>
+
+              <div class="book-upload-area" id="bookUploadArea">
+                <div class="book-upload-dropzone" id="bookDropzone">
+                  <svg viewBox="0 0 24 24" width="48" height="48" aria-hidden="true">
+                    <path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/>
+                  </svg>
+                  <p class="book-upload-text" data-i18n="admin.dropzoneText">Перетащите файл сюда или нажмите для выбора</p>
+                  <p class="book-upload-hint" data-i18n="admin.dropzoneFormats">Форматы: .epub, .fb2, .docx, .doc, .txt</p>
+                  <input type="file" id="bookFileInput" accept=".epub,.fb2,.docx,.doc,.txt" hidden>
+                </div>
+
+                <div class="book-upload-progress" id="bookUploadProgress" hidden>
+                  <div class="book-upload-spinner"></div>
+                  <p class="book-upload-status" id="bookUploadStatus" data-i18n="admin.processingFile">Обработка файла...</p>
+                </div>
+
+                <div class="book-upload-result" id="bookUploadResult" hidden>
+                  <div class="book-upload-result-info">
+                    <h4 id="bookUploadTitle"></h4>
+                    <p id="bookUploadAuthor"></p>
+                    <p id="bookUploadChaptersCount"></p>
+                  </div>
+                  <div class="book-upload-result-actions">
+                    <button class="btn btn-primary" id="bookUploadConfirm" type="button" data-i18n="admin.addBookButton">Добавить книгу</button>
+                    <button class="btn btn-secondary" id="bookUploadCancel" type="button" data-i18n="common.cancel">Отмена</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="create-book-divider">
+                <span data-i18n="admin.createBookOr">— или —</span>
+              </div>
+
+              <button class="btn btn-secondary create-book-empty-btn" id="createEmptyBookBtn" type="button">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                  <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                </svg>
+                <span data-i18n="admin.createEmptyBook">Создать пустую книгу</span>
+              </button>
+            </div>
+
+            <!-- ─── Вид: Редактор книги ─── -->
+            <div class="screen-view" data-view="editor" id="viewEditor" hidden>
+              <div class="screen-back-row">
+                <button class="btn-back" type="button" id="editorBack">
+                  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                    <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                  </svg>
+                  <span data-i18n="admin.toShelf">К полке</span>
+                </button>
+                <h2 class="editor-title" id="editorTitle" data-i18n="admin.bookEditor">Редактор книги</h2>
+                <span class="save-indicator" id="saveIndicator" aria-live="polite">
+                  <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                    <path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                  </svg>
+                  <span id="saveIndicatorText" data-i18n="common.saved">Сохранено</span>
+                </span>
+                <button class="btn btn-danger btn-small" id="deleteBook" type="button">
+                  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                    <path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                  </svg>
+                  <span data-i18n="common.delete">Удалить</span>
+                </button>
+              </div>
+
+              <!-- Внутренние табы редактора -->
+              <div class="editor-tabs-wrapper" id="editorTabsWrapper">
+                <div class="editor-tabs" id="editorTabs" role="tablist" data-i18n-aria-label="admin.editorTabsAria">
+                  <button class="editor-tab active" type="button" role="tab" aria-selected="true" data-editor-tab="cover" data-i18n="admin.editor.cover">Обложка</button>
+                  <button class="editor-tab" type="button" role="tab" aria-selected="false" data-editor-tab="chapters" data-i18n="admin.editor.chapters">Главы</button>
+                  <button class="editor-tab" type="button" role="tab" aria-selected="false" data-editor-tab="appearance" data-i18n="admin.editor.appearance">Оформление</button>
+                  <button class="editor-tab" type="button" role="tab" aria-selected="false" data-editor-tab="sounds" data-i18n="admin.editor.sounds">Звуки</button>
+                  <button class="editor-tab" type="button" role="tab" aria-selected="false" data-editor-tab="defaults" data-i18n="admin.editor.defaults">Настройки чтения</button>
+                  <button class="editor-tab" type="button" role="tab" aria-selected="false" data-editor-tab="publish" data-i18n="admin.editor.publication">Публикация</button>
+                </div>
+              </div>
+
+              <!--#include "../admin/editor-cover.html" -->
+              <!--#include "../admin/editor-chapters.html" -->
+              <!--#include "../admin/editor-appearance.html" -->
+              <!--#include "../admin/editor-sounds.html" -->
+              <!--#include "../admin/editor-defaults.html" -->
+
+              <!-- === Таб: Публикация === -->
+              <div class="editor-panel" data-editor-panel="publish" role="tabpanel" hidden>
+                <fieldset class="setting-fieldset">
+                  <legend class="setting-fieldset-legend" data-i18n="admin.publication.visibilityLabel">Видимость</legend>
+                  <p class="fieldset-description" data-i18n="admin.publication.visibilityDesc">Определяет, кто может видеть эту книгу</p>
+                  <div class="publish-visibility-selector" id="publishVisibility">
+                    <label class="publish-visibility-option">
+                      <input type="radio" name="bookVisibility" value="draft" checked>
+                      <div class="publish-visibility-card">
+                        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+                          <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                        </svg>
+                        <strong data-i18n="admin.publication.draft">Черновик</strong>
+                        <span data-i18n="admin.publication.draftDesc">Видна только вам</span>
+                      </div>
+                    </label>
+                    <label class="publish-visibility-option">
+                      <input type="radio" name="bookVisibility" value="published">
+                      <div class="publish-visibility-card">
+                        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+                          <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        <strong data-i18n="admin.publication.published">Опубликована</strong>
+                        <span data-i18n="admin.publication.publishedDesc">Видна всем на вашей полке</span>
+                      </div>
+                    </label>
+                    <label class="publish-visibility-option">
+                      <input type="radio" name="bookVisibility" value="unlisted">
+                      <div class="publish-visibility-card">
+                        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+                          <path fill="currentColor" d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
+                        </svg>
+                        <strong data-i18n="admin.publication.unlisted">По ссылке</strong>
+                        <span data-i18n="admin.publication.unlistedDesc">Доступна только по прямой ссылке</span>
+                      </div>
+                    </label>
+                  </div>
+                </fieldset>
+
+                <fieldset class="setting-fieldset setting-fieldset--top">
+                  <legend class="setting-fieldset-legend" data-i18n="admin.publication.descriptionLabel">Описание</legend>
+                  <p class="fieldset-description" data-i18n="admin.publication.descriptionHint">Краткое описание книги для каталога (до 2000 символов)</p>
+                  <textarea class="form-input form-textarea" id="bookDescription" rows="4" maxlength="2000" data-i18n-placeholder="admin.publication.descriptionPlaceholder" placeholder="Опишите вашу книгу..."></textarea>
+                  <div class="char-counter"><span id="descCharCount">0</span> / 2000</div>
+                </fieldset>
+
+                <fieldset class="setting-fieldset setting-fieldset--top" id="slugSection">
+                  <legend class="setting-fieldset-legend" data-i18n="admin.publication.slugLabel">Адрес книги</legend>
+                  <p class="fieldset-description" data-i18n="admin.publication.slugHint">Латиница, цифры и дефисы (3-100 символов). Будет использован в URL книги.</p>
+                  <input class="form-input" type="text" id="bookSlug" maxlength="100" data-i18n-placeholder="admin.publication.slugPlaceholder" placeholder="my-book" autocomplete="off" spellcheck="false">
+                  <div class="slug-preview" id="slugPreview"></div>
+                  <div class="slug-status" id="slugStatus"></div>
+                </fieldset>
+
+                <fieldset class="setting-fieldset setting-fieldset--top" id="shareSection" hidden>
+                  <legend class="setting-fieldset-legend" data-i18n="admin.publication.shareLink">Ссылка для шаринга</legend>
+                  <div class="share-link-row">
+                    <input class="form-input" type="text" id="shareLink" readonly>
+                    <button class="btn btn-secondary" type="button" id="copyShareLink">
+                      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                        <path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                      </svg>
+                      <span data-i18n="admin.publication.copyLink">Копировать</span>
+                    </button>
+                  </div>
+                </fieldset>
+
+                <div class="panel-actions panel-actions--top">
+                  <button class="btn btn-primary" id="savePublish" type="button" data-i18n="common.save">Сохранить</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════ -->
+          <!-- ЭКРАН: ПРОФИЛЬ                         -->
+          <!-- ═══════════════════════════════════════ -->
+          <section class="admin-panel" data-panel="profile" role="tabpanel" hidden>
+            <div class="panel-header">
+              <h2 data-i18n="admin.profile.title">Профиль</h2>
+              <p class="panel-description" data-i18n="admin.profile.description">Настройте свой публичный профиль</p>
+            </div>
+
+            <div class="profile-edit-form">
+              <!-- Превью профиля -->
+              <div class="profile-edit-preview" id="profilePreview">
+                <!-- Генерируется динамически через ProfileModule -->
+              </div>
+
+              <fieldset class="setting-fieldset">
+                <legend class="setting-fieldset-legend" data-i18n="admin.profile.basicInfo">Основная информация</legend>
+                <div class="settings-grid settings-grid--inner">
+                  <div class="setting-card">
+                    <label class="setting-label" for="profileUsername" data-i18n="admin.profile.usernameLabel">Имя пользователя</label>
+                    <div class="profile-username-input">
+                      <span class="profile-username-prefix">@</span>
+                      <input class="form-input" type="text" id="profileUsername" placeholder="username" disabled>
+                    </div>
+                    <span class="form-hint" id="usernameHint" data-i18n="admin.profile.usernameHintReadonly">Имя пользователя нельзя изменить после регистрации.</span>
+                    <span class="form-validation" id="usernameValidation" hidden></span>
+                  </div>
+                  <div class="setting-card">
+                    <label class="setting-label" for="profileDisplayName" data-i18n="admin.profile.displayNameLabel">Отображаемое имя</label>
+                    <input class="form-input" type="text" id="profileDisplayName" data-i18n-placeholder="admin.profile.displayNamePlaceholder" placeholder="Как вас зовут?" maxlength="100">
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset class="setting-fieldset setting-fieldset--top">
+                <legend class="setting-fieldset-legend" data-i18n="admin.profile.aboutLabel">О себе</legend>
+                <textarea class="form-input form-textarea" id="profileBio" rows="3" maxlength="500" data-i18n-placeholder="admin.profile.aboutPlaceholder" placeholder="Расскажите о себе..."></textarea>
+                <div class="char-counter"><span id="bioCharCount">0</span> / 500</div>
+              </fieldset>
+
+              <fieldset class="setting-fieldset setting-fieldset--top">
+                <legend class="setting-fieldset-legend" data-i18n="admin.profile.avatarLabel">Аватар</legend>
+                <div class="profile-avatar-upload">
+                  <div class="profile-avatar-current" id="profileAvatarPreview">
+                    <!-- Генерируется динамически -->
+                  </div>
+                  <div class="profile-avatar-actions">
+                    <label class="btn btn-secondary upload-btn">
+                      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                        <path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/>
+                      </svg>
+                      <span data-i18n="admin.profile.avatarUpload">Загрузить фото</span>
+                      <input type="file" id="profileAvatarInput" accept="image/png,image/jpeg,image/webp" hidden>
+                    </label>
+                    <button class="btn btn-secondary" type="button" id="profileAvatarRemove" hidden data-i18n="admin.profile.avatarRemove">Удалить</button>
+                  </div>
+                  <span class="form-hint" data-i18n="admin.profile.avatarHint">PNG, JPEG или WebP. Рекомендуемый размер: 200×200px.</span>
+                </div>
+              </fieldset>
+
+              <div class="panel-actions panel-actions--top">
+                <button class="btn btn-primary" id="saveProfile" type="button" data-i18n="admin.profile.saveButton">Сохранить профиль</button>
+              </div>
+            </div>
+          </section>
+
+          <!--#include "../admin/platform-settings.html" -->
+          <!--#include "../admin/export-panel.html" -->
+
+        </div>
+      </main>
+
+      <!-- Уведомления -->
+      <div class="admin-toast" id="toast" hidden>
+        <svg class="admin-toast__icon" id="toastIcon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" id="toastIconPath"/>
+        </svg>
+        <span id="toastMessage"></span>
+      </div>
+
+      <!--#include "../admin/modal-chapter.html" -->
+      <!--#include "../admin/modal-ambient.html" -->
+      <!--#include "../admin/modal-reading-font.html" -->
+
+      <!-- Универсальный диалог подтверждения -->
+      <dialog class="admin-modal admin-modal--confirm" id="confirmDialog">
+        <div class="modal-form">
+          <h3 class="modal-title" id="confirmTitle" data-i18n="common.confirmation">Подтверждение</h3>
+          <p class="confirm-message" id="confirmMessage"></p>
+          <div class="modal-actions">
+            <button class="btn btn-secondary" type="button" id="confirmCancel" data-i18n="common.cancel">Отмена</button>
+            <button class="btn btn-danger" type="button" id="confirmOk" data-i18n="common.delete">Удалить</button>
+          </div>
+        </div>
+      </dialog>
+    </div>

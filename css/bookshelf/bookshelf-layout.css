@@ -1,0 +1,127 @@
+/**
+ * BOOKSHELF — КОНТЕЙНЕР И ЗАГОЛОВОК
+ *
+ * Экран книжного шкафа: компонентные токены и базовая разметка.
+ */
+
+/* ═══════════════════════════════════════════
+   КОНТЕЙНЕР ЭКРАНА
+   ═══════════════════════════════════════════ */
+
+.bookshelf-screen {
+  /* ── Компонентные токены ─────────────────── */
+  --shelf-text: #e8dcc8;
+  --shelf-text-muted: rgb(232, 220, 200, 0.5);
+  --shelf-text-dim: rgb(232, 220, 200, 0.7);
+  --shelf-text-faint: rgb(232, 220, 200, 0.4);
+  --shelf-border: rgb(232, 220, 200, 0.2);
+  --shelf-border-hover: rgb(232, 220, 200, 0.35);
+  --shelf-bg-subtle: rgb(255, 255, 255, 0.06);
+  --shelf-bg-hover: rgb(255, 255, 255, 0.12);
+  --shelf-danger: #e8a09a;
+  --shelf-danger-bg: rgb(180, 74, 62, 0.25);
+  --shelf-badge-draft: #aaa;
+  --shelf-badge-unlisted: #c9a84c;
+  --shelf-wood-light: #6b5340;
+  --shelf-wood-mid: #5a4535;
+  --shelf-wood-dark: #4d3a2b;
+  --shelf-wood-base: #3d2e22;
+  --shelf-wood-deep: #35261b;
+  --shelf-wood-wall: #4a3728;
+  --shelf-wood-accent: #7a6350;
+
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden auto;
+  background:
+    /* Верхняя тень */
+    linear-gradient(180deg, rgb(0, 0, 0, 0.3) 0%, transparent 120px),
+    /* Дерево — волокна */
+    repeating-linear-gradient(
+      87deg,
+      transparent,
+      transparent 2px,
+      rgb(0, 0, 0, 0.03) 2px,
+      rgb(0, 0, 0, 0.03) 4px
+    ),
+    /* Дерево — основа */
+    linear-gradient(180deg, var(--shelf-wood-wall) 0%, var(--shelf-wood-base) 40%, var(--shelf-wood-deep) 100%);
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+  animation: screen-fade-in 0.4s ease both;
+}
+
+.bookshelf-screen[hidden] {
+  display: none;
+}
+
+.bookshelf-screen.hiding {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* ═══════════════════════════════════════════
+   ЗАГОЛОВОК
+   ═══════════════════════════════════════════ */
+
+.bookshelf-header {
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 960px;
+  padding: 40px 24px 20px;
+  text-align: center;
+}
+
+.bookshelf-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bookshelf-header-spacer {
+  width: 36px;
+  flex-shrink: 0;
+}
+
+.bookshelf-header-actions {
+  flex-shrink: 0;
+}
+
+.bookshelf-title {
+  margin: 0;
+  font-family: var(--decorative-font, Georgia, serif);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--shelf-text);
+  letter-spacing: 0.04em;
+  text-shadow: 0 2px 4px rgb(0, 0, 0, 0.4);
+  animation: bookshelf-header-appear 0.7s cubic-bezier(0, 0, 0.2, 1) backwards;
+}
+
+.bookshelf-subtitle {
+  display: block;
+  margin-top: 6px;
+  font-family: Georgia, serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--shelf-text-muted);
+  letter-spacing: 0.02em;
+  animation: bookshelf-header-appear 0.7s cubic-bezier(0, 0, 0.2, 1) 0.1s backwards;
+}
+
+@keyframes bookshelf-header-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+    filter: blur(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}

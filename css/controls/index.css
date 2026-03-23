@@ -1,0 +1,200 @@
+/**
+ * CONTROLS - Module Index
+ *
+ * Импортирует все модули панели управления.
+ * Базовые стили контейнера .controls.
+ */
+
+@import url('./pod-variables.css');
+@import url('./navigation-pod.css');
+@import url('./settings-pod.css');
+@import url('./audio-pod.css');
+
+/* ═══════════════════════════════════════════
+   БАЗОВЫЙ КОНТЕЙНЕР CONTROLS
+   ═══════════════════════════════════════════ */
+
+.controls {
+  display: flex;
+  flex-flow: column wrap;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 0.7em;
+  font-family: var(--decorative-font);
+  font-size: 18px;
+  color: var(--cover-front-text);
+  background: var(--cover-front-bg);
+  transition:
+    background var(--timing-transition),
+    color var(--timing-transition);
+}
+
+/* ═══════════════════════════════════════════
+   ОБЩИЕ СТИЛИ ЭЛЕМЕНТОВ УПРАВЛЕНИЯ
+   ═══════════════════════════════════════════ */
+
+.controls button,
+.controls select,
+.controls label {
+  padding: 0.3em;
+  font-family: var(--decorative-font);
+  font-size: 100%;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--controls-accent);
+  background-color: var(--cover-front-text);
+  border: none;
+  border-radius: 10px;
+  transition:
+    transform var(--timing-transition) ease-in-out,
+    outline var(--timing-transition) ease-in-out;
+  cursor: pointer;
+}
+
+.controls button:hover,
+.controls button:focus-visible,
+.controls label:hover,
+.controls label:focus-within {
+  outline: 1px solid var(--controls-accent);
+  transform: scale(1.2);
+  transform-origin: center;
+}
+
+/* ═══════════════════════════════════════════
+   ПАНЕЛЬ НАСТРОЕК (toggle container)
+   ═══════════════════════════════════════════ */
+
+.settings {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    opacity var(--timing-transition) ease-in-out,
+    grid-template-rows var(--timing-transition) ease-in-out;
+  visibility: hidden;
+}
+
+.settings-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.settings-inner div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: space-between;
+}
+
+/* Показываем при чекнутом чекбоксе через :has() */
+.controls:has(.settings-checkbox:checked) .settings {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Скрытый чекбокс для toggle */
+.settings-checkbox {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  border: 0;
+  padding: 0;
+  white-space: nowrap;
+  clip-path: inset(100%);
+  clip: rect(0 0 0 0);
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════
+   COPYRIGHT
+   ═══════════════════════════════════════════ */
+
+.copyright {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.copyright a {
+  color: currentcolor;
+  text-decoration: none;
+}
+
+.admin-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+.admin-link:hover {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════
+   СООБЩЕНИЕ ОБ ОШИБКЕ
+   ═══════════════════════════════════════════ */
+
+.error-message {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  z-index: 9999;
+  padding: 1em 2em;
+  color: var(--color-error-banner-text);
+  background: var(--color-error-banner-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px var(--color-overlay-light);
+  transform: translateX(-50%);
+  animation: slideDown 0.3s ease-out;
+}
+
+/* ═══════════════════════════════════════════
+   DESKTOP HORIZONTAL LAYOUT
+   ═══════════════════════════════════════════ */
+
+@media (min-width: 801px) {
+  .controls {
+    flex-flow: row wrap;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .settings {
+    grid-template-rows: 0fr;
+    grid-template-columns: 0fr;
+    transition:
+      opacity var(--timing-transition) ease-in-out,
+      grid-template-rows var(--timing-transition) ease-in-out,
+      grid-template-columns var(--timing-transition) ease-in-out;
+  }
+
+  .settings-inner {
+    flex-direction: row;
+    gap: 16px;
+    align-items: flex-start;
+    overflow: hidden;
+  }
+
+  .controls:has(.settings-checkbox:checked) .settings {
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr;
+  }
+
+  .copyright {
+    width: 100%;
+    flex-direction: row;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 8px;
+    font-size: 0.85em;
+  }
+}

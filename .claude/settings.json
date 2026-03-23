@@ -1,0 +1,55 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "echo '## Environment' && node -v && echo '## Git' && git branch --show-current && git status -s | head -20 && echo '## Docker' && docker compose ps --format 'table {{.Name}}\t{{.Status}}' 2>/dev/null | head -10 || echo 'Docker not running'",
+        "statusMessage": "Collecting environment info..."
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "TOOL_INPUT=\"$CLAUDE_TOOL_INPUT\" && if echo \"$TOOL_INPUT\" | grep -qE 'rm\\s+-rf|git\\s+reset\\s+--hard|git\\s+push\\s+--force|drop\\s+table|DROP\\s+TABLE'; then echo 'BLOCKED: Destructive command detected. Use safer alternatives.' && exit 2; fi && exit 0",
+            "statusMessage": "Safety check..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE=$(echo \"$CLAUDE_TOOL_INPUT\" | grep -oP '\"file_path\"\\s*:\\s*\"\\K[^\"]+') && case \"$FILE\" in */js/*.js) npx eslint --no-warn-ignored \"$FILE\" 2>&1 | tail -20 ;; */css/*.css) npx stylelint \"$FILE\" 2>&1 | tail -20 ;; */server/src/*.ts) cd server && npx eslint --no-warn-ignored \"${FILE#*/server/}\" 2>&1 | tail -20 ;; *) ;; esac",
+            "statusMessage": "Linting edited file..."
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE=$(echo \"$CLAUDE_TOOL_INPUT\" | grep -oP '\"file_path\"\\s*:\\s*\"\\K[^\"]+') && case \"$FILE\" in */js/*.js) npx eslint --no-warn-ignored \"$FILE\" 2>&1 | tail -20 ;; */css/*.css) npx stylelint \"$FILE\" 2>&1 | tail -20 ;; */server/src/*.ts) cd server && npx eslint --no-warn-ignored \"${FILE#*/server/}\" 2>&1 | tail -20 ;; *) ;; esac",
+            "statusMessage": "Linting new file..."
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qE 'npm run test|npx vitest'; then echo \"$CLAUDE_TOOL_OUTPUT\" | bash .claude/scripts/filter-test-output.sh; fi",
+            "statusMessage": "Filtering test output..."
+          }
+        ]
+      }
+    ]
+  }
+}

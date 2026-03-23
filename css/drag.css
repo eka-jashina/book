@@ -1,0 +1,271 @@
+/**
+ * DRAG CONTROLS - ПРОСТОЙ ЭФФЕКТ ЗАГИБА УГЛА
+ *
+ * Зоны захвата для перелистывания за углы.
+ */
+
+/* ═══════════════════════════════════════════
+   ЗОНЫ ЗАХВАТА
+   ═══════════════════════════════════════════ */
+
+.corner-zone {
+  position: absolute;
+  z-index: 100;
+  width: 80px;
+  height: 80px;
+  overflow: visible;
+  cursor: grab;
+}
+
+.corner-zone:active {
+  cursor: grabbing;
+}
+
+/* Позиции углов */
+.corner-zone.top-right {
+  top: 0;
+  right: 0;
+}
+
+.corner-zone.bottom-right {
+  bottom: 0;
+  right: 0;
+}
+
+.corner-zone.top-left {
+  top: 0;
+  left: 0;
+}
+
+.corner-zone.bottom-left {
+  bottom: 0;
+  left: 0;
+}
+
+/* ═══════════════════════════════════════════
+   ЭФФЕКТ ЗАГИБА
+   ═══════════════════════════════════════════ */
+
+/* Подсветка зоны при hover */
+.corner-zone::before {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  content: "";
+}
+
+/* Правые углы */
+.corner-zone.top-right::before,
+.corner-zone.bottom-right::before {
+  background: radial-gradient(
+    circle at bottom left,
+    rgb(255, 255, 255, 0.2),
+    rgb(255, 255, 255, 0.05) 50%,
+    transparent 70%
+  );
+}
+
+/* Левые углы */
+.corner-zone.top-left::before,
+.corner-zone.bottom-left::before {
+  background: radial-gradient(
+    circle at bottom right,
+    rgb(255, 255, 255, 0.2),
+    rgb(255, 255, 255, 0.05) 50%,
+    transparent 70%
+  );
+}
+
+/* Тень загиба */
+.corner-zone::after {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  content: "";
+}
+
+/* Правый верхний угол */
+.corner-zone.top-right::after {
+  top: 0;
+  right: 0;
+  border-width: 0;
+  border-color: transparent;
+}
+
+.corner-zone.top-right:hover::before {
+  opacity: 1;
+}
+
+.corner-zone.top-right:hover::after {
+  opacity: 1;
+  border-width: 0 45px 45px 0;
+  border-color: transparent rgb(0, 0, 0, 0.15) transparent transparent;
+  filter: blur(3px);
+}
+
+/* Правый нижний угол */
+.corner-zone.bottom-right::after {
+  bottom: 0;
+  right: 0;
+  border-width: 0;
+  border-color: transparent;
+}
+
+.corner-zone.bottom-right:hover::before {
+  opacity: 1;
+}
+
+.corner-zone.bottom-right:hover::after {
+  opacity: 1;
+  border-width: 45px 45px 0 0;
+  border-color: transparent rgb(0, 0, 0, 0.15) transparent transparent;
+  filter: blur(3px);
+}
+
+/* Левый верхний угол */
+.corner-zone.top-left::after {
+  top: 0;
+  left: 0;
+  border-width: 0;
+  border-color: transparent;
+}
+
+.corner-zone.top-left:hover::before {
+  opacity: 1;
+}
+
+.corner-zone.top-left:hover::after {
+  opacity: 1;
+  border-width: 45px 0 0 45px;
+  border-color: transparent transparent transparent rgb(0, 0, 0, 0.15);
+  filter: blur(3px);
+  transform: rotate(90deg);
+}
+
+/* Левый нижний угол */
+.corner-zone.bottom-left::after {
+  bottom: 0;
+  left: 0;
+  border-width: 0;
+  border-color: transparent;
+}
+
+.corner-zone.bottom-left:hover::before {
+  opacity: 1;
+}
+
+.corner-zone.bottom-left:hover::after {
+  opacity: 1;
+  border-width: 0 0 45px 45px;
+  border-color: transparent transparent rgb(0, 0, 0, 0.15);
+  filter: blur(3px);
+  transform: rotate(90deg);
+}
+
+/* При активном состоянии (захват) - убираем эффект */
+.corner-zone:active::before,
+.corner-zone:active::after {
+  opacity: 0 !important;
+}
+
+/* Скрываем зоны когда книга закрыта или занята */
+.book[data-state="closed"] .corner-zone,
+.book[data-state="opening"] .corner-zone,
+.book[data-state="closing"] .corner-zone,
+.book[data-state="flipping"] .corner-zone {
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* ═══════════════════════════════════════════
+   ТЕНЬ ОТ ПЕРЕВОРОТА (flip-shadow)
+   ═══════════════════════════════════════════ */
+
+.flip-shadow {
+  position: absolute;
+  top: 0;
+  left: var(--flip-shadow-left, 50%);
+  z-index: 15;
+  display: none;
+  width: var(--flip-shadow-width, 0);
+  height: 100%;
+  pointer-events: none;
+}
+
+.flip-shadow.active {
+  display: block;
+}
+
+/* Направление "вперёд" - градиент справа налево */
+.flip-shadow.active[data-direction="next"] {
+  background: linear-gradient(to right, rgb(0,0,0,var(--flip-shadow-opacity, 0)), transparent);
+}
+
+/* Направление "назад" - градиент слева направо */
+.flip-shadow.active[data-direction="prev"] {
+  background: linear-gradient(to left, rgb(0,0,0,var(--flip-shadow-opacity, 0)), transparent);
+}
+
+/* ═══════════════════════════════════════════
+   СТРАНИЦА ПОД ПЕРЕВОРАЧИВАЕМОЙ (при drag)
+   ═══════════════════════════════════════════ */
+
+.page[data-drag-visible="true"] {
+  z-index: 2;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Скрытие активной страницы во время drag */
+.page[data-drag-hidden="true"] {
+  display: none;
+}
+
+/* Отключаем transition на время swap/drag чтобы не было мигания.
+   ВАЖНО: book включён — без этого CSS transitions на --spine-shadow-*
+   борются с JS-обновлениями 60fps и вызывают лишние style recalc. */
+.book[data-no-transition="true"],
+.book[data-no-transition="true"] .page,
+.book[data-no-transition="true"] .page[data-active="true"],
+.book[data-no-transition="true"] .page[data-buffer="true"],
+.book[data-no-transition="true"] .sheet {
+  transition: none !important;
+}
+
+/* ═══════════════════════════════════════════
+   DRAG РЕЖИМ SHEET
+   ═══════════════════════════════════════════ */
+
+.sheet[data-phase="drag"] {
+  z-index: 20;
+  opacity: 1;
+  visibility: visible;
+
+  /* Угол поворота управляется через CSS-переменную из JS */
+  transform: translateZ(1px) rotateY(var(--sheet-angle, 0deg));
+}
+
+/* Тени во время drag управляются через --spine-shadow-opacity на sheet */
+
+/* ═══════════════════════════════════════════
+   АДАПТИВ ДЛЯ МОБИЛЬНЫХ
+   ═══════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .corner-zone {
+    width: 60px;
+    height: 60px;
+  }
+
+  /* На мобильных левые зоны не нужны */
+  .corner-zone.top-left,
+  .corner-zone.bottom-left {
+    display: none;
+  }
+}
