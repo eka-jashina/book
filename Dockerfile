@@ -1,5 +1,5 @@
 # ── Stage 1: Build frontend ──────────────────────────────────────
-FROM node:22-alpine AS frontend-builder
+FROM node:25-alpine AS frontend-builder
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ COPY . .
 RUN npm run build
 
 # ── Stage 2: Build backend ───────────────────────────────────────
-FROM node:22-alpine AS backend-builder
+FROM node:25-alpine AS backend-builder
 
 WORKDIR /app
 
@@ -26,7 +26,7 @@ COPY shared ../shared/
 RUN npm run build
 
 # ── Stage 3: Production ─────────────────────────────────────────
-FROM node:22-alpine
+FROM node:25-alpine
 
 # dumb-init: proper PID 1 signal forwarding (SIGTERM → Node.js)
 RUN apk add --no-cache dumb-init
