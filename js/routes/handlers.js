@@ -51,7 +51,9 @@ function screenTransition(vtName, callback) {
   if ('startViewTransition' in document) {
     document.documentElement.dataset.vt = vtName;
     const vt = document.startViewTransition(() => callback());
-    vt.finished.finally(() => delete document.documentElement.dataset.vt);
+    vt.finished
+      .catch(() => {})  // AbortError при прерывании перехода — ожидаемо
+      .finally(() => delete document.documentElement.dataset.vt);
     return vt.updateCallbackDone;
   }
   callback();
@@ -130,12 +132,15 @@ function setupInstallButton() {
   updateVisibility();
 }
 
-function setupBackToShelfButton() {
+function setupBackToShelfButton(backPath = '/') {
   const btn = document.getElementById('backToShelfBtn');
   if (!btn) return;
-  btn.addEventListener('click', () => {
+  // Клонируем, чтобы убрать предыдущие обработчики (при повторных вызовах)
+  const fresh = btn.cloneNode(true);
+  btn.parentNode.replaceChild(fresh, btn);
+  fresh.addEventListener('click', () => {
     clearActiveBook();
-    if (ctx.router) ctx.router.navigate('/');
+    if (ctx.router) ctx.router.navigate(backPath);
     else location.reload();
   });
 }
@@ -158,6 +163,18 @@ function showBookshelf(books, { mode = 'owner', profileUser } = {}) {
   if (!container) return;
   document.body.dataset.hasBookshelf = 'true';
 
+  // Навигация «домой» для гостевого режима
+  let onNavigateHome, homeLabelKey;
+  if (mode === 'guest') {
+    if (ctx.currentUser?.username) {
+      onNavigateHome = () => ctx.router.navigate(`/${ctx.currentUser.username}`);
+      homeLabelKey = 'bookshelf.backToMyShelf';
+    } else {
+      onNavigateHome = () => ctx.router.navigate('/');
+      homeLabelKey = 'bookshelf.backToHome';
+    }
+  }
+
   ctx.state.bookshelf = new BookshelfScreen({
     container, books, apiClient: ctx.apiClient, mode, profileUser, router: ctx.router,
     onBookSelect: (bookId) => {
@@ -165,6 +182,8 @@ function showBookshelf(books, { mode = 'owner', profileUser } = {}) {
       else location.reload();
     },
     onLogout: ctx.useAPI ? handleLogout : undefined,
+    onNavigateHome,
+    homeLabelKey,
   });
   ctx.state.bookshelf.render();
   // show() без View Transitions — переход управляется screenTransition()
@@ -277,17 +296,22 @@ export async function handleReader({ bookId }) {
     // Скрыть книгу до загрузки конфига, чтобы не мелькала предыдущая/дефолтная обложка
     hideBookWrap();
   });
-  setupBackToShelfButton();
-
   try {
     if (ctx.useAPI) {
-      await initReaderWithMode(bookId, 'reader');
+      const result = await initReaderWithMode(bookId, 'reader');
+      // Контекстная навигация «Назад»: гость → к полке автора, владелец → домой
+      if (result?.readerMode === 'guest' && result?.bookOwner?.username) {
+        setupBackToShelfButton(`/${result.bookOwner.username}`);
+      } else {
+        setupBackToShelfButton('/');
+      }
     } else {
       const config = adminConfigStorage.load();
       config.activeBookId = bookId;
       if (!config.books) config.books = [];
       adminConfigStorage.setFull(config);
       await initReaderFallback();
+      setupBackToShelfButton('/');
     }
   } finally {
     showBookWrap();
@@ -416,6 +440,8 @@ async function initReaderWithMode(bookId, route) {
   if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     window.bookApp = ctx.state.app;
   }
+
+  return { readerMode, bookOwner };
 }
 
 async function initReaderFallback() {

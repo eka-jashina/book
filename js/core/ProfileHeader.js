@@ -5,7 +5,10 @@
  * Используется на публичном шкафу (/:username) и в личном кабинете (/account).
  *
  * В режиме хозяина показывает кнопку «Редактировать профиль».
+ * В гостевом режиме — ссылку «На главную» / «Моя полка».
  */
+
+import { t } from '@i18n';
 
 export class ProfileHeader {
   /**
@@ -15,13 +18,17 @@ export class ProfileHeader {
    * @param {number} [options.booksCount] - Количество книг на полке
    * @param {Function} [options.onEditProfile] - Колбэк при клике «Редактировать профиль»
    * @param {Function} [options.onLogout] - Колбэк при клике «Выйти»
+   * @param {Function} [options.onNavigateHome] - Колбэк навигации «домой» (гостевой режим)
+   * @param {string} [options.homeLabelKey] - i18n-ключ для текста ссылки «домой»
    */
-  constructor({ user, isOwner, booksCount, onEditProfile, onLogout }) {
+  constructor({ user, isOwner, booksCount, onEditProfile, onLogout, onNavigateHome, homeLabelKey }) {
     this._user = user;
     this._isOwner = isOwner;
     this._booksCount = booksCount ?? null;
     this._onEditProfile = onEditProfile;
     this._onLogout = onLogout;
+    this._onNavigateHome = onNavigateHome;
+    this._homeLabelKey = homeLabelKey || 'bookshelf.backToHome';
     this._el = null;
   }
 
@@ -49,6 +56,13 @@ export class ProfileHeader {
       if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
           if (this._onLogout) this._onLogout();
+        });
+      }
+    } else {
+      const homeLink = el.querySelector('.profile-header-home-link');
+      if (homeLink) {
+        homeLink.addEventListener('click', () => {
+          if (this._onNavigateHome) this._onNavigateHome();
         });
       }
     }
@@ -138,6 +152,16 @@ export class ProfileHeader {
       } else {
         plaqueEl.remove();
       }
+    }
+
+    // Ссылка «домой» для гостевого режима
+    if (!this._isOwner && this._onNavigateHome) {
+      const link = document.createElement('button');
+      link.type = 'button';
+      link.className = 'profile-header-home-link';
+      link.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M21 11H6.83l3.58-3.59L9 6l-6 6 6 6 1.41-1.41L6.83 13H21z"/></svg><span data-i18n="${this._homeLabelKey}">${t(this._homeLabelKey)}</span>`;
+      const info = frag.querySelector('.profile-header-info');
+      if (info) info.appendChild(link);
     }
 
     return frag;

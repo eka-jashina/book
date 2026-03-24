@@ -50,7 +50,7 @@ export class BookshelfScreen {
    * @param {Function} [options.onLogout] - Колбэк при клике «Выйти»
    * @param {import('../utils/Router.js').Router} [options.router] - SPA-роутер
    */
-  constructor({ container, books, onBookSelect, apiClient, mode = 'owner', profileUser, onEditProfile, onLogout, router }) {
+  constructor({ container, books, onBookSelect, apiClient, mode = 'owner', profileUser, onEditProfile, onLogout, router, onNavigateHome, homeLabelKey }) {
     this.container = container;
     this.books = books;
     this.onBookSelect = onBookSelect;
@@ -60,6 +60,8 @@ export class BookshelfScreen {
     this._onEditProfile = onEditProfile;
     this._onLogout = onLogout;
     this._router = router || null;
+    this._onNavigateHome = onNavigateHome;
+    this._homeLabelKey = homeLabelKey;
     this._boundHandleClick = this._handleClick.bind(this);
     this._profileHeader = null;
 
@@ -98,6 +100,8 @@ export class BookshelfScreen {
           ? () => this._router.navigate('/account?tab=profile')
           : undefined),
         onLogout: isOwner ? this._onLogout : undefined,
+        onNavigateHome: !isOwner ? this._onNavigateHome : undefined,
+        homeLabelKey: !isOwner ? this._homeLabelKey : undefined,
       });
       this._profileHeader.render(this.container);
     }

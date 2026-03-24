@@ -8,6 +8,18 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { PhotoLightbox } from '../../../js/utils/PhotoLightbox.js';
 
+const LIGHTBOX_TEMPLATE = `<template id="tmpl-lightbox">
+  <div class="lightbox" role="dialog" aria-modal="true" aria-label="Просмотр фотографии">
+    <img class="lightbox__img" alt="">
+    <div class="lightbox__shield"></div>
+    <button class="lightbox__close" type="button" aria-label="Закрыть"></button>
+    <button class="lightbox__nav lightbox__nav--prev" type="button" aria-label="Предыдущее фото"></button>
+    <button class="lightbox__nav lightbox__nav--next" type="button" aria-label="Следующее фото"></button>
+    <div class="lightbox__counter"></div>
+    <div class="lightbox__caption"></div>
+  </div>
+</template>`;
+
 describe('Photo Album Lifecycle Integration', () => {
   // ── Helpers ──
 
@@ -43,7 +55,7 @@ describe('Photo Album Lifecycle Integration', () => {
     `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQAB${id}`;
 
   beforeEach(() => {
-    document.body.innerHTML = '';
+    document.body.innerHTML = LIGHTBOX_TEMPLATE;
     // Stub getBoundingClientRect for FLIP animation
     Element.prototype._origGetBCR = Element.prototype.getBoundingClientRect;
     Element.prototype.getBoundingClientRect = function () {

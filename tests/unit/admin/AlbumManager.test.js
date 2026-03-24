@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { setupTemplates } from '../../helpers/adminTemplates.js';
 import { AlbumManager } from '../../../js/admin/modules/AlbumManager.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -53,22 +54,7 @@ function setupDOM() {
   document.body.innerHTML = `
     <div id="albumPages"></div>
   `;
-
-  // Шаблон слота изображения
-  const tmpl = document.createElement('template');
-  tmpl.id = 'tmpl-album-image-slot';
-  tmpl.innerHTML = `
-    <span class="album-image-slot-placeholder">
-      <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M19 7v2.99s-1.99.01-2 0V7h-3s.01-1.99 0-2h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8h-3zM5 19l3-4 2 3 3-4 4 5H5z"/></svg>
-      <span class="album-image-slot-placeholder-text"></span>
-    </span>
-    <span class="album-image-slot-num"></span>
-    <button class="album-image-slot-rotate" type="button" title="Повернуть на 90°"></button>
-    <button class="album-image-slot-crop" type="button" title="Кадрировать"></button>
-    <button class="album-image-slot-uncrop" type="button" title="Сбросить кадрирование"></button>
-    <button class="album-image-slot-remove" type="button" title="Удалить">&times;</button>
-  `;
-  document.body.appendChild(tmpl);
+  setupTemplates('tmpl-album-image-slot', 'tmpl-admin-album-page-card');
 }
 
 /**
@@ -292,7 +278,8 @@ describe('AlbumManager', () => {
       });
 
       it('should NOT show the remove button for a single page', () => {
-        expect(manager.albumPagesEl.querySelector('.album-page-remove')).toBeNull();
+        const removeBtn = manager.albumPagesEl.querySelector('.album-page-remove');
+        expect(removeBtn.hidden).toBe(true);
       });
 
       it('should render layout buttons', () => {
@@ -520,7 +507,7 @@ describe('AlbumManager', () => {
 
     it('should wrap output in <article>', () => {
       const html = buildHtml('T', [makePage()]);
-      expect(html).toMatch(/^<article>/);
+      expect(html).toMatch(/^<article\b/);
       expect(html).toMatch(/<\/article>$/);
     });
 

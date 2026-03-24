@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { setupTemplates } from '../../helpers/adminTemplates.js';
 
 // Мок QuillEditorWrapper до импорта ChaptersModule
 vi.mock('../../../js/admin/modules/QuillEditorWrapper.js', () => ({
@@ -56,21 +57,13 @@ function createMockApp() {
   };
 }
 
-function setupAlbumTemplate() {
-  const tmpl = document.createElement('template');
-  tmpl.id = 'tmpl-album-image-slot';
-  tmpl.innerHTML = `
-    <span class="album-image-slot-placeholder">
-      <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M19 7v2.99s-1.99.01-2 0V7h-3s.01-1.99 0-2h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8h-3zM5 19l3-4 2 3 3-4 4 5H5z"/></svg>
-      <span class="album-image-slot-placeholder-text"></span>
-    </span>
-    <span class="album-image-slot-num"></span>
-    <button class="album-image-slot-rotate" type="button" title="Повернуть на 90°"></button>
-    <button class="album-image-slot-crop" type="button" title="Кадрировать"></button>
-    <button class="album-image-slot-uncrop" type="button" title="Сбросить кадрирование"></button>
-    <button class="album-image-slot-remove" type="button" title="Удалить">&times;</button>
-  `;
-  document.body.appendChild(tmpl);
+function setupChapterTemplates() {
+  setupTemplates(
+    'tmpl-album-image-slot',
+    'tmpl-admin-chapter-card',
+    'tmpl-admin-book-card',
+    'tmpl-admin-album-page-card',
+  );
 }
 
 function setupDOM() {
@@ -143,7 +136,7 @@ describe('ChaptersModule', () => {
 
   beforeEach(() => {
     setupDOM();
-    setupAlbumTemplate();
+    setupChapterTemplates();
     document.querySelectorAll('dialog').forEach(d => {
       d.showModal = d.showModal || vi.fn();
       d.close = d.close || vi.fn();
@@ -224,8 +217,8 @@ describe('ChaptersModule', () => {
     it('should not show up button for first chapter', async () => {
       await mod._renderChapters();
 
-      const upBtns = mod.chaptersList.querySelectorAll('[data-action="up"]');
-      // First chapter has no up button, second has one
+      const upBtns = mod.chaptersList.querySelectorAll('[data-action="up"]:not([hidden])');
+      // First chapter has no visible up button, second has one
       expect(upBtns.length).toBe(1);
       expect(upBtns[0].dataset.index).toBe('1');
     });
@@ -233,7 +226,7 @@ describe('ChaptersModule', () => {
     it('should not show down button for last chapter', async () => {
       await mod._renderChapters();
 
-      const downBtns = mod.chaptersList.querySelectorAll('[data-action="down"]');
+      const downBtns = mod.chaptersList.querySelectorAll('[data-action="down"]:not([hidden])');
       expect(downBtns.length).toBe(1);
       expect(downBtns[0].dataset.index).toBe('0');
     });
@@ -623,7 +616,7 @@ describe('ChaptersModule', () => {
 
         const html = mod._album._buildAlbumHtml({ title: 'Test Album', hideTitle: false, pages });
 
-        expect(html).toContain('<article>');
+        expect(html).toContain('<article class="photo-album-chapter">');
         expect(html).toContain('<h2>Test Album</h2>');
         expect(html).toContain('data-layout="1"');
         expect(html).toContain('src="data:img"');

@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { setupTemplates } from '../../helpers/adminTemplates.js';
 
 vi.mock('@i18n', () => ({
   t: (key) => key,
@@ -33,6 +34,7 @@ function setupDOM() {
     <div id="bookSelector"></div>
     <button id="deleteBook"></button>
   `;
+  setupTemplates('tmpl-admin-book-card');
 }
 
 describe('BookSelectorManager', () => {
@@ -139,17 +141,17 @@ describe('BookSelectorManager', () => {
 
       const cards = manager.bookSelector.querySelectorAll('[data-book-id]');
 
-      // First book: only down button
-      const firstMoveBtns = cards[0].querySelectorAll('[data-book-move]');
+      // First book: only down button visible
+      const firstMoveBtns = cards[0].querySelectorAll('[data-book-move]:not([hidden])');
       expect(firstMoveBtns).toHaveLength(1);
       expect(firstMoveBtns[0].dataset.bookMove).toBe('down');
 
-      // Middle book: both up and down
-      const middleMoveBtns = cards[1].querySelectorAll('[data-book-move]');
+      // Middle book: both up and down visible
+      const middleMoveBtns = cards[1].querySelectorAll('[data-book-move]:not([hidden])');
       expect(middleMoveBtns).toHaveLength(2);
 
-      // Last book: only up button
-      const lastMoveBtns = cards[2].querySelectorAll('[data-book-move]');
+      // Last book: only up button visible
+      const lastMoveBtns = cards[2].querySelectorAll('[data-book-move]:not([hidden])');
       expect(lastMoveBtns).toHaveLength(1);
       expect(lastMoveBtns[0].dataset.bookMove).toBe('up');
     });
@@ -157,7 +159,7 @@ describe('BookSelectorManager', () => {
     it('does not render move buttons for a single book', () => {
       manager.render();
 
-      const moveBtns = manager.bookSelector.querySelectorAll('[data-book-move]');
+      const moveBtns = manager.bookSelector.querySelectorAll('[data-book-move]:not([hidden])');
       expect(moveBtns).toHaveLength(0);
     });
 
@@ -192,15 +194,19 @@ describe('BookSelectorManager', () => {
       manager.render();
 
       const cards = manager.bookSelector.querySelectorAll('[data-book-id]');
-      expect(cards[0].querySelector('.book-card-active-badge')).toBeNull();
-      expect(cards[1].querySelector('.book-card-active-badge')).not.toBeNull();
+      expect(cards[0].querySelector('.book-card-active-badge').hidden).toBe(true);
+      expect(cards[1].querySelector('.book-card-active-badge').hidden).toBe(false);
     });
 
-    it('escapes HTML in book id, title, and author', () => {
+    it('safely renders book title and author via textContent', () => {
+      const xssBooks = [{ id: 'b1', title: '<img onerror=alert(1)>', author: '<script>x</script>', chaptersCount: 1 }];
+      host.store.getBooks.mockReturnValue(xssBooks);
       manager.render();
 
-      // _escapeHtml should be called for id, title (twice: data attr + text), author
-      expect(host._escapeHtml).toHaveBeenCalled();
+      const card = manager.bookSelector.querySelector('[data-book-id]');
+      // textContent is used, so HTML is not interpreted
+      expect(card.querySelector('.book-card-title').textContent).toBe('<img onerror=alert(1)>');
+      expect(card.innerHTML).not.toContain('<script>');
     });
 
     it('sets tabindex and role on book cards', () => {
@@ -394,9 +400,9 @@ describe('BookSelectorManager', () => {
         host.store.getBooks.mockReturnValue(books);
         manager.render();
 
-        // The second book (index 1) should have an up button
-        const upBtns = manager.bookSelector.querySelectorAll('[data-book-move="up"]');
-        // Click the first up button (belongs to second card, index 1)
+        // The second book (index 1) should have a visible up button
+        const upBtns = manager.bookSelector.querySelectorAll('[data-book-move="up"]:not([hidden])');
+        // Click the first visible up button (belongs to second card, index 1)
         upBtns[0].click();
 
         expect(host.store.moveBook).toHaveBeenCalledWith(1, 0);

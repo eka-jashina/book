@@ -57,6 +57,7 @@ export class PhotoLightbox {
    */
   _buildDOM() {
     const tmpl = document.getElementById('tmpl-lightbox');
+    if (!tmpl) return;
     const clone = tmpl.content.cloneNode(true);
 
     this._overlay = clone.querySelector('.lightbox');
@@ -168,9 +169,9 @@ export class PhotoLightbox {
       });
     });
 
-    // Слушатели
-    document.addEventListener('keydown', this._onKeyDown);
-    window.addEventListener('popstate', this._onPopState, true); // capture: перехватить ДО Router
+    // Слушатели (capture: перехватить ДО EventController и Router)
+    document.addEventListener('keydown', this._onKeyDown, true);
+    window.addEventListener('popstate', this._onPopState, true);
     this._overlay.addEventListener('touchstart', this._onTouchStart, { passive: true });
     this._overlay.addEventListener('touchend', this._onTouchEnd, { passive: true });
 
@@ -273,9 +274,9 @@ export class PhotoLightbox {
     if (!this._isOpen || this._isAnimating) return;
     this._isAnimating = true;
 
-    // Убрать слушатели
-    document.removeEventListener('keydown', this._onKeyDown);
-    window.removeEventListener('popstate', this._onPopState, true); // capture: как при добавлении
+    // Убрать слушатели (capture: как при добавлении)
+    document.removeEventListener('keydown', this._onKeyDown, true);
+    window.removeEventListener('popstate', this._onPopState, true);
     this._overlay.removeEventListener('touchstart', this._onTouchStart);
     this._overlay.removeEventListener('touchend', this._onTouchEnd);
 
@@ -345,14 +346,16 @@ export class PhotoLightbox {
   _onKeyDown(e) {
     if (e.key === 'Escape') {
       e.preventDefault();
-      e.stopPropagation();
+      e.stopImmediatePropagation();
       // Убрать history-запись
       history.back();
     } else if (e.key === 'ArrowRight') {
       e.preventDefault();
+      e.stopImmediatePropagation();
       this.next();
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
+      e.stopImmediatePropagation();
       this.prev();
     }
   }
@@ -399,12 +402,22 @@ export class PhotoLightbox {
       clearTimeout(this._closeTimer);
       this._closeTimer = null;
     }
-    document.removeEventListener('keydown', this._onKeyDown);
+    document.removeEventListener('keydown', this._onKeyDown, true);
     window.removeEventListener('popstate', this._onPopState, true);
     this._overlay?.removeEventListener('touchstart', this._onTouchStart);
     this._overlay?.removeEventListener('touchend', this._onTouchEnd);
     this._overlay?.remove();
     this._overlay = null;
+
+    // Сбросить состояние, чтобы синглтон мог работать после пересоздания overlay
+    this._isOpen = false;
+    this._isAnimating = false;
+    this._originImg = null;
+    this._originRect = null;
+    this._rotation = '';
+    this._images = [];
+    this._currentIndex = -1;
+    this._touchStart = null;
   }
 }
 

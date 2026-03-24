@@ -163,7 +163,7 @@ describe('buildAlbumHtml', () => {
       ],
     };
     const html = buildAlbumHtml(albumData, escapeHtml);
-    expect(html).toContain('<article>');
+    expect(html).toContain('<article class="photo-album-chapter">');
     expect(html).toContain('<h2>My Album</h2>');
     expect(html).toContain('data-layout="1"');
     expect(html).toContain('src="data:image/png;base64,abc"');
@@ -346,6 +346,6 @@ describe('buildAlbumHtml', () => {
       pages: [],
     };
     const html = buildAlbumHtml(albumData, escapeHtml);
-    expect(html).toBe('<article><h2>Empty Album</h2></article>');
+    expect(html).toBe('<article class="photo-album-chapter"><h2>Empty Album</h2></article>');
   });
 });

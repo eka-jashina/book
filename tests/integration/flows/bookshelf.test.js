@@ -6,6 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { cleanupIntegrationDOM } from '../../helpers/integrationUtils.js';
+import { setupTemplates } from '../../helpers/adminTemplates.js';
 import {
   BookshelfScreen,
   getBookshelfData,
@@ -119,6 +120,8 @@ describe('Bookshelf Screen Integration', () => {
     wrapper.appendChild(menu);
     bookTemplate.content.appendChild(wrapper);
     document.body.appendChild(bookTemplate);
+
+    setupTemplates('tmpl-bookshelf-type-option');
 
     document.body.appendChild(container);
     return container;

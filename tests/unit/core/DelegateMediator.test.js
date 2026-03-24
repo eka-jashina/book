@@ -55,6 +55,7 @@ const createMockDelegate = () => {
     },
     getCurrentChapter: vi.fn().mockReturnValue(0),
     updateBackground: vi.fn(),
+    restoreCoverBackground: vi.fn(),
     open: vi.fn().mockResolvedValue(undefined),
     close: vi.fn().mockResolvedValue(undefined),
     repaginate: vi.fn().mockResolvedValue(undefined),

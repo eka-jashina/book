@@ -192,3 +192,30 @@
   letter-spacing: 0.12em;
   color: var(--shelf-text-muted);
 }
+
+/* ═══════════════════════════════════════════
+   ССЫЛКА «ДОМОЙ» (гостевой режим)
+   ═══════════════════════════════════════════ */
+
+.profile-header-home-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 16px 8px 12px;
+  font-family: Georgia, serif;
+  font-size: 14px;
+  color: var(--shelf-text-dim);
+  background: rgb(255, 255, 255, 0.04);
+  border: 1px solid var(--shelf-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.profile-header-home-link:hover {
+  color: var(--shelf-text);
+  background: rgb(232, 220, 200, 0.12);
+  border-color: rgb(232, 220, 200, 0.35);
+  transform: translateX(-3px);
+}

@@ -77,6 +77,8 @@ export default {
   'bookshelf.chooseType': 'Что создаём?',
   'bookshelf.empty': 'Книги пока не добавлены',
   'bookshelf.emptyGuest': 'Книг пока нет',
+  'bookshelf.backToHome': 'На главную',
+  'bookshelf.backToMyShelf': 'Моя полка',
   'bookshelf.menuRead': 'Читать',
   'bookshelf.menuEdit': 'Редактировать',
   'bookshelf.menuVisibility': 'Видимость',

@@ -194,7 +194,19 @@ export class Router {
 
   /** @private */
   _onPopState() {
-    this._resolve(this._stripBase(location.pathname), location.search);
+    const path = this._stripBase(location.pathname);
+    const normalizedPath = path === '/' ? '/' : path.replace(/\/$/, '');
+    const search = location.search;
+
+    // Не переинициализировать маршрут, если путь и query не изменились
+    // (например, popstate от закрытия лайтбокса, который pushState без смены URL)
+    if (this._current
+      && this._current.path === normalizedPath
+      && (this._current.query?.toString() ?? '') === new URLSearchParams(search).toString()) {
+      return;
+    }
+
+    this._resolve(path, search);
   }
 
   /**

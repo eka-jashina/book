@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { cleanupIntegrationDOM } from '../../helpers/integrationUtils.js';
 import { flushPromises } from '../../helpers/testUtils.js';
+import { setupTemplates } from '../../helpers/adminTemplates.js';
 
 vi.mock('../../../js/admin/modules/adminHelpers.js', () => ({
   readFileAsDataURL: vi.fn().mockResolvedValue('data:font/woff2;base64,AABBCC'),
@@ -268,6 +269,7 @@ describe('SoundsModule Integration', () => {
       <button id="saveSounds">Save</button>
       <button id="resetSounds">Reset</button>
     `;
+    setupTemplates('tmpl-admin-sound-card');
 
     app = createMockApp();
 
@@ -369,6 +371,7 @@ describe('FontsModule Integration', () => {
 
   beforeEach(async () => {
     createFontsDOM();
+    setupTemplates('tmpl-admin-reading-font-card');
     app = createMockApp();
 
     // Mock dialog methods

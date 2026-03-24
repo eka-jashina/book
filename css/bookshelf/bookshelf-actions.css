@@ -39,8 +39,9 @@
   flex-shrink: 0;
 }
 
-/* Показываем только если есть полка и пользователь — владелец */
-body[data-has-bookshelf="true"][data-reader-mode="owner"] .back-to-shelf-btn {
+/* Показываем для владельца и гостя; embed скрыт через embed.css */
+body[data-reader-mode="owner"] .back-to-shelf-btn,
+body[data-reader-mode="guest"] .back-to-shelf-btn {
   display: inline-flex;
 }
 

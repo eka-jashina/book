@@ -266,6 +266,57 @@ describe('ProfileHeader', () => {
     });
   });
 
+  describe('onNavigateHome (guest mode)', () => {
+    it('should show home link for guest with onNavigateHome', () => {
+      const onNavigateHome = vi.fn();
+      const header = new ProfileHeader({
+        user: { username: 'other' },
+        isOwner: false,
+        onNavigateHome,
+        homeLabelKey: 'bookshelf.backToHome',
+      });
+      header.render(container);
+
+      const link = container.querySelector('.profile-header-home-link');
+      expect(link).not.toBeNull();
+    });
+
+    it('should call onNavigateHome when home link clicked', () => {
+      const onNavigateHome = vi.fn();
+      const header = new ProfileHeader({
+        user: { username: 'other' },
+        isOwner: false,
+        onNavigateHome,
+        homeLabelKey: 'bookshelf.backToMyShelf',
+      });
+      header.render(container);
+
+      container.querySelector('.profile-header-home-link').click();
+      expect(onNavigateHome).toHaveBeenCalledOnce();
+    });
+
+    it('should not show home link for owner', () => {
+      const header = new ProfileHeader({
+        user: { username: 'me' },
+        isOwner: true,
+        onNavigateHome: vi.fn(),
+      });
+      header.render(container);
+
+      expect(container.querySelector('.profile-header-home-link')).toBeNull();
+    });
+
+    it('should not show home link when onNavigateHome is not provided', () => {
+      const header = new ProfileHeader({
+        user: { username: 'other' },
+        isOwner: false,
+      });
+      header.render(container);
+
+      expect(container.querySelector('.profile-header-home-link')).toBeNull();
+    });
+  });
+
   describe('_hashToHue', () => {
     it('should return a number between 0 and 360', () => {
       const header = new ProfileHeader({ user: {}, isOwner: false });

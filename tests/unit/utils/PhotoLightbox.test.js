@@ -13,6 +13,22 @@ import { PhotoLightbox } from '../../../js/utils/PhotoLightbox.js';
 const TRANSITION_MS = 300;
 
 // ═══════════════════════════════════════════════════════════════════════════
+// TEMPLATE (необходим для _buildDOM)
+// ═══════════════════════════════════════════════════════════════════════════
+
+const LIGHTBOX_TEMPLATE = `<template id="tmpl-lightbox">
+  <div class="lightbox" role="dialog" aria-modal="true" aria-label="Просмотр фотографии">
+    <img class="lightbox__img" alt="">
+    <div class="lightbox__shield"></div>
+    <button class="lightbox__close" type="button" aria-label="Закрыть"></button>
+    <button class="lightbox__nav lightbox__nav--prev" type="button" aria-label="Предыдущее фото"></button>
+    <button class="lightbox__nav lightbox__nav--next" type="button" aria-label="Следующее фото"></button>
+    <div class="lightbox__counter"></div>
+    <div class="lightbox__caption"></div>
+  </div>
+</template>`;
+
+// ═══════════════════════════════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -66,6 +82,7 @@ describe('PhotoLightbox', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
+    document.body.insertAdjacentHTML('beforeend', LIGHTBOX_TEMPLATE);
     mockImg = createMockImg();
     lightbox = new PhotoLightbox();
   });
@@ -210,10 +227,10 @@ describe('PhotoLightbox', () => {
       expect(lightbox._img.style.transform).toBe('');
     });
 
-    it('should register keydown listener on document', () => {
+    it('should register keydown listener on document (capture)', () => {
       const spy = vi.spyOn(document, 'addEventListener');
       lightbox.open(mockImg);
-      expect(spy).toHaveBeenCalledWith('keydown', lightbox._onKeyDown);
+      expect(spy).toHaveBeenCalledWith('keydown', lightbox._onKeyDown, true);
     });
 
     it('should register popstate listener on window', () => {
@@ -309,10 +326,10 @@ describe('PhotoLightbox', () => {
         expect(lightbox._overlay.classList.contains('lightbox--active')).toBe(false);
       });
 
-      it('should remove keydown listener from document', () => {
+      it('should remove keydown listener from document (capture)', () => {
         const spy = vi.spyOn(document, 'removeEventListener');
         lightbox.close();
-        expect(spy).toHaveBeenCalledWith('keydown', lightbox._onKeyDown);
+        expect(spy).toHaveBeenCalledWith('keydown', lightbox._onKeyDown, true);
       });
 
       it('should remove popstate listener from window (capture phase)', () => {
@@ -432,10 +449,10 @@ describe('PhotoLightbox', () => {
       expect(preventSpy).toHaveBeenCalled();
     });
 
-    it('should call event.stopPropagation() on Escape', () => {
+    it('should call event.stopImmediatePropagation() on Escape', () => {
       vi.spyOn(history, 'back').mockImplementation(() => {});
       const event = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
-      const stopSpy = vi.spyOn(event, 'stopPropagation');
+      const stopSpy = vi.spyOn(event, 'stopImmediatePropagation');
       lightbox._onKeyDown(event);
       expect(stopSpy).toHaveBeenCalled();
     });
@@ -594,6 +611,22 @@ describe('PhotoLightbox', () => {
       lightbox.destroy();
       window.dispatchEvent(new PopStateEvent('popstate'));
       expect(closeSpy).not.toHaveBeenCalled();
+    });
+
+    it('should reset _isOpen and _isAnimating flags', () => {
+      openAndFlush(lightbox, mockImg);
+      expect(lightbox._isOpen).toBe(true);
+      lightbox.destroy();
+      expect(lightbox._isOpen).toBe(false);
+      expect(lightbox._isAnimating).toBe(false);
+    });
+
+    it('should allow re-open after destroy and rebuild', () => {
+      openAndFlush(lightbox, mockImg);
+      lightbox.destroy();
+      // После destroy синглтон должен позволить open() снова
+      expect(lightbox._isOpen).toBe(false);
+      expect(lightbox._isAnimating).toBe(false);
     });
 
     it('should be safe to call multiple times', () => {

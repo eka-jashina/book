@@ -169,6 +169,10 @@ export class DelegateMediator {
     await this._delegates.lifecycle.close();
     // Runtime reset (делегаты имеют read-only state, поэтому пишем здесь)
     this._state.index = 0;
+
+    // Восстановить фон обложки (при закрытии книги глава могла оставить другой фон или null)
+    this._delegates.chapter.restoreCoverBackground(this._isMobileFn());
+
     this._announcer.announceBookState(false);
   }
 

@@ -27,7 +27,7 @@ export function buildAlbumHtml(albumData, escapeHtml) {
     return `<div class="photo-album" data-layout="${page.layout}">${figures.join('')}</div>`;
   });
 
-  return `<article><h2${h2Class}>${escapeHtml(albumData.title)}</h2>${albumDivs.join('')}</article>`;
+  return `<article class="photo-album-chapter"><h2${h2Class}>${escapeHtml(albumData.title)}</h2>${albumDivs.join('')}</article>`;
 }
 
 /** Собрать CSS-модификаторы рамки и фильтра для figure */

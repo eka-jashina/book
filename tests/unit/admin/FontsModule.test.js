@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { setupTemplates } from '../../helpers/adminTemplates.js';
 import { FontsModule } from '../../../js/admin/modules/FontsModule.js';
 
 function createMockApp() {
@@ -52,6 +53,7 @@ function setupDOM() {
       </form>
     </dialog>
   `;
+  setupTemplates('tmpl-admin-reading-font-card');
 }
 
 describe('FontsModule', () => {

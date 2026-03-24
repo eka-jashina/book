@@ -77,6 +77,8 @@ export default {
   'bookshelf.chooseType': 'What would you like to create?',
   'bookshelf.empty': 'No books added yet',
   'bookshelf.emptyGuest': 'No books yet',
+  'bookshelf.backToHome': 'Home',
+  'bookshelf.backToMyShelf': 'My shelf',
   'bookshelf.menuRead': 'Read',
   'bookshelf.menuEdit': 'Edit',
   'bookshelf.menuVisibility': 'Visibility',

@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { setupTemplates } from '../../helpers/adminTemplates.js';
 import { SettingsModule } from '../../../js/admin/modules/SettingsModule.js';
 
 function createMockApp() {
@@ -73,6 +74,7 @@ function setupDOM() {
       <input data-visibility="ambient" type="checkbox">
     </div>
   `;
+  setupTemplates('tmpl-admin-ambient-btn', 'tmpl-admin-visibility-toggle');
 }
 
 describe('SettingsModule', () => {

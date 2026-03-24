@@ -104,6 +104,19 @@ export class ChapterDelegate extends BaseDelegate {
   }
 
   /**
+   * Восстановить фон обложки (при закрытии книги)
+   * @param {boolean} isMobile - Мобильный режим
+   */
+  restoreCoverBackground(isMobile) {
+    const body = this.dom.get('body');
+    if (body) {
+      body.dataset.chapter = 'cover';
+    }
+    const coverBg = isMobile ? getConfig().COVER_BG_MOBILE : getConfig().COVER_BG;
+    this.backgroundManager.setBackground(coverBg);
+  }
+
+  /**
    * Предзагрузить фон следующей главы
    * @private
    * @param {number} currentChapter

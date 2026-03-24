@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { setupTemplates } from '../../helpers/adminTemplates.js';
 import { SoundsModule } from '../../../js/admin/modules/SoundsModule.js';
 
 function createMockApp() {
@@ -29,6 +30,7 @@ function setupDOM() {
     <button id="saveSounds"></button>
     <button id="resetSounds"></button>
   `;
+  setupTemplates('tmpl-admin-sound-card');
 }
 
 describe('SoundsModule', () => {

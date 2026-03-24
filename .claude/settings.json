@@ -51,5 +51,29 @@
         ]
       }
     ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(netstat -ano)",
+      "Bash(tasklist /FI \"PID eq 7316\" /FO CSV /NH)",
+      "Bash(cmd.exe /c \"tasklist /FI \"\"PID eq 7316\"\" /FO CSV /NH\")",
+      "Bash(powershell -Command \"Get-Process -Id 7316 | Select-Object ProcessName, Id, Path | Format-List\")",
+      "Bash(powershell -Command \"Restart-Service com.docker.service -ErrorAction SilentlyContinue; Stop-Process -Name ''Docker Desktop'' -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 3; Start-Process ''C:\\\\Program Files\\\\Docker\\\\Docker\\\\Docker Desktop.exe''\")",
+      "Bash(docker stop:*)",
+      "Bash(docker rm:*)",
+      "Bash(grep -n \"tmpl-admin-album-page-card\" js/admin/modules/*.js)",
+      "Bash(grep -n \"tmpl-bookshelf-type-option\" js/core/*.js)",
+      "Bash(find . -name *.html -type f)",
+      "Bash(ls -la *.html)",
+      "Bash(xargs grep:*)",
+      "Bash(grep -oh \"getElementById\\(''''[^'''']*''''\\)\" js/**/*.js js/**/**/*.js)",
+      "Bash(sed \"s/''''\\)//\")",
+      "Bash(find /c/Users/ekaterina/Documents/book/js/core -type f -name *Screen* -o -name *Landing* -o -name *Bookshelf* -o -name *Account*)",
+      "Bash(grep -E \"\\(index\\\\.html|index\\\\.js\\)$\")",
+      "Bash(ls -la /c/Users/ekaterina/Documents/book/tests/integration/flows/*.test.js)",
+      "Bash(cat:*)",
+      "Bash(grep -l \"export class\\\\|export async function\\\\|export function\" js/**/*.js)",
+      "Read(//c/Users/EKATER~1/AppData/Local/Temp/claude/c--Users-ekaterina-Documents-book/1582311a-95c0-4f69-9b51-18342e5829ef/tasks/**)"
+    ]
   }
 }

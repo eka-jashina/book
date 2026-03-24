@@ -95,6 +95,7 @@ describe('DelegateMediator Integration', () => {
       return 0;
     });
     chapterDelegate.updateBackground = vi.fn();
+    chapterDelegate.restoreCoverBackground = vi.fn();
 
     dragDelegate = createDelegateEmitter();
 

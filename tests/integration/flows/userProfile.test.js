@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { cleanupIntegrationDOM } from '../../helpers/integrationUtils.js';
 import { flushPromises } from '../../helpers/testUtils.js';
+import { setupTemplates } from '../../helpers/adminTemplates.js';
 
 // ── ProfileModule ─────────────────────────────────────────────────────────────
 
@@ -39,6 +40,7 @@ describe('User Profile Integration', () => {
 
     beforeEach(() => {
       const container = createProfileDOM();
+      setupTemplates('tmpl-profile-preview');
 
       mockApi = {
         getProfile: vi.fn().mockResolvedValue({
