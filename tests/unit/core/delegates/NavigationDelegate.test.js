@@ -716,14 +716,15 @@ describe('NavigationDelegate', () => {
     });
 
     it('should use "default" when BOOK_ID is falsy', () => {
+      const original = mockConfig.BOOK_ID;
       mockConfig.BOOK_ID = '';
 
-      delegate._checkChapterCompleted(48, 52, 'next');
-
-      expect(mockTrackChapterCompleted).toHaveBeenCalledWith('default', 0);
-
-      // Restore
-      mockConfig.BOOK_ID = 'test-book-123';
+      try {
+        delegate._checkChapterCompleted(48, 52, 'next');
+        expect(mockTrackChapterCompleted).toHaveBeenCalledWith('default', 0);
+      } finally {
+        mockConfig.BOOK_ID = original;
+      }
     });
 
     it('should track chapter when prevIndex is exactly at chapter start', () => {

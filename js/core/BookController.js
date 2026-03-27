@@ -20,6 +20,7 @@
  */
 
 import { mediaQueries, ErrorHandler, getAnnouncer } from '../utils/index.js';
+import { t } from '@i18n';
 import { AppInitializer } from './AppInitializer.js';
 import { SubscriptionManager } from './SubscriptionManager.js';
 import { ResizeHandler } from './ResizeHandler.js';
@@ -143,17 +144,17 @@ export class BookController {
       switch (state) {
         case 'syncing':
           el.classList.add('sync-indicator--syncing');
-          textEl.textContent = 'Сохранение...';
+          textEl.textContent = t('common.saving');
           break;
         case 'synced':
           el.classList.add('sync-indicator--synced');
-          textEl.textContent = 'Сохранено';
+          textEl.textContent = t('common.saved');
           // Скрыть через 2 секунды
           setTimeout(() => { el.hidden = true; }, 2000);
           break;
         case 'error':
           el.classList.add('sync-indicator--error');
-          textEl.textContent = 'Не сохранено';
+          textEl.textContent = t('common.notSaved');
           break;
       }
     };

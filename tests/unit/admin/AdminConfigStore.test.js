@@ -756,12 +756,12 @@ describe('AdminConfigStore', () => {
 
   describe('_save', () => {
     it('should save to localStorage on mutations', () => {
-      localStorage.clear();
       store.updateCover({ title: 'Saved Title' });
 
-      expect(localStorage.setItem).toHaveBeenCalled();
-      const savedData = JSON.parse(localStorage.setItem.mock.calls[0][1]);
-      expect(savedData.books[0].cover.title).toBe('Saved Title');
+      expect(localStorage.setItem).toHaveBeenLastCalledWith(
+        'flipbook-admin-config',
+        expect.stringContaining('"Saved Title"'),
+      );
     });
 
     it('should save with correct storage key', () => {

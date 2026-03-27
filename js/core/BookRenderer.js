@@ -96,6 +96,30 @@ export class BookRenderer {
   }
 
   /**
+   * Ширина страницы в пикселях
+   * @returns {number}
+   */
+  get pageWidth() {
+    return this._pageWidth;
+  }
+
+  /**
+   * Высота страницы в пикселях
+   * @returns {number}
+   */
+  get pageHeight() {
+    return this._pageHeight;
+  }
+
+  /**
+   * Наличие оглавления на первой странице
+   * @returns {boolean}
+   */
+  get hasTOC() {
+    return this._hasTOC;
+  }
+
+  /**
    * Установить данные пагинации (viewport reuse)
    *
    * Вместо хранения N DOM-клонов, хранит один исходный элемент.

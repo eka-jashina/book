@@ -67,6 +67,8 @@ const resetMockInstances = () => {
   };
 };
 
+vi.mock('@i18n', () => ({ t: vi.fn((key) => key) }));
+
 // Mock utils
 vi.mock('../../../js/utils/index.js', () => ({
   mediaQueries: mockMediaQueries,
@@ -946,7 +948,7 @@ describe('BookController _setupSyncIndicator', () => {
     ctrl.settings.onSyncStateChange('syncing');
     expect(el.hidden).toBe(false);
     expect(el.classList.contains('sync-indicator--syncing')).toBe(true);
-    expect(textEl.textContent).toBe('Сохранение...');
+    expect(textEl.textContent).toBe('common.saving');
     ctrl.destroy();
   });
 
@@ -969,7 +971,7 @@ describe('BookController _setupSyncIndicator', () => {
 
     ctrl.settings.onSyncStateChange('synced');
     expect(el.classList.contains('sync-indicator--synced')).toBe(true);
-    expect(textEl.textContent).toBe('Сохранено');
+    expect(textEl.textContent).toBe('common.saved');
     expect(el.hidden).toBe(false);
 
     vi.advanceTimersByTime(2000);
@@ -997,7 +999,7 @@ describe('BookController _setupSyncIndicator', () => {
 
     ctrl.settings.onSyncStateChange('error');
     expect(el.classList.contains('sync-indicator--error')).toBe(true);
-    expect(textEl.textContent).toBe('Не сохранено');
+    expect(textEl.textContent).toBe('common.notSaved');
     ctrl.destroy();
   });
 

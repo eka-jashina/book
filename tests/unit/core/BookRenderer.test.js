@@ -788,20 +788,20 @@ describe('BookRenderer', () => {
     it('should reset _totalPages to 0', () => {
       renderer.setPaginationData(createMockPageData(10));
       renderer.destroy();
-      expect(renderer._totalPages).toBe(0);
+      expect(renderer.totalPages).toBe(0);
     });
 
     it('should reset _pageWidth and _pageHeight to 0', () => {
       renderer.setPaginationData(createMockPageData(5, 300, 500));
       renderer.destroy();
-      expect(renderer._pageWidth).toBe(0);
-      expect(renderer._pageHeight).toBe(0);
+      expect(renderer.pageWidth).toBe(0);
+      expect(renderer.pageHeight).toBe(0);
     });
 
     it('should reset _hasTOC to false', () => {
       renderer.setPaginationData(createMockPageData(5, 400, 600, true));
       renderer.destroy();
-      expect(renderer._hasTOC).toBe(false);
+      expect(renderer.hasTOC).toBe(false);
     });
 
     it('should set elements to null', () => {

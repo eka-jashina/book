@@ -377,6 +377,10 @@ describe('Router', () => {
       vi.clearAllMocks();
     });
 
+    afterEach(() => {
+      document.body.innerHTML = '';
+    });
+
     it('should intercept clicks on a[data-route] links', async () => {
       const link = document.createElement('a');
       link.setAttribute('data-route', '/account');
