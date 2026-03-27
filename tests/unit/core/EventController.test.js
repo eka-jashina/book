@@ -105,84 +105,6 @@ describe('EventController', () => {
     mockMediaQueries.isMobile = false;
   });
 
-  describe('constructor', () => {
-    it('should store book element reference', () => {
-      expect(controller.book).toBe(mockBook);
-    });
-
-    it('should store event manager reference', () => {
-      expect(controller.eventManager).toBe(mockEventManager);
-    });
-
-    it('should store callback functions', () => {
-      expect(controller.onFlip).toBe(mockCallbacks.onFlip);
-      expect(controller.onTOCClick).toBe(mockCallbacks.onTOCClick);
-      expect(controller.onOpen).toBe(mockCallbacks.onOpen);
-      expect(controller.onSettings).toBe(mockCallbacks.onSettings);
-    });
-
-    it('should store state check functions', () => {
-      expect(controller.isBusy).toBe(mockCallbacks.isBusy);
-      expect(controller.isOpened).toBe(mockCallbacks.isOpened);
-    });
-
-    it('should initialize touch coordinates to 0', () => {
-      expect(controller.touchStartX).toBe(0);
-      expect(controller.touchStartY).toBe(0);
-    });
-
-    it('should initialize empty bound handlers', () => {
-      expect(controller._boundHandlers).toEqual({});
-    });
-  });
-
-  describe('bind', () => {
-    let elements;
-
-    beforeEach(() => {
-      elements = {
-        nextBtn: document.createElement('button'),
-        prevBtn: document.createElement('button'),
-        tocBtn: document.createElement('button'),
-        continueBtn: document.createElement('button'),
-        coverEl: document.createElement('div'),
-        increaseBtn: document.createElement('button'),
-        decreaseBtn: document.createElement('button'),
-        fontSizeValue: document.createElement('span'),
-        fontSelect: document.createElement('select'),
-        themeSegmented: document.createElement('div'),
-        debugToggle: document.createElement('button'),
-        soundToggle: document.createElement('input'),
-        volumeSlider: document.createElement('input'),
-        pageVolumeControl: document.createElement('div'),
-        ambientPills: document.createElement('div'),
-        ambientVolume: document.createElement('input'),
-        ambientVolumeWrapper: document.createElement('div'),
-        fullscreenBtn: document.createElement('button'),
-        settingsCheckbox: document.createElement('input'),
-      };
-
-      elements.soundToggle.type = 'checkbox';
-      elements.settingsCheckbox.type = 'checkbox';
-      elements.volumeSlider.type = 'range';
-      elements.ambientVolume.type = 'range';
-      elements.fontSizeValue.textContent = '18';
-    });
-
-    it('should call all binding methods', () => {
-      const spyNav = vi.spyOn(controller, '_bindNavigationButtons');
-      const spyBook = vi.spyOn(controller, '_bindBookInteractions');
-      const spyKeyboard = vi.spyOn(controller, '_bindKeyboard');
-      const spyTouch = vi.spyOn(controller, '_bindTouch');
-
-      controller.bind(elements);
-
-      expect(spyNav).toHaveBeenCalledWith(elements);
-      expect(spyBook).toHaveBeenCalled();
-      expect(spyKeyboard).toHaveBeenCalled();
-      expect(spyTouch).toHaveBeenCalled();
-    });
-  });
 
   describe('_bindNavigationButtons', () => {
     let elements;
@@ -1446,5 +1368,323 @@ describe('EventController edge cases', () => {
     // Should not call onTOCClick or preventDefault
     expect(controller.onTOCClick).not.toHaveBeenCalled();
     expect(event.preventDefault).not.toHaveBeenCalled();
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SPEC-BASED: EventController — additional coverage (spec-based)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('EventController spec-based', () => {
+  let controller;
+  let mockBook;
+  let mockEventManager;
+  let mockCallbacks;
+  let registeredListeners;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    registeredListeners = [];
+
+    mockBook = createSizedElement(800, 600);
+    mockBook.className = 'book';
+    document.body.appendChild(mockBook);
+
+    mockEventManager = {
+      add: vi.fn((element, event, handler, options) => {
+        registeredListeners.push({ element, event, handler, options });
+      }),
+      remove: vi.fn(),
+      removeAll: vi.fn(),
+    };
+
+    mockCallbacks = {
+      onFlip: vi.fn(),
+      onTOCClick: vi.fn(),
+      onOpen: vi.fn(),
+      onSettings: vi.fn(),
+      isBusy: vi.fn(() => false),
+      isOpened: vi.fn(() => true),
+      getFontSize: vi.fn(() => 18),
+    };
+
+    controller = new EventController({
+      book: mockBook,
+      eventManager: mockEventManager,
+      ...mockCallbacks,
+    });
+  });
+
+  afterEach(() => {
+    controller?.destroy();
+    document.body.innerHTML = '';
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+    mockMediaQueries.isMobile = false;
+  });
+
+  // ── continueBtn busy guard ──
+
+  describe('continueBtn busy guard (spec-based)', () => {
+    it('should not call onOpen when busy and continueBtn clicked', () => {
+      const elements = {
+        continueBtn: document.createElement('button'),
+      };
+
+      mockCallbacks.isBusy.mockReturnValue(true);
+      controller._bindNavigationButtons(elements);
+
+      const handler = registeredListeners.find(
+        (l) => l.element === elements.continueBtn
+      ).handler;
+      handler();
+
+      expect(mockCallbacks.onOpen).not.toHaveBeenCalled();
+    });
+  });
+
+  // ── keyboard: non-Enter/Space keys on TOC ──
+
+  describe('keyboard on TOC — only Enter and Space (spec-based)', () => {
+    it('should not navigate on Tab key on TOC item', () => {
+      controller._bindBookInteractions();
+
+      const toc = document.createElement('ul');
+      toc.className = 'toc';
+      const li = document.createElement('li');
+      li.dataset.chapter = '1';
+      toc.appendChild(li);
+      mockBook.appendChild(toc);
+
+      const keyHandler = registeredListeners.find(
+        (l) => l.element === mockBook && l.event === 'keydown'
+      ).handler;
+
+      const event = {
+        key: 'Tab',
+        target: li,
+        preventDefault: vi.fn(),
+      };
+      keyHandler(event);
+
+      expect(mockCallbacks.onTOCClick).not.toHaveBeenCalled();
+    });
+
+    it('should not navigate on keydown when target has no data-chapter', () => {
+      controller._bindBookInteractions();
+
+      const toc = document.createElement('ul');
+      toc.className = 'toc';
+      const div = document.createElement('div');
+      toc.appendChild(div);
+      mockBook.appendChild(toc);
+
+      const keyHandler = registeredListeners.find(
+        (l) => l.element === mockBook && l.event === 'keydown'
+      ).handler;
+
+      const event = {
+        key: 'Enter',
+        target: div,
+        preventDefault: vi.fn(),
+      };
+      keyHandler(event);
+
+      expect(mockCallbacks.onTOCClick).not.toHaveBeenCalled();
+    });
+  });
+
+  // ── photo-album exclusion on desktop click ──
+
+  describe('desktop click — photo-album exclusion (spec-based)', () => {
+    beforeEach(() => {
+      mockMediaQueries.isMobile = false;
+    });
+
+    it('should not flip when clicking on photo-album item', () => {
+      controller._bindBookInteractions();
+
+      const albumItem = document.createElement('div');
+      albumItem.className = 'photo-album__item';
+      mockBook.appendChild(albumItem);
+
+      const pointerHandler = registeredListeners.find(
+        (l) => l.element === mockBook && l.event === 'pointerdown'
+      ).handler;
+
+      const event = { clientX: 600, target: albumItem };
+      pointerHandler(event);
+
+      expect(mockCallbacks.onFlip).not.toHaveBeenCalled();
+    });
+  });
+
+  // ── desktop click direction: exact middle ──
+
+  describe('desktop click — direction at exact middle (spec-based)', () => {
+    beforeEach(() => {
+      mockMediaQueries.isMobile = false;
+    });
+
+    it('should use clientX relative to book rect for direction', () => {
+      // Книга позиционирована не с x=0
+      vi.spyOn(mockBook, 'getBoundingClientRect').mockReturnValue({
+        left: 200,
+        right: 1000,
+        width: 800,
+        top: 0,
+        bottom: 600,
+        height: 600,
+      });
+
+      controller._bindBookInteractions();
+
+      const pointerHandler = registeredListeners.find(
+        (l) => l.element === mockBook && l.event === 'pointerdown'
+      ).handler;
+
+      // clientX=300, rect.left=200 → x=100, width=800, half=400 → 100<400 → PREV
+      pointerHandler({ clientX: 300, target: mockBook });
+      expect(mockCallbacks.onFlip).toHaveBeenCalledWith('prev');
+
+      mockCallbacks.onFlip.mockClear();
+
+      // clientX=700, rect.left=200 → x=500, width=800, half=400 → 500>=400 → NEXT
+      pointerHandler({ clientX: 700, target: mockBook });
+      expect(mockCallbacks.onFlip).toHaveBeenCalledWith('next');
+    });
+  });
+
+  // ── touch: swipe threshold boundaries ──
+
+  describe('touch — swipe threshold boundaries (spec-based)', () => {
+    beforeEach(() => {
+      controller._bindTouch();
+    });
+
+    it('should flip on swipe exactly at threshold', () => {
+      const touchstartHandler = controller._boundHandlers.touchstart;
+      const touchendHandler = controller._boundHandlers.touchend;
+
+      // threshold = 20 (from mock)
+      touchstartHandler({
+        touches: [{ clientX: 100, clientY: 100 }],
+        target: mockBook,
+      });
+
+      // dx = -20, exactly at threshold
+      touchendHandler({
+        changedTouches: [{ clientX: 80, clientY: 100 }],
+        target: mockBook,
+      });
+
+      // abs(dx)=20, threshold=20 → 20 < 20 is false → should flip
+      expect(mockCallbacks.onFlip).toHaveBeenCalledWith('next');
+    });
+
+    it('should NOT flip on swipe just below threshold', () => {
+      const touchstartHandler = controller._boundHandlers.touchstart;
+      const touchendHandler = controller._boundHandlers.touchend;
+
+      touchstartHandler({
+        touches: [{ clientX: 100, clientY: 100 }],
+        target: mockBook,
+      });
+
+      // dx = -19, below threshold
+      touchendHandler({
+        changedTouches: [{ clientX: 81, clientY: 100 }],
+        target: mockBook,
+      });
+
+      expect(mockCallbacks.onFlip).not.toHaveBeenCalled();
+    });
+
+    it('should flip when vertical movement exactly equals limit', () => {
+      const touchstartHandler = controller._boundHandlers.touchstart;
+      const touchendHandler = controller._boundHandlers.touchend;
+
+      // verticalLimit = 30 (from mock)
+      touchstartHandler({
+        touches: [{ clientX: 200, clientY: 100 }],
+        target: mockBook,
+      });
+
+      // dx = -100 (good swipe), dy = 30 (exactly at limit)
+      touchendHandler({
+        changedTouches: [{ clientX: 100, clientY: 130 }],
+        target: mockBook,
+      });
+
+      // abs(dy)=30 > 30 is false → passes vertical check → flip happens
+      expect(mockCallbacks.onFlip).toHaveBeenCalledWith('next');
+    });
+
+    it('should NOT flip when vertical exceeds limit by 1', () => {
+      const touchstartHandler = controller._boundHandlers.touchstart;
+      const touchendHandler = controller._boundHandlers.touchend;
+
+      touchstartHandler({
+        touches: [{ clientX: 200, clientY: 100 }],
+        target: mockBook,
+      });
+
+      // dx = -100, dy = 31 (exceeds limit)
+      touchendHandler({
+        changedTouches: [{ clientX: 100, clientY: 131 }],
+        target: mockBook,
+      });
+
+      expect(mockCallbacks.onFlip).not.toHaveBeenCalled();
+    });
+  });
+
+  // ── CSS variable names used for swipe config ──
+
+  describe('swipe config reads CSS variables (spec-based)', () => {
+    it('should read --swipe-threshold from cssVars on swipe', () => {
+      controller._bindTouch();
+      mockCssVars.getNumber.mockClear();
+
+      // Trigger a swipe to cause CSS vars to be read
+      const touchstartHandler = controller._boundHandlers.touchstart;
+      const touchendHandler = controller._boundHandlers.touchend;
+
+      touchstartHandler({
+        touches: [{ clientX: 200, clientY: 100 }],
+        target: mockBook,
+      });
+      touchendHandler({
+        changedTouches: [{ clientX: 100, clientY: 100 }],
+        target: mockBook,
+      });
+
+      const thresholdCall = mockCssVars.getNumber.mock.calls.find(
+        (c) => c[0] === '--swipe-threshold'
+      );
+      expect(thresholdCall).toBeDefined();
+    });
+
+    it('should read --swipe-vertical-limit from cssVars on swipe', () => {
+      controller._bindTouch();
+      mockCssVars.getNumber.mockClear();
+
+      const touchstartHandler = controller._boundHandlers.touchstart;
+      const touchendHandler = controller._boundHandlers.touchend;
+
+      touchstartHandler({
+        touches: [{ clientX: 200, clientY: 100 }],
+        target: mockBook,
+      });
+      touchendHandler({
+        changedTouches: [{ clientX: 100, clientY: 100 }],
+        target: mockBook,
+      });
+
+      const limitCall = mockCssVars.getNumber.mock.calls.find(
+        (c) => c[0] === '--swipe-vertical-limit'
+      );
+      expect(limitCall).toBeDefined();
+    });
   });
 });

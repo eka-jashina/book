@@ -128,8 +128,7 @@ describe('LifecycleDelegate', () => {
         get: vi.fn((key) => {
           if (key === 'rightA' || key === 'leftA') {
             const el = document.createElement('div');
-            el.classList = { add: vi.fn(), remove: vi.fn() };
-            Object.defineProperty(el, 'offsetWidth', { value: 500 });
+            Object.defineProperty(el, 'offsetWidth', { value: 500, configurable: true });
             return el;
           }
           if (key === 'book') {
@@ -551,6 +550,316 @@ describe('LifecycleDelegate', () => {
       expect(eventHandlers.onPaginationComplete).not.toHaveBeenCalled();
       expect(eventHandlers.onIndexChange).not.toHaveBeenCalled();
       expect(eventHandlers.onChapterUpdate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('open - chapter data mapping', () => {
+    it('should map chapter title, _idb, and _hasHtmlContent fields', async () => {
+      mockConfig.CHAPTERS = [
+        { id: 'ch1', file: 'f1.html', title: 'Chapter 1', htmlContent: '<p>text</p>', _idb: true, _hasHtmlContent: true },
+      ];
+
+      const openPromise = delegate.open();
+      await vi.runAllTimersAsync();
+      await openPromise;
+
+      const chaptersArg = mockDeps.contentLoader.load.mock.calls[0][0];
+      expect(chaptersArg[0].title).toBe('Chapter 1');
+      expect(chaptersArg[0]._idb).toBe(true);
+      expect(chaptersArg[0]._hasHtmlContent).toBe(true);
+      expect(chaptersArg[0].htmlContent).toBe('<p>text</p>');
+
+      mockConfig.CHAPTERS = [
+        { id: 'ch1', file: 'content/part_1.html' },
+        { id: 'ch2', file: 'content/part_2.html' },
+      ];
+    });
+  });
+
+  describe('open - start ambient if needed', () => {
+    it('should start ambient with fade when ambientType is set', async () => {
+      const openPromise = delegate.open();
+      await vi.runAllTimersAsync();
+      await openPromise;
+
+      expect(mockDeps.ambientManager.setType).toHaveBeenCalledWith('rain', true);
+    });
+
+    it('should not start ambient when ambientType is "none"', async () => {
+      mockDeps.settings.get.mockImplementation((key) => {
+        if (key === 'ambientType') return 'none';
+        return null;
+      });
+
+      const openPromise = delegate.open();
+      await vi.runAllTimersAsync();
+      await openPromise;
+
+      expect(mockDeps.ambientManager.setType).not.toHaveBeenCalled();
+    });
+
+    it('should not start ambient when no ambientManager', async () => {
+      mockDeps.ambientManager = null;
+      // Need to re-create delegate without ambientManager
+      delegate.destroy();
+      // ambientManager is accessed via BaseDelegate, so just set it null
+      delegate = new LifecycleDelegate({
+        ...mockDeps,
+        ambientManager: null,
+      });
+
+      const openPromise = delegate.open();
+      await vi.runAllTimersAsync();
+      await openPromise;
+      // No throw
+    });
+
+    it('should not start ambient when ambientType is empty/falsy', async () => {
+      mockDeps.settings.get.mockImplementation((key) => {
+        if (key === 'ambientType') return '';
+        return null;
+      });
+
+      const openPromise = delegate.open();
+      await vi.runAllTimersAsync();
+      await openPromise;
+
+      expect(mockDeps.ambientManager.setType).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('open - safeStartIndex clamping', () => {
+    it('should clamp negative start index to 0', async () => {
+      const openPromise = delegate.open(-5);
+      await vi.runAllTimersAsync();
+      await openPromise;
+
+      expect(mockDeps.renderer.renderSpread).toHaveBeenCalledWith(0, false);
+    });
+  });
+
+  describe('open - transitionTo returns false', () => {
+    it('should return early if transitionTo OPENING fails', async () => {
+      mockDeps.stateMachine.transitionTo.mockReturnValueOnce(false);
+
+      await delegate.open();
+
+      expect(mockDeps.contentLoader.load).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('close - DOM manipulation', () => {
+    it('should add closing-hidden class to leftA and rightA', async () => {
+      mockDeps.stateMachine.current = 'OPENED';
+      const leftA = document.createElement('div');
+      const rightA = document.createElement('div');
+      mockDeps.dom.get.mockImplementation((key) => {
+        if (key === 'leftA') return leftA;
+        if (key === 'rightA') return rightA;
+        if (key === 'book') return document.createElement('div');
+        return null;
+      });
+
+      const closePromise = delegate.close();
+      // Check mid-operation
+      expect(leftA.classList.contains('closing-hidden')).toBe(true);
+      expect(rightA.classList.contains('closing-hidden')).toBe(true);
+
+      await vi.runAllTimersAsync();
+      await closePromise;
+
+      // After close completes, closing-hidden should be removed
+      expect(leftA.classList.contains('closing-hidden')).toBe(false);
+      expect(rightA.classList.contains('closing-hidden')).toBe(false);
+    });
+
+    it('should clear innerHTML of leftA and rightA before close animation', async () => {
+      mockDeps.stateMachine.current = 'OPENED';
+      const leftA = document.createElement('div');
+      leftA.innerHTML = '<p>content</p>';
+      const rightA = document.createElement('div');
+      rightA.innerHTML = '<p>content</p>';
+      mockDeps.dom.get.mockImplementation((key) => {
+        if (key === 'leftA') return leftA;
+        if (key === 'rightA') return rightA;
+        if (key === 'book') return document.createElement('div');
+        return null;
+      });
+
+      const closePromise = delegate.close();
+      expect(leftA.innerHTML).toBe('');
+      expect(rightA.innerHTML).toBe('');
+
+      await vi.runAllTimersAsync();
+      await closePromise;
+    });
+  });
+
+  describe('close - without soundManager', () => {
+    it('should not throw when soundManager is null', async () => {
+      mockDeps.stateMachine.current = 'OPENED';
+      delegate.destroy();
+      delegate = new LifecycleDelegate({
+        ...mockDeps,
+        soundManager: null,
+      });
+
+      const closePromise = delegate.close();
+      await vi.runAllTimersAsync();
+      await closePromise;
+
+      // Should not throw
+    });
+  });
+
+  describe('close - error recovery restores DOM', () => {
+    it('should remove closing-hidden on close animation error', async () => {
+      mockDeps.stateMachine.current = 'OPENED';
+      const leftA = document.createElement('div');
+      const rightA = document.createElement('div');
+      mockDeps.dom.get.mockImplementation((key) => {
+        if (key === 'leftA') return leftA;
+        if (key === 'rightA') return rightA;
+        if (key === 'book') return document.createElement('div');
+        return null;
+      });
+
+      mockDeps.animator.runCloseAnimation.mockRejectedValue(new Error('fail'));
+
+      const closePromise = delegate.close();
+      await vi.runAllTimersAsync();
+      await closePromise;
+
+      expect(leftA.classList.contains('closing-hidden')).toBe(false);
+      expect(rightA.classList.contains('closing-hidden')).toBe(false);
+    });
+  });
+
+  describe('close - transitionTo returns false', () => {
+    it('should return early if transitionTo CLOSING fails', async () => {
+      mockDeps.stateMachine.current = 'OPENED';
+      mockDeps.stateMachine.transitionTo.mockReturnValueOnce(false);
+
+      await delegate.close();
+
+      expect(mockDeps.animator.runCloseAnimation).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('_recoverToSafeState', () => {
+    it('should reset to CLOSED when current state is OPENING', async () => {
+      mockDeps.stateMachine.current = 'OPENING';
+      delegate._recoverToSafeState();
+      expect(mockDeps.stateMachine.reset).toHaveBeenCalledWith('CLOSED');
+    });
+
+    it('should reset to OPENED when current state is CLOSING', async () => {
+      mockDeps.stateMachine.current = 'CLOSING';
+      delegate._recoverToSafeState();
+      expect(mockDeps.stateMachine.reset).toHaveBeenCalledWith('OPENED');
+    });
+
+    it('should use fallbackState when current state is not in recoveryMap', async () => {
+      mockDeps.stateMachine.current = 'OPENED';
+      delegate._recoverToSafeState('CLOSED');
+      expect(mockDeps.stateMachine.reset).toHaveBeenCalledWith('CLOSED');
+    });
+
+    it('should not reset if no fallback and state not in recoveryMap', async () => {
+      mockDeps.stateMachine.current = 'OPENED';
+      delegate._recoverToSafeState();
+      expect(mockDeps.stateMachine.reset).not.toHaveBeenCalled();
+    });
+
+    it('should not reset if targetState equals currentState', () => {
+      mockDeps.stateMachine.current = 'CLOSED';
+      delegate._recoverToSafeState('CLOSED');
+      // currentState === targetState, should NOT call reset
+      expect(mockDeps.stateMachine.reset).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('repaginate - content load failure', () => {
+    it('should throw and handle when content is null', async () => {
+      mockDeps.contentLoader.load.mockResolvedValue(null);
+
+      const promise = delegate.repaginate();
+      await vi.runAllTimersAsync();
+      await promise;
+
+      expect(mockErrorHandler.handle).toHaveBeenCalled();
+    });
+  });
+
+  describe('repaginate - chapterTitles passed to paginator', () => {
+    it('should pass chapter titles from config', async () => {
+      mockConfig.CHAPTERS = [
+        { id: 'ch1', file: 'f1.html', title: 'Title 1' },
+        { id: 'ch2', file: 'f2.html', title: 'Title 2' },
+      ];
+
+      const promise = delegate.repaginate();
+      await vi.runAllTimersAsync();
+      await promise;
+
+      const paginateCall = mockDeps.paginator.paginate.mock.calls[0];
+      expect(paginateCall[2]).toEqual({ chapterTitles: ['Title 1', 'Title 2'] });
+
+      mockConfig.CHAPTERS = [
+        { id: 'ch1', file: 'content/part_1.html' },
+        { id: 'ch2', file: 'content/part_2.html' },
+      ];
+    });
+  });
+
+  describe('init - without soundManager', () => {
+    it('should not throw when soundManager is null', async () => {
+      delegate.destroy();
+      delegate = new LifecycleDelegate({
+        ...mockDeps,
+        soundManager: null,
+      });
+
+      await delegate.init();
+      // Should resolve without errors
+    });
+  });
+
+  describe('open - without soundManager', () => {
+    it('should not throw when soundManager is null', async () => {
+      delegate.destroy();
+      delegate = new LifecycleDelegate({
+        ...mockDeps,
+        soundManager: null,
+      });
+
+      const openPromise = delegate.open();
+      await vi.runAllTimersAsync();
+      await openPromise;
+
+      // Should complete without errors
+    });
+  });
+
+  describe('open - cross-cancel on error', () => {
+    it('should abort content loader when animation fails', async () => {
+      mockDeps.animator.runOpenAnimation.mockRejectedValue(new Error('anim failed'));
+
+      const openPromise = delegate.open();
+      await vi.runAllTimersAsync();
+      await openPromise;
+
+      expect(mockDeps.contentLoader.abort).toHaveBeenCalled();
+    });
+
+    it('should abort animator when content load fails', async () => {
+      mockDeps.contentLoader.load.mockRejectedValue(new Error('load failed'));
+
+      const openPromise = delegate.open();
+      await vi.runAllTimersAsync();
+      await openPromise;
+
+      expect(mockDeps.animator.abort).toHaveBeenCalled();
     });
   });
 });

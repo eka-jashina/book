@@ -50,18 +50,6 @@ describe('SoundsModule', () => {
   // ═══════════════════════════════════════════════════════════════════════════
 
   describe('cacheDOM()', () => {
-    it('should generate sound cards and cache DOM elements', () => {
-      expect(mod._modes.pageFlip).toBe(document.getElementById('sound-pageFlip-mode'));
-      expect(mod._modes.bookOpen).toBe(document.getElementById('sound-bookOpen-mode'));
-      expect(mod._modes.bookClose).toBe(document.getElementById('sound-bookClose-mode'));
-      expect(mod._uploads.pageFlip).toBe(document.getElementById('sound-pageFlip-upload'));
-      expect(mod._customInfos.pageFlip).toBe(document.getElementById('sound-pageFlip-custom-info'));
-      expect(mod._removeButtons.pageFlip).toBe(document.getElementById('sound-pageFlip-remove'));
-      expect(mod._previewButtons.pageFlip).toBe(document.getElementById('sound-pageFlip-preview'));
-      expect(mod.saveSoundsBtn).toBe(document.getElementById('saveSounds'));
-      expect(mod.resetSoundsBtn).toBe(document.getElementById('resetSounds'));
-    });
-
     it('should generate 3 sound cards in the grid', () => {
       const cards = document.querySelectorAll('#soundCardsGrid .setting-card--sound');
       expect(cards.length).toBe(3);

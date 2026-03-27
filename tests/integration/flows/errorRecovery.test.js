@@ -304,6 +304,7 @@ describe('Error Recovery Chain', () => {
 
   describe('Navigation error recovery', () => {
     let navigationDelegate;
+    let navAnimator;
     let resolveFlip;
 
     const createControllablePromise = () => {
@@ -323,7 +324,7 @@ describe('Error Recovery Chain', () => {
       const flipPromise = createControllablePromise();
       resolveFlip = flipPromise.resolve;
 
-      const navAnimator = {
+      navAnimator = {
         runFlip: vi.fn().mockImplementation((dir, cb) => {
           navAnimator._swapCallback = cb;
           return flipPromise.promise;
@@ -349,7 +350,7 @@ describe('Error Recovery Chain', () => {
       const errorPromise = createControllablePromise();
       errorPromise.promise.catch(() => {});
 
-      navigationDelegate._deps.animator.runFlip.mockReturnValue(errorPromise.promise);
+      navAnimator.runFlip.mockReturnValue(errorPromise.promise);
 
       const flipPromise = navigationDelegate.flip(Direction.NEXT);
       expect(stateMachine.state).toBe(BookState.FLIPPING);
@@ -364,7 +365,7 @@ describe('Error Recovery Chain', () => {
       const errorPromise = createControllablePromise();
       errorPromise.promise.catch(() => {});
 
-      navigationDelegate._deps.animator.runFlip.mockReturnValueOnce(errorPromise.promise);
+      navAnimator.runFlip.mockReturnValueOnce(errorPromise.promise);
 
       const flipPromise = navigationDelegate.flip(Direction.NEXT);
       errorPromise.reject(new Error('Flip failed'));
@@ -372,19 +373,18 @@ describe('Error Recovery Chain', () => {
 
       expect(stateMachine.state).toBe(BookState.OPENED);
 
-      // Сброс rate limiter и throttle для следующего flip
+      // Сброс rate limiter для следующего flip
       rateLimiters.navigation.reset();
-      navigationDelegate._lastFlipTime = 0;
 
       // Новый flip должен работать
       const newFlipPromise = createControllablePromise();
-      navigationDelegate._deps.animator.runFlip.mockReturnValue(newFlipPromise.promise);
+      navAnimator.runFlip.mockReturnValue(newFlipPromise.promise);
 
       const flip2 = navigationDelegate.flip(Direction.NEXT);
       expect(stateMachine.state).toBe(BookState.FLIPPING);
 
-      if (navigationDelegate._deps.animator._swapCallback) {
-        navigationDelegate._deps.animator._swapCallback();
+      if (navAnimator._swapCallback) {
+        navAnimator._swapCallback();
       }
       newFlipPromise.resolve();
       await flip2;

@@ -78,7 +78,7 @@ export class EventEmitter {
   emit(event, ...args) {
     const handlers = this._events.get(event);
     if (handlers) {
-      for (const handler of handlers) {
+      for (const handler of [...handlers]) {
         try {
           handler(...args);
         } catch (e) {

@@ -68,11 +68,8 @@ describe('Full Reading Session', () => {
   };
 
   const setupFlipPromise = () => {
-    // Сброс rate limiter и throttle для изоляции каждого flip
+    // Сброс rate limiter для изоляции каждого flip
     rateLimiters.navigation.reset();
-    if (navigationDelegate) {
-      navigationDelegate._lastFlipTime = 0;
-    }
 
     const fp = createControllablePromise();
     resolveFlip = fp.resolve;

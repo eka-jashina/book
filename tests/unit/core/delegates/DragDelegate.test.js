@@ -622,4 +622,501 @@ describe('DragDelegate', () => {
       expect(eventHandlers.onChapterUpdate).not.toHaveBeenCalled();
     });
   });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SPEC-BASED: bind — регистрация событий (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('bind — event registration (spec-based)', () => {
+    it('should register "resize" event on window to invalidate cached rect', () => {
+      delegate.bind();
+
+      const resizeCall = mockDeps.eventManager.add.mock.calls.find(
+        (c) => c[0] === window && c[1] === 'resize'
+      );
+      expect(resizeCall).toBeDefined();
+    });
+
+    it('resize handler should clear _cachedBookRect', () => {
+      delegate.bind();
+
+      // Найдём handler для resize
+      const resizeCall = mockDeps.eventManager.add.mock.calls.find(
+        (c) => c[0] === window && c[1] === 'resize'
+      );
+      delegate._cachedBookRect = { left: 0, width: 500 };
+      resizeCall[2](); // вызвать handler
+      expect(delegate._cachedBookRect).toBeNull();
+    });
+
+    it('should register "mousedown" on each corner zone', () => {
+      delegate.bind();
+
+      const mousedownCalls = mockDeps.eventManager.add.mock.calls.filter(
+        (c) => c[1] === 'mousedown'
+      );
+      expect(mousedownCalls.length).toBe(2); // 2 corner zones
+    });
+
+    it('should register "touchstart" on each corner zone with passive:false', () => {
+      delegate.bind();
+
+      const touchstartCalls = mockDeps.eventManager.add.mock.calls.filter(
+        (c) => c[1] === 'touchstart'
+      );
+      expect(touchstartCalls.length).toBe(2);
+      touchstartCalls.forEach((call) => {
+        expect(call[3]).toEqual({ passive: false });
+      });
+    });
+
+    it('should register "touchmove" on document with passive:false', () => {
+      delegate.bind();
+
+      const touchmoveCall = mockDeps.eventManager.add.mock.calls.find(
+        (c) => c[0] === document && c[1] === 'touchmove'
+      );
+      expect(touchmoveCall).toBeDefined();
+      expect(touchmoveCall[3]).toEqual({ passive: false });
+    });
+
+    it('should register "touchend" on document', () => {
+      delegate.bind();
+
+      const touchendCall = mockDeps.eventManager.add.mock.calls.find(
+        (c) => c[0] === document && c[1] === 'touchend'
+      );
+      expect(touchendCall).toBeDefined();
+    });
+
+    it('mousedown on corner zone should call _startDrag with direction', () => {
+      delegate.bind();
+
+      const startSpy = vi.spyOn(delegate, '_startDrag');
+      // Найдём mousedown handler для corner zone с dir="next"
+      const mousedownCalls = mockDeps.eventManager.add.mock.calls.filter(
+        (c) => c[1] === 'mousedown'
+      );
+      // Первая зона — next (создана первой в beforeEach)
+      const fakeEvent = { clientX: 500, preventDefault: vi.fn(), stopPropagation: vi.fn() };
+      mousedownCalls[0][2](fakeEvent);
+
+      expect(fakeEvent.preventDefault).toHaveBeenCalled();
+      expect(fakeEvent.stopPropagation).toHaveBeenCalled();
+      expect(startSpy).toHaveBeenCalledWith(fakeEvent, 'next');
+    });
+
+    it('touchstart on corner zone should call _startDrag with first touch', () => {
+      delegate.bind();
+
+      const startSpy = vi.spyOn(delegate, '_startDrag');
+      const touchstartCalls = mockDeps.eventManager.add.mock.calls.filter(
+        (c) => c[1] === 'touchstart'
+      );
+      const fakeTouch = { clientX: 300 };
+      const fakeEvent = {
+        touches: [fakeTouch],
+        preventDefault: vi.fn(),
+        stopPropagation: vi.fn(),
+      };
+      touchstartCalls[0][2](fakeEvent);
+
+      expect(fakeEvent.preventDefault).toHaveBeenCalled();
+      expect(startSpy).toHaveBeenCalledWith(fakeTouch, 'next');
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SPEC-BASED: _scheduleUpdate — RAF batching (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('_scheduleUpdate — RAF batching (spec-based)', () => {
+    let rafCallback;
+
+    beforeEach(() => {
+      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+        rafCallback = cb;
+        return 42;
+      });
+      delegate.isDragging = true;
+      delegate.direction = 'next';
+      delegate.bookRect = { left: 0 };
+      delegate.bookWidth = 1000;
+    });
+
+    it('should request animation frame on first call', () => {
+      delegate._scheduleUpdate({ clientX: 500 });
+
+      expect(window.requestAnimationFrame).toHaveBeenCalled();
+    });
+
+    it('should not request another RAF if one is pending', () => {
+      delegate._scheduleUpdate({ clientX: 500 });
+      delegate._scheduleUpdate({ clientX: 600 });
+
+      expect(window.requestAnimationFrame).toHaveBeenCalledTimes(1);
+    });
+
+    it('RAF callback should update angle from pending event', () => {
+      const updateSpy = vi.spyOn(delegate, '_updateAngleFromEvent');
+      delegate._scheduleUpdate({ clientX: 500 });
+
+      rafCallback();
+
+      expect(updateSpy).toHaveBeenCalledWith({ clientX: 500 });
+    });
+
+    it('RAF callback should use latest event if multiple scheduled', () => {
+      const updateSpy = vi.spyOn(delegate, '_updateAngleFromEvent');
+      delegate._scheduleUpdate({ clientX: 300 });
+      delegate._scheduleUpdate({ clientX: 700 });
+
+      rafCallback();
+
+      expect(updateSpy).toHaveBeenCalledWith({ clientX: 700 });
+    });
+
+    it('RAF callback should clear _rafId allowing new requests', () => {
+      delegate._scheduleUpdate({ clientX: 500 });
+      rafCallback();
+
+      // Теперь можно запросить новый RAF
+      delegate._scheduleUpdate({ clientX: 600 });
+      expect(window.requestAnimationFrame).toHaveBeenCalledTimes(2);
+    });
+
+    it('RAF callback should not update if no longer dragging', () => {
+      const updateSpy = vi.spyOn(delegate, '_updateAngleFromEvent');
+      delegate._scheduleUpdate({ clientX: 500 });
+
+      delegate.isDragging = false;
+      rafCallback();
+
+      expect(updateSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SPEC-BASED: _onMouseMove / _onTouchMove (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('mouse/touch move handlers (spec-based)', () => {
+    it('_onMouseMove should schedule update when dragging', () => {
+      delegate.isDragging = true;
+      const scheduleSpy = vi.spyOn(delegate, '_scheduleUpdate');
+
+      delegate._onMouseMove({ clientX: 400 });
+
+      expect(scheduleSpy).toHaveBeenCalledWith({ clientX: 400 });
+    });
+
+    it('_onMouseMove should do nothing when not dragging', () => {
+      delegate.isDragging = false;
+      const scheduleSpy = vi.spyOn(delegate, '_scheduleUpdate');
+
+      delegate._onMouseMove({ clientX: 400 });
+
+      expect(scheduleSpy).not.toHaveBeenCalled();
+    });
+
+    it('_onTouchMove should schedule update when dragging', () => {
+      delegate.isDragging = true;
+      const scheduleSpy = vi.spyOn(delegate, '_scheduleUpdate');
+
+      delegate._onTouchMove({
+        touches: [{ clientX: 400 }],
+        preventDefault: vi.fn(),
+      });
+
+      expect(scheduleSpy).toHaveBeenCalledWith({ clientX: 400 });
+    });
+
+    it('_onTouchMove should preventDefault to block scrolling', () => {
+      delegate.isDragging = true;
+      const event = {
+        touches: [{ clientX: 400 }],
+        preventDefault: vi.fn(),
+      };
+
+      delegate._onTouchMove(event);
+
+      expect(event.preventDefault).toHaveBeenCalled();
+    });
+
+    it('_onTouchMove should do nothing when not dragging', () => {
+      delegate.isDragging = false;
+      const scheduleSpy = vi.spyOn(delegate, '_scheduleUpdate');
+      const event = {
+        touches: [{ clientX: 400 }],
+        preventDefault: vi.fn(),
+      };
+
+      delegate._onTouchMove(event);
+
+      expect(scheduleSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SPEC-BASED: _onMouseUp / _onTouchEnd (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('mouse/touch end handlers (spec-based)', () => {
+    it('_onMouseUp should call _endDrag when dragging', () => {
+      delegate.isDragging = true;
+      delegate.direction = 'next';
+      const endSpy = vi.spyOn(delegate, '_endDrag');
+
+      delegate._onMouseUp();
+
+      expect(endSpy).toHaveBeenCalled();
+    });
+
+    it('_onMouseUp should do nothing when not dragging', () => {
+      delegate.isDragging = false;
+      const endSpy = vi.spyOn(delegate, '_endDrag');
+
+      delegate._onMouseUp();
+
+      expect(endSpy).not.toHaveBeenCalled();
+    });
+
+    it('_onTouchEnd should call _endDrag when dragging', () => {
+      delegate.isDragging = true;
+      delegate.direction = 'next';
+      const endSpy = vi.spyOn(delegate, '_endDrag');
+
+      delegate._onTouchEnd();
+
+      expect(endSpy).toHaveBeenCalled();
+    });
+
+    it('_onTouchEnd should do nothing when not dragging', () => {
+      delegate.isDragging = false;
+      const endSpy = vi.spyOn(delegate, '_endDrag');
+
+      delegate._onTouchEnd();
+
+      expect(endSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SPEC-BASED: _updateAngleFromEvent — arithmetic (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('_updateAngleFromEvent arithmetic (spec-based)', () => {
+    beforeEach(() => {
+      delegate.bookRect = { left: 100 };
+      delegate.bookWidth = 800;
+    });
+
+    it('next: should subtract bookRect.left from clientX for relative position', () => {
+      delegate.direction = 'next';
+      // clientX=500, left=100 → x=400, progress=400/800=0.5, angle=(1-0.5)*180=90
+      delegate._updateAngleFromEvent({ clientX: 500 });
+      expect(delegate.currentAngle).toBe(90);
+    });
+
+    it('next: clientX at left edge of book should give 180°', () => {
+      delegate.direction = 'next';
+      // clientX=100, left=100 → x=0, progress=0, angle=(1-0)*180=180
+      delegate._updateAngleFromEvent({ clientX: 100 });
+      expect(delegate.currentAngle).toBe(180);
+    });
+
+    it('next: clientX at right edge of book should give 0°', () => {
+      delegate.direction = 'next';
+      // clientX=900, left=100 → x=800, progress=1, angle=(1-1)*180=0
+      delegate._updateAngleFromEvent({ clientX: 900 });
+      expect(delegate.currentAngle).toBe(0);
+    });
+
+    it('prev: should subtract bookRect.left from clientX for relative position', () => {
+      delegate.direction = 'prev';
+      // clientX=500, left=100 → x=400, progress=400/800=0.5, angle=0.5*180=90
+      delegate._updateAngleFromEvent({ clientX: 500 });
+      expect(delegate.currentAngle).toBe(90);
+    });
+
+    it('prev: clientX at left edge should give 0°', () => {
+      delegate.direction = 'prev';
+      // clientX=100, left=100 → x=0, progress=0, angle=0
+      delegate._updateAngleFromEvent({ clientX: 100 });
+      expect(delegate.currentAngle).toBe(0);
+    });
+
+    it('prev: clientX at right edge should give 180°', () => {
+      delegate.direction = 'prev';
+      // clientX=900, left=100 → x=800, progress=1, angle=180
+      delegate._updateAngleFromEvent({ clientX: 900 });
+      expect(delegate.currentAngle).toBe(180);
+    });
+
+    it('should not update if bookRect is null', () => {
+      delegate.direction = 'next';
+      delegate.bookRect = null;
+      delegate.currentAngle = 45;
+
+      delegate._updateAngleFromEvent({ clientX: 500 });
+
+      expect(delegate.currentAngle).toBe(45); // unchanged
+    });
+
+    it('should not update if bookWidth is 0', () => {
+      delegate.direction = 'next';
+      delegate.bookWidth = 0;
+      delegate.currentAngle = 45;
+
+      delegate._updateAngleFromEvent({ clientX: 500 });
+
+      expect(delegate.currentAngle).toBe(45); // unchanged
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SPEC-BASED: _endDrag — animation callbacks (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('_endDrag — animation callbacks (spec-based)', () => {
+    beforeEach(() => {
+      delegate.isDragging = true;
+      delegate.direction = 'next';
+      // Перехватываем animate чтобы получить callbacks
+      delegate.dragAnimator.animate = vi.fn();
+    });
+
+    it('onUpdate callback should set currentAngle and render', () => {
+      delegate.currentAngle = 120;
+      delegate._endDrag();
+
+      const onUpdate = delegate.dragAnimator.animate.mock.calls[0][2];
+      const renderSpy = vi.spyOn(delegate, '_render');
+
+      onUpdate(150);
+
+      expect(delegate.currentAngle).toBe(150);
+      expect(renderSpy).toHaveBeenCalled();
+    });
+
+    it('onComplete callback should call _finish with willComplete=true when angle > 90', () => {
+      delegate.currentAngle = 120;
+      const finishSpy = vi.spyOn(delegate, '_finish');
+
+      delegate._endDrag();
+
+      const onComplete = delegate.dragAnimator.animate.mock.calls[0][3];
+      onComplete();
+
+      expect(finishSpy).toHaveBeenCalledWith(true);
+    });
+
+    it('onComplete callback should call _finish with willComplete=false when angle <= 90', () => {
+      delegate.currentAngle = 60;
+      const finishSpy = vi.spyOn(delegate, '_finish');
+
+      delegate._endDrag();
+
+      const onComplete = delegate.dragAnimator.animate.mock.calls[0][3];
+      onComplete();
+
+      expect(finishSpy).toHaveBeenCalledWith(false);
+    });
+
+    it('angle exactly 90 should NOT complete (<=90 means cancel)', () => {
+      delegate.currentAngle = 90;
+
+      delegate._endDrag();
+
+      // Animate to 0 (cancel), not to 180 (complete)
+      expect(delegate.dragAnimator.animate).toHaveBeenCalledWith(
+        90, 0, expect.any(Function), expect.any(Function)
+      );
+    });
+
+    it('should recover state if animation throws', () => {
+      delegate.dragAnimator.animate.mockImplementation(() => {
+        throw new Error('animation failure');
+      });
+
+      delegate.currentAngle = 120;
+      const finishSpy = vi.spyOn(delegate, '_finish');
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      delegate._endDrag();
+
+      expect(consoleSpy).toHaveBeenCalled();
+      expect(finishSpy).toHaveBeenCalled();
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SPEC-BASED: _startDrag guard conditions (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('_startDrag guard conditions (spec-based)', () => {
+    it('should block drag when busy (OPENING state)', () => {
+      mockDeps.stateMachine.current = 'OPENING';
+
+      delegate._startDrag({ clientX: 500 }, 'next');
+
+      expect(delegate.isDragging).toBe(false);
+    });
+
+    it('should block drag when busy (CLOSING state)', () => {
+      mockDeps.stateMachine.current = 'CLOSING';
+
+      delegate._startDrag({ clientX: 500 }, 'next');
+
+      expect(delegate.isDragging).toBe(false);
+    });
+
+    it('should reuse cached bookRect on subsequent drags', () => {
+      delegate._startDrag({ clientX: 500 }, 'next');
+      expect(mockBook.getBoundingClientRect).toHaveBeenCalledTimes(1);
+
+      // Завершаем первый drag
+      delegate._finish(false);
+
+      // Второй drag — rect уже в кеше
+      mockDeps.stateMachine.current = 'OPENED';
+      delegate._startDrag({ clientX: 500 }, 'next');
+      // getBoundingClientRect не вызывается снова (кеш)
+      expect(mockBook.getBoundingClientRect).toHaveBeenCalledTimes(1);
+    });
+
+    it('should re-fetch bookRect after resize invalidates cache', () => {
+      delegate.bind();
+
+      delegate._startDrag({ clientX: 500 }, 'next');
+      expect(mockBook.getBoundingClientRect).toHaveBeenCalledTimes(1);
+
+      delegate._finish(false);
+
+      // Симулируем resize
+      const resizeCall = mockDeps.eventManager.add.mock.calls.find(
+        (c) => c[0] === window && c[1] === 'resize'
+      );
+      resizeCall[2]();
+
+      // Следующий drag должен заново получить rect
+      mockDeps.stateMachine.current = 'OPENED';
+      delegate._startDrag({ clientX: 500 }, 'next');
+      expect(mockBook.getBoundingClientRect).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SPEC-BASED: canFlipNext boundary (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('canFlipNext boundary (spec-based)', () => {
+    it('should return true when index + pagesPerFlip equals maxIndex', () => {
+      // Desktop: pagesPerFlip=2, index=98, max=100 → 98+2=100 <= 100 → true
+      mockDeps.state.index = 98;
+      mockDeps.renderer.getMaxIndex.mockReturnValue(100);
+
+      expect(delegate.canFlipNext()).toBe(true);
+    });
+  });
 });

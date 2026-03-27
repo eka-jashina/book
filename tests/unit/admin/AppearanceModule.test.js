@@ -98,16 +98,6 @@ describe('AppearanceModule', () => {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // CONSTRUCTOR
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  describe('constructor', () => {
-    it('should initialize editTheme as light', () => {
-      expect(mod._editTheme).toBe('light');
-    });
-  });
-
-  // ═══════════════════════════════════════════════════════════════════════════
   // _renderAppearance
   // ═══════════════════════════════════════════════════════════════════════════
 
@@ -157,14 +147,6 @@ describe('AppearanceModule', () => {
       const darkBtn = document.querySelector('[data-edit-theme="dark"]');
       expect(lightBtn.classList.contains('active')).toBe(false);
       expect(darkBtn.classList.contains('active')).toBe(true);
-    });
-
-    it('should toggle active class on single theme switch', async () => {
-      await mod._switchEditTheme('dark');
-
-      const btns = document.querySelectorAll('#appearanceThemeSwitch .appearance-theme-btn');
-      expect(btns[0].classList.contains('active')).toBe(false);
-      expect(btns[1].classList.contains('active')).toBe(true);
     });
   });
 

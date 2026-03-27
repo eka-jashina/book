@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ApiClient } from '@utils/ApiClient.js';
+import { ApiClient, ApiError } from '@utils/ApiClient.js';
 
 describe('ProgressApi', () => {
   let client;
@@ -47,7 +47,7 @@ describe('ProgressApi', () => {
     });
 
     it('должен вернуть null при 404', async () => {
-      client._fetchWithRetry.mockRejectedValue({ status: 404 });
+      client._fetchWithRetry.mockRejectedValue(new ApiError(404, 'Not found'));
 
       const result = await client.getProgress('missing');
 
@@ -55,10 +55,10 @@ describe('ProgressApi', () => {
     });
 
     it('должен пробросить другие ошибки', async () => {
-      const error = { status: 500 };
+      const error = new ApiError(500, 'Server error');
       client._fetchWithRetry.mockRejectedValue(error);
 
-      await expect(client.getProgress('book-1')).rejects.toEqual(error);
+      await expect(client.getProgress('book-1')).rejects.toBe(error);
     });
   });
 

@@ -23,12 +23,6 @@ describe('TransitionHelper', () => {
   // ═══════════════════════════════════════════════════════════════════════════
 
   describe('basic functionality', () => {
-    it('should return a Promise', () => {
-      const result = TransitionHelper.waitFor(element, null, 1000);
-
-      expect(result).toBeInstanceOf(Promise);
-    });
-
     it('should resolve on transitionend event', async () => {
       const promise = TransitionHelper.waitFor(element, null, 5000);
 
@@ -36,14 +30,6 @@ describe('TransitionHelper', () => {
       element.dispatchEvent(new TransitionEvent('transitionend', {
         propertyName: 'opacity',
       }));
-
-      await expect(promise).resolves.toBeUndefined();
-    });
-
-    it('should resolve on timeout if no transition', async () => {
-      const promise = TransitionHelper.waitFor(element, null, 100);
-
-      vi.advanceTimersByTime(100);
 
       await expect(promise).resolves.toBeUndefined();
     });
@@ -142,29 +128,24 @@ describe('TransitionHelper', () => {
 
       const promise = TransitionHelper.waitFor(element, null, 500);
 
-      // Создаём event на child, но он bubbles к parent
-      // В jsdom это требует особой настройки, упрощаем тест
-      // Симулируем событие где target !== element
-      let handler;
-      vi.spyOn(element, 'addEventListener').mockImplementation((type, h) => {
-        handler = h;
-      });
-
-      TransitionHelper.waitFor(element, null, 500);
-
-      // Вызываем handler с event где target !== element
-      const fakeEvent = {
-        target: child,
+      // Event от дочернего элемента (bubbles к parent, но target === child)
+      child.dispatchEvent(new TransitionEvent('transitionend', {
         propertyName: 'opacity',
-      };
-      handler(fakeEvent);
+        bubbles: true,
+      }));
 
-      // Promise не должен разрешиться сразу
+      // Promise ещё не разрешён — child event проигнорирован
       let resolved = false;
-      TransitionHelper.waitFor(element, null, 100).then(() => { resolved = true; });
-
-      vi.advanceTimersByTime(50);
+      promise.then(() => { resolved = true; });
+      await vi.advanceTimersByTimeAsync(0);
       expect(resolved).toBe(false);
+
+      // Event от самого элемента — resolve'ит promise
+      element.dispatchEvent(new TransitionEvent('transitionend', {
+        propertyName: 'opacity',
+      }));
+
+      await promise;
     });
   });
 
@@ -279,22 +260,7 @@ describe('TransitionHelper', () => {
       expect(removeEventListenerSpy).toHaveBeenCalledWith('transitionend', expect.any(Function));
     });
 
-    it('should work without signal (null)', async () => {
-      const promise = TransitionHelper.waitFor(element, null, 1000, null);
-
-      vi.advanceTimersByTime(1000);
-
-      await expect(promise).resolves.toBeUndefined();
-    });
-
-    it('should work without signal (undefined/omitted)', async () => {
-      const promise = TransitionHelper.waitFor(element, null, 1000);
-
-      vi.advanceTimersByTime(1000);
-
-      await expect(promise).resolves.toBeUndefined();
-    });
-  });
+});
 
   // ═══════════════════════════════════════════════════════════════════════════
   // RACE CONDITIONS
@@ -431,7 +397,7 @@ describe('TransitionHelper', () => {
     it('should handle empty string propertyName', async () => {
       const promise = TransitionHelper.waitFor(element, '', 5000);
 
-      // Empty string is truthy for if check, so it will filter
+      // Пустая строка falsy — фильтрация по propertyName не применяется
       element.dispatchEvent(new TransitionEvent('transitionend', { propertyName: '' }));
 
       await expect(promise).resolves.toBeUndefined();

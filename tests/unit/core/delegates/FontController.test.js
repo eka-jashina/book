@@ -355,4 +355,88 @@ describe('FontController', () => {
       controller.apply(); // mockDom returns null for fontSelect — should not throw
     });
   });
+
+  describe('handleFontSize - edge cases', () => {
+    it('should handle missing html element in handleFontSize', () => {
+      mockDom.get.mockReturnValue(null);
+      mockSettings.get.mockImplementation((key) => key === 'fontSize' ? 18 : undefined);
+
+      // Should still work (return true) even without html element
+      const result = controller.handleFontSize('increase');
+      expect(result).toBe(true);
+      expect(mockSettings.set).toHaveBeenCalledWith('fontSize', 19);
+    });
+  });
+
+  describe('_registerFont - error handling', () => {
+    it('should log warning when font fails to load', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      global.FontFace = class {
+        constructor() {}
+        load() { return Promise.reject(new Error('Failed to decode')); }
+      };
+
+      await controller._registerFont('TestFont', 'data:invalid');
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('TestFont'),
+        expect.any(String)
+      );
+      warnSpy.mockRestore();
+    });
+  });
+
+  describe('_loadCustomFonts - decorative font', () => {
+    it('should remove --decorative-font property when no decorative font configured', () => {
+      CONFIG.DECORATIVE_FONT = null;
+      CONFIG.CUSTOM_FONTS = null;
+
+      controller.apply();
+
+      expect(mockHtmlEl.style.getPropertyValue('--decorative-font')).toBe('');
+    });
+
+    it('should set --decorative-font when decorative font loads', async () => {
+      CONFIG.DECORATIVE_FONT = { dataUrl: 'data:font/woff2;base64,test' };
+      CONFIG.CUSTOM_FONTS = null;
+
+      controller.apply();
+
+      await vi.waitFor(() => {
+        expect(mockHtmlEl.style.getPropertyValue('--decorative-font'))
+          .toBe('CustomDecorativeFont, sans-serif');
+      });
+    });
+  });
+
+  describe('_loadCustomFonts - reading fonts', () => {
+    it('should register custom font with id-based name', async () => {
+      CONFIG.CUSTOM_FONTS = [
+        { id: 'myfont', dataUrl: 'data:font;base64,abc', family: 'MyFont, serif' },
+      ];
+      CONFIG.DECORATIVE_FONT = null;
+
+      controller.apply();
+
+      await vi.waitFor(() => {
+        // After registration, FONTS[id] should be updated
+        expect(CONFIG.FONTS['myfont']).toContain('CustomReading_myfont');
+      });
+    });
+
+    it('should use last segment of family as fallback', async () => {
+      CONFIG.CUSTOM_FONTS = [
+        { id: 'testfont', dataUrl: 'data:font;base64,abc', family: 'TestFont, Arial, sans-serif' },
+      ];
+      CONFIG.DECORATIVE_FONT = null;
+
+      controller.apply();
+
+      await vi.waitFor(() => {
+        // family.split(',').pop().trim() = 'sans-serif'
+        expect(CONFIG.FONTS['testfont']).toContain('sans-serif');
+      });
+    });
+  });
 });

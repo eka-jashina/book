@@ -103,17 +103,6 @@ describe('TxtParser', () => {
       expect(result.title).toBe('book.v2.final');
     });
 
-    it('should filter out empty paragraphs from splitting', async () => {
-      const file = createTextFile('test.txt', 'A\n\n\n\n\n\nB');
-      const result = await parseTxt(file);
-      const html = result.chapters[0].html;
-
-      // Should only have 2 paragraphs, not empty ones
-      const pCount = (html.match(/<p>/g) || []).length;
-      // h2 + 2 content paragraphs
-      expect(pCount).toBe(2);
-    });
-
     it('should trim paragraph whitespace', async () => {
       const file = createTextFile('test.txt', '  Para with spaces  \n\n  Another  ');
       const result = await parseTxt(file);

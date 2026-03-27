@@ -125,10 +125,12 @@ describe('CSSVariables', () => {
     });
 
     it('should cache null/fallback values', () => {
-      cssVars.get('--unknown', 'default');
-      cssVars.get('--unknown', 'different');
+      const first = cssVars.get('--unknown', 'default');
+      const second = cssVars.get('--unknown', 'different');
 
-      // Второй вызов должен вернуть закэшированное значение
+      // Второй вызов возвращает закэшированное значение, а не новый fallback
+      expect(first).toBe('default');
+      expect(second).toBe('default');
       expect(mockGetPropertyValue).toHaveBeenCalledTimes(1);
     });
   });
@@ -164,6 +166,7 @@ describe('CSSVariables', () => {
 
     it('should handle zero value', () => {
       expect(cssVars.getNumber('--zero')).toBe(0);
+      expect(cssVars.getNumber('--zero', 42)).toBe(0);
     });
 
     it('should return fallback for non-numeric value', () => {

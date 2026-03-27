@@ -171,5 +171,78 @@ describe('AudioController', () => {
       controller._ambientManager = null;
       expect(() => controller.handleAmbientVolume(0.5)).not.toThrow();
     });
+
+    it('should sanitize volume with default 0.5', () => {
+      // sanitizeVolume is called with (volume, 0.5)
+      controller.handleAmbientVolume(undefined);
+      // sanitizeVolume(undefined, 0.5) returns 0.5
+      expect(mockAmbientManager.setVolume).toHaveBeenCalledWith(0.5);
+    });
+  });
+
+  describe('apply - sanitize defaults', () => {
+    it('should use 0.3 as default for soundVolume sanitization', () => {
+      mockSettings.get.mockImplementation((key) => {
+        if (key === 'soundVolume') return undefined;
+        if (key === 'soundEnabled') return true;
+        if (key === 'ambientVolume') return 0.5;
+        return undefined;
+      });
+
+      controller.apply();
+      // sanitizeVolume(undefined, 0.3) should return 0.3
+      expect(mockSoundManager.setVolume).toHaveBeenCalledWith(0.3);
+    });
+
+    it('should use 0.5 as default for ambientVolume sanitization', () => {
+      mockSettings.get.mockImplementation((key) => {
+        if (key === 'ambientVolume') return undefined;
+        if (key === 'soundEnabled') return true;
+        if (key === 'soundVolume') return 0.3;
+        return undefined;
+      });
+
+      controller.apply();
+      expect(mockAmbientManager.setVolume).toHaveBeenCalledWith(0.5);
+    });
+
+    it('should coerce soundEnabled with !! operator', () => {
+      mockSettings.get.mockImplementation((key) => {
+        if (key === 'soundEnabled') return 0; // falsy
+        if (key === 'soundVolume') return 0.3;
+        if (key === 'ambientVolume') return 0.5;
+        return undefined;
+      });
+
+      controller.apply();
+      expect(mockSoundManager.setEnabled).toHaveBeenCalledWith(false);
+    });
+
+    it('should coerce truthy soundEnabled to true', () => {
+      mockSettings.get.mockImplementation((key) => {
+        if (key === 'soundEnabled') return 1; // truthy but not boolean
+        if (key === 'soundVolume') return 0.3;
+        if (key === 'ambientVolume') return 0.5;
+        return undefined;
+      });
+
+      controller.apply();
+      expect(mockSoundManager.setEnabled).toHaveBeenCalledWith(true);
+    });
+  });
+
+  describe('handleSoundVolume - edge cases', () => {
+    it('should not call settings.set for direct numeric value', () => {
+      controller.handleSoundVolume(0.5);
+      expect(mockSettings.set).not.toHaveBeenCalled();
+      expect(mockSoundManager.setVolume).toHaveBeenCalledWith(0.5);
+    });
+
+    it('should do nothing for unknown string action', () => {
+      mockSettings.get.mockReturnValue(0.5);
+      controller.handleSoundVolume('reset');
+      expect(mockSettings.set).not.toHaveBeenCalled();
+      expect(mockSoundManager.setVolume).not.toHaveBeenCalled();
+    });
   });
 });

@@ -171,7 +171,8 @@ describe('AdminConfigDefaults', () => {
     });
 
     it('should be independent from DEFAULT_BOOK (deep copy)', () => {
-      DEFAULT_CONFIG.books[0].cover.title = 'CHANGED';
+      const configCopy = structuredClone(DEFAULT_CONFIG);
+      configCopy.books[0].cover.title = 'CHANGED';
       expect(DEFAULT_BOOK.cover.title).not.toBe('CHANGED');
     });
   });

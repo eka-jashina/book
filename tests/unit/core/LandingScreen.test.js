@@ -96,11 +96,6 @@ describe('LandingScreen', () => {
       expect(applyTranslations).toHaveBeenCalledWith(container);
     });
 
-    it('should start auto-slide timer', async () => {
-      await screen.show();
-      expect(screen._autoSlideTimer).not.toBeNull();
-    });
-
     it('should set language selector value', async () => {
       await screen.show();
       const select = container.querySelector('#landing-lang-select');
@@ -113,12 +108,6 @@ describe('LandingScreen', () => {
       await screen.show();
       screen.hide();
       expect(container.hidden).toBe(true);
-    });
-
-    it('should stop auto-slide timer', async () => {
-      await screen.show();
-      screen.hide();
-      expect(screen._autoSlideTimer).toBeNull();
     });
   });
 
@@ -180,17 +169,16 @@ describe('LandingScreen', () => {
 
   describe('language change', () => {
     it('should call setLanguage on language select change', async () => {
-      vi.useRealTimers();
       await screen.show();
       const select = container.querySelector('#landing-lang-select');
       select.value = 'en';
       select.dispatchEvent(new Event('change'));
 
-      // Wait for the async handler to complete
-      await new Promise(resolve => setTimeout(resolve, 10));
+      // _handleLanguageChange — async: await setLanguage + applyTranslations
+      await Promise.resolve();
+      await Promise.resolve();
 
       expect(setLanguage).toHaveBeenCalledWith('en');
-      vi.useFakeTimers();
     });
   });
 

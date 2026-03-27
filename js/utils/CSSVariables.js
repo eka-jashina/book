@@ -63,7 +63,8 @@ class CSSVariables {
   getNumber(name, fallback = 0) {
     const value = this.get(name);
     if (!value) return fallback;
-    return parseFloat(value) || fallback;
+    const num = parseFloat(value);
+    return isNaN(num) ? fallback : num;
   }
 
   /**
@@ -76,9 +77,11 @@ class CSSVariables {
     const value = this.get(name);
     if (!value) return fallback;
     // Поддержка форматов: "240ms", "0.24s", "240"
-    if (value.endsWith("ms")) return parseFloat(value) || fallback;
-    if (value.endsWith("s")) return (parseFloat(value) || 0) * 1000;
-    return parseFloat(value) || fallback;
+    const num = parseFloat(value);
+    if (isNaN(num)) return fallback;
+    if (value.endsWith("ms")) return num;
+    if (value.endsWith("s")) return num * 1000;
+    return num;
   }
 }
 

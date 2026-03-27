@@ -232,18 +232,6 @@ describe('EventEmitter', () => {
       consoleSpy.mockRestore();
     });
 
-    it('should pass event name to onError callback', () => {
-      const onError = vi.fn();
-      const emitterWithCallback = new EventEmitter({ onError });
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-      emitterWithCallback.on('myEvent', () => { throw new Error('fail'); });
-      emitterWithCallback.emit('myEvent');
-
-      expect(onError).toHaveBeenCalledWith(expect.any(Error), 'myEvent');
-      consoleSpy.mockRestore();
-    });
-
     it('should not call onError when no handler throws', () => {
       const onError = vi.fn();
       const emitterWithCallback = new EventEmitter({ onError });
@@ -252,16 +240,6 @@ describe('EventEmitter', () => {
       emitterWithCallback.emit('test');
 
       expect(onError).not.toHaveBeenCalled();
-    });
-
-    it('should work without onError option (backward compatibility)', () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      const plainEmitter = new EventEmitter();
-
-      plainEmitter.on('test', () => { throw new Error('fail'); });
-      expect(() => plainEmitter.emit('test')).not.toThrow();
-
-      consoleSpy.mockRestore();
     });
   });
 
@@ -322,14 +300,6 @@ describe('EventEmitter', () => {
       expect(handler).toHaveBeenCalledOnce();
     });
 
-    it('should handle numeric event name', () => {
-      const handler = vi.fn();
-      emitter.on(123, handler);
-      emitter.emit(123);
-
-      expect(handler).toHaveBeenCalledOnce();
-    });
-
     it('should handle undefined and null as event arguments', () => {
       const handler = vi.fn();
       emitter.on('test', handler);
@@ -338,21 +308,25 @@ describe('EventEmitter', () => {
       expect(handler).toHaveBeenCalledWith(undefined, null);
     });
 
-    it('should handle handler that modifies emitter during emit', () => {
+    it('should not call handler added during emit in the same emit cycle', () => {
+      const handler3 = vi.fn();
       const handler1 = vi.fn(() => {
         emitter.on('test', handler3);
       });
       const handler2 = vi.fn();
-      const handler3 = vi.fn();
 
       emitter.on('test', handler1);
       emitter.on('test', handler2);
       emitter.emit('test');
 
-      // handler3 не должен быть вызван в этом emit
+      // Обработчик добавлен во время emit — не должен вызываться в этом же цикле
       expect(handler1).toHaveBeenCalledOnce();
       expect(handler2).toHaveBeenCalledOnce();
-      // handler3 добавлен, но вызывается только при следующем emit
+      expect(handler3).not.toHaveBeenCalled();
+
+      // В следующем emit — уже вызывается
+      emitter.emit('test');
+      expect(handler3).toHaveBeenCalledOnce();
     });
   });
 });

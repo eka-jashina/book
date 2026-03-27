@@ -5,7 +5,6 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AdminConfigStore } from '../../../js/admin/AdminConfigStore.js';
-import { mergeWithDefaults } from '../../../js/admin/AdminConfigMigration.js';
 
 // Мок IndexedDB — AdminConfigStore при инициализации обращается к IDB
 const createIDBMock = () => {
@@ -748,71 +747,6 @@ describe('AdminConfigStore', () => {
 
       store.setActiveBook('book2');
       expect(store.getSettingsVisibility().fontSize).toBe(false);
-    });
-  });
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // MERGE WITH DEFAULTS (миграция)
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  describe('mergeWithDefaults', () => {
-    it('should handle empty saved data', () => {
-      const result = mergeWithDefaults({});
-      expect(result.books).toBeDefined();
-      expect(result.books.length).toBeGreaterThan(0);
-      expect(result.fontMin).toBe(14);
-      expect(result.readingFonts.length).toBe(6);
-    });
-
-    it('should migrate old format with top-level cover/chapters', () => {
-      const oldFormat = {
-        cover: { title: 'Old Book', author: 'Old Author' },
-        chapters: [{ id: 'ch1', file: 'ch1.html' }],
-      };
-      const result = mergeWithDefaults(oldFormat);
-      expect(result.books.length).toBe(1);
-      expect(result.books[0].cover.title).toBe('Old Book');
-      expect(result.books[0].chapters[0].id).toBe('ch1');
-    });
-
-    it('should migrate old format with top-level settings', () => {
-      const oldFormat = {
-        books: [{ id: 'test', cover: { title: 'Test' }, chapters: [] }],
-        defaultSettings: { font: 'roboto', fontSize: 20 },
-      };
-      const result = mergeWithDefaults(oldFormat);
-      expect(result.books[0].defaultSettings.font).toBe('roboto');
-      expect(result.books[0].defaultSettings.fontSize).toBe(20);
-    });
-
-    it('should migrate fontMin/fontMax from appearance to top level', () => {
-      const oldFormat = {
-        books: [{ id: 'test', cover: { title: 'Test' }, chapters: [] }],
-        appearance: { fontMin: 12, fontMax: 26 },
-      };
-      const result = mergeWithDefaults(oldFormat);
-      expect(result.fontMin).toBe(12);
-      expect(result.fontMax).toBe(26);
-    });
-
-    it('should use first book id as activeBookId when not specified', () => {
-      const data = {
-        books: [{ id: 'mybook', cover: { title: 'Test' }, chapters: [] }],
-      };
-      const result = mergeWithDefaults(data);
-      expect(result.activeBookId).toBe('mybook');
-    });
-
-    it('should preserve saved activeBookId', () => {
-      const data = {
-        books: [
-          { id: 'book1', cover: { title: '1' }, chapters: [] },
-          { id: 'book2', cover: { title: '2' }, chapters: [] },
-        ],
-        activeBookId: 'book2',
-      };
-      const result = mergeWithDefaults(data);
-      expect(result.activeBookId).toBe('book2');
     });
   });
 

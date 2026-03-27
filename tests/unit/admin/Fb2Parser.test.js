@@ -437,8 +437,8 @@ describe('Fb2Parser', () => {
 
       const result = await parseFb2(file);
 
-      // Should have preamble + 2 subsections = 3 chapters
-      expect(result.chapters.length).toBeGreaterThanOrEqual(2);
+      // Preamble ("Вводный текст") + 2 подсекции = 3 главы
+      expect(result.chapters).toHaveLength(3);
     });
 
     it('should throw for missing body', async () => {
@@ -455,7 +455,7 @@ describe('Fb2Parser', () => {
       const xml = makeFb2Xml({ bodyContent: '' });
       const file = makeFile(xml);
 
-      await expect(parseFb2(file)).rejects.toThrow();
+      await expect(parseFb2(file)).rejects.toThrow('Не удалось извлечь текст из FB2');
     });
 
     it('should handle sections without titles', async () => {

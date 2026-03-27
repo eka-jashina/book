@@ -506,9 +506,10 @@ describe('DocParser', () => {
       const bytes = textToASCII(text);
       const result = extractDocTextAscii(bytes);
 
-      // Control chars break the chunk, so shorter chunks get dropped
-      // Only the longest printable chunk should remain
-      expect(typeof result).toBe('string');
+      // Control chars break the chunk — only chunks > 50 chars survive
+      // "chars and more padding to reach threshold length for extraction" (62 chars) is the only long chunk
+      expect(result).toContain('chars and more padding');
+      expect(result).not.toContain('Text');
     });
 
     it('should handle buffer of all non-printable bytes', () => {

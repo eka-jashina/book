@@ -207,17 +207,6 @@ describe('ChapterDelegate', () => {
         expect(() => delegate.updateBackground(25, false)).not.toThrow();
         expect(mockDeps.backgroundManager.setBackground).toHaveBeenCalled();
       });
-
-      it('should handle chapter without background', () => {
-        vi.doMock('../../../../js/config.js', () => ({
-          CONFIG: {
-            CHAPTERS: [{ id: 'ch1' }], // No bg defined
-          },
-        }));
-
-        delegate.updateBackground(0, false);
-        // Should not throw
-      });
     });
   });
 
@@ -227,6 +216,98 @@ describe('ChapterDelegate', () => {
       delegate.destroy();
 
       expect(delegate.lastPreloadedChapter).toBe(-1);
+    });
+  });
+
+  describe('getCurrentChapter - edge cases', () => {
+    it('should handle empty chapterStarts', () => {
+      mockDeps.state.chapterStarts = [];
+      expect(delegate.getCurrentChapter(10)).toBe(0);
+    });
+  });
+
+  describe('updateBackground - firstChapterStart fallback', () => {
+    it('should use 0 as fallback when chapterStarts[0] is undefined', () => {
+      mockDeps.state.chapterStarts = [];
+      // pageIndex 0 < firstChapterStart(0) is false, so goes to chapter logic
+      delegate.updateBackground(0, false);
+      // Should not use cover bg since 0 is not < 0
+      expect(mockDeps.backgroundManager.setBackground).toHaveBeenCalledWith('images/bg1.webp');
+    });
+
+    it('should use < comparison for firstChapterStart (not <=)', () => {
+      mockDeps.state.chapterStarts = [5, 50, 100];
+      // Page 5 is NOT < 5, so it goes to chapter content branch
+      delegate.updateBackground(5, false);
+      expect(mockDeps.backgroundManager.setBackground).toHaveBeenCalledWith('images/bg1.webp');
+
+      // Page 4 IS < 5, so it uses cover
+      mockDeps.backgroundManager.setBackground.mockClear();
+      delegate.updateBackground(4, false);
+      expect(mockDeps.backgroundManager.setBackground).toHaveBeenCalledWith('images/cover.webp');
+    });
+  });
+
+  describe('updateBackground - missing chapterInfo guard', () => {
+    it('should return early if chapterInfo is missing', () => {
+      const origChapters = mockConfig.CHAPTERS;
+      // Force getCurrentChapter to return index beyond CHAPTERS array
+      mockDeps.state.chapterStarts = [0];
+      mockConfig.CHAPTERS = []; // no chapters at all
+      delegate.updateBackground(0, false);
+      // setBackground should not be called when chapterInfo is missing
+      expect(mockDeps.backgroundManager.setBackground).not.toHaveBeenCalled();
+      mockConfig.CHAPTERS = origChapters;
+    });
+  });
+
+  describe('updateBackground - bgUrl fallback to null', () => {
+    it('should pass null when chapter has no bg', () => {
+      const origChapters = mockConfig.CHAPTERS;
+      mockConfig.CHAPTERS = [
+        { id: 'ch1', file: 'f.html' }, // no bg or bgMobile
+      ];
+      mockDeps.state.chapterStarts = [0];
+
+      delegate.updateBackground(0, false);
+      expect(mockDeps.backgroundManager.setBackground).toHaveBeenCalledWith(null);
+
+      mockConfig.CHAPTERS = origChapters;
+    });
+  });
+
+  describe('restoreCoverBackground', () => {
+    it('should set body data-chapter to "cover"', () => {
+      const body = { dataset: {} };
+      mockDeps.dom.get.mockImplementation((key) => key === 'body' ? body : null);
+
+      delegate.restoreCoverBackground(false);
+      expect(body.dataset.chapter).toBe('cover');
+    });
+
+    it('should use desktop cover bg when not mobile', () => {
+      delegate.restoreCoverBackground(false);
+      expect(mockDeps.backgroundManager.setBackground).toHaveBeenCalledWith('images/cover.webp');
+    });
+
+    it('should use mobile cover bg when mobile', () => {
+      delegate.restoreCoverBackground(true);
+      expect(mockDeps.backgroundManager.setBackground).toHaveBeenCalledWith('images/cover_m.webp');
+    });
+
+    it('should handle missing body element', () => {
+      mockDeps.dom.get.mockReturnValue(null);
+      expect(() => delegate.restoreCoverBackground(false)).not.toThrow();
+      expect(mockDeps.backgroundManager.setBackground).toHaveBeenCalled();
+    });
+  });
+
+  describe('_preloadNextChapter - conditions', () => {
+    it('should not preload when nextChapter equals lastPreloadedChapter', () => {
+      delegate.lastPreloadedChapter = 1;
+      delegate.updateBackground(25, false); // Chapter 0 → tries to preload chapter 1
+      // But lastPreloadedChapter is already 1, so no preload
+      expect(mockDeps.backgroundManager.preload).not.toHaveBeenCalled();
     });
   });
 });

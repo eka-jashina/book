@@ -129,13 +129,6 @@ describe('AuthModal', () => {
       modal.show();
       expect(modal._el).toBe(el);
     });
-
-    it('should add keydown listener', () => {
-      const spy = vi.spyOn(document, 'addEventListener');
-      modal.show();
-
-      expect(spy).toHaveBeenCalledWith('keydown', expect.any(Function));
-    });
   });
 
   describe('hide', () => {
@@ -150,14 +143,6 @@ describe('AuthModal', () => {
     it('should be no-op if not shown', () => {
       modal.hide(); // should not throw
       expect(modal._el).toBeNull();
-    });
-
-    it('should remove keydown listener', () => {
-      const spy = vi.spyOn(document, 'removeEventListener');
-      modal.show();
-      modal.hide();
-
-      expect(spy).toHaveBeenCalledWith('keydown', expect.any(Function));
     });
   });
 

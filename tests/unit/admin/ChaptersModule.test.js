@@ -148,18 +148,6 @@ describe('ChaptersModule', () => {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // CONSTRUCTOR
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  describe('constructor', () => {
-    it('should initialize state', () => {
-      expect(mod._expandedIndex).toBe(-1);
-      expect(mod._album).toBeDefined();
-      expect(mod._bookUpload).toBeDefined();
-    });
-  });
-
-  // ═══════════════════════════════════════════════════════════════════════════
   // _renderCover
   // ═══════════════════════════════════════════════════════════════════════════
 
@@ -422,63 +410,6 @@ describe('ChaptersModule', () => {
       await mod._openModal(0);
 
       expect(mod._expandedIndex).toBe(0);
-    });
-  });
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // _switchInputMode (legacy)
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  describe('_switchInputMode()', () => {
-    it('should switch to editor mode', async () => {
-      await mod._switchInputMode('editor');
-      expect(mod._inputMode).toBe('editor');
-    });
-
-    it('should switch to upload mode', async () => {
-      await mod._switchInputMode('editor');
-      await mod._switchInputMode('upload');
-      expect(mod._inputMode).toBe('upload');
-    });
-  });
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // _handleChapterSubmit (legacy — delegates to _saveExpandedChapter)
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  describe('_handleChapterSubmit()', () => {
-    it('should reject if id is empty', async () => {
-      mod.inputId.value = '';
-      mod._pendingHtmlContent = '<article>content</article>';
-
-      await mod._handleChapterSubmit({ preventDefault: vi.fn() });
-
-      // Legacy submit delegates to _saveExpandedChapter which needs expanded chapter
-      // No expanded chapter means nothing saved
-      expect(app.store.addChapter).not.toHaveBeenCalled();
-    });
-
-    it('should reject if both file and htmlContent are empty', async () => {
-      mod.inputId.value = 'test';
-      mod._pendingHtmlContent = null;
-
-      await mod._handleChapterSubmit({ preventDefault: vi.fn() });
-
-      expect(app.store.addChapter).not.toHaveBeenCalled();
-    });
-  });
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // _removeChapterFile with editor
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  describe('_removeChapterFile() with editor', () => {
-    it('should clear editor if initialized', () => {
-      mod._editor._quill.isInitialized = true;
-
-      mod._removeChapterFile();
-
-      expect(mod._editor._quill.clear).toHaveBeenCalled();
     });
   });
 

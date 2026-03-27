@@ -124,6 +124,7 @@ vi.mock('../../../js/core/ComponentFactory.js', () => ({
             });
             return result;
           }),
+          resetBookDOM: vi.fn(),
         },
         eventManager: {
           add: vi.fn(),
@@ -285,9 +286,10 @@ vi.mock('../../../js/core/SubscriptionManager.js', () => ({
 // Mock ResizeHandler using class
 vi.mock('../../../js/core/ResizeHandler.js', () => ({
   ResizeHandler: class MockResizeHandler {
-    constructor() {
+    constructor(deps) {
       this.bind = vi.fn();
       this.destroy = vi.fn();
+      this._deps = deps;
       mockInstances.resizeHandler = this;
     }
   },
@@ -296,8 +298,10 @@ vi.mock('../../../js/core/ResizeHandler.js', () => ({
 // Mock AppInitializer using class
 vi.mock('../../../js/core/AppInitializer.js', () => ({
   AppInitializer: class MockAppInitializer {
-    constructor() {
+    constructor(deps) {
       this.initialize = vi.fn().mockResolvedValue(undefined);
+      this.destroy = vi.fn();
+      this._deps = deps;
       mockInstances.appInitializer = this;
     }
   },
@@ -497,6 +501,15 @@ describe('BookController', () => {
       }).toThrow('a, b');
     });
 
+    it('should include initialization order hint in error message', () => {
+      expect(() => {
+        controller._assertDependencies(
+          { missing: null },
+          'testPhase'
+        );
+      }).toThrow('Проверьте порядок инициализации');
+    });
+
     it('should accept falsy but non-nullish values (0, false, empty string)', () => {
       expect(() => {
         controller._assertDependencies(
@@ -675,31 +688,36 @@ describe('BookController', () => {
       expect(mockInstances.eventController.destroy).toHaveBeenCalled();
     });
 
-    it('should destroy service groups', () => {
+    it('should destroy service groups and other components', () => {
       controller.destroy();
 
       expect(mockInstances.audioServices.destroy).toHaveBeenCalled();
       expect(mockInstances.renderServices.destroy).toHaveBeenCalled();
       expect(mockInstances.contentServices.destroy).toHaveBeenCalled();
       expect(mockInstances.coreServices.destroy).toHaveBeenCalled();
+      expect(mockInstances.appInitializer.destroy).toHaveBeenCalled();
+      expect(mockInstances.stateMachine.destroy).toHaveBeenCalled();
+      expect(mockInstances.settings.destroy).toHaveBeenCalled();
+      expect(mockInstances.coreServices.dom.resetBookDOM).toHaveBeenCalled();
     });
 
-    it('should nullify state', () => {
+    it('should nullify all references', () => {
       controller.destroy();
       expect(controller.state).toBeNull();
-    });
-
-    it('should nullify mediator', () => {
-      controller.destroy();
       expect(controller.mediator).toBeNull();
-    });
-
-    it('should nullify service references', () => {
-      controller.destroy();
       expect(controller.core).toBeNull();
       expect(controller.audio).toBeNull();
       expect(controller.render).toBeNull();
       expect(controller.content).toBeNull();
+      expect(controller.factory).toBeNull();
+      expect(controller.settings).toBeNull();
+      expect(controller.stateMachine).toBeNull();
+      expect(controller.navigationDelegate).toBeNull();
+      expect(controller.settingsDelegate).toBeNull();
+      expect(controller.lifecycleDelegate).toBeNull();
+      expect(controller.chapterDelegate).toBeNull();
+      expect(controller.dragDelegate).toBeNull();
+      expect(controller.eventController).toBeNull();
     });
 
     it('should not destroy twice', () => {
@@ -726,42 +744,6 @@ describe('BookController event controller callbacks', () => {
 
   afterEach(() => {
     controller?.destroy();
-  });
-
-  it('should pass onFlip callback to eventController', () => {
-    const handlers = mockInstances.eventController.handlers;
-    expect(handlers.onFlip).toBeDefined();
-    expect(typeof handlers.onFlip).toBe('function');
-  });
-
-  it('should pass onTOCClick callback to eventController', () => {
-    const handlers = mockInstances.eventController.handlers;
-    expect(handlers.onTOCClick).toBeDefined();
-    expect(typeof handlers.onTOCClick).toBe('function');
-  });
-
-  it('should pass onOpen callback to eventController', () => {
-    const handlers = mockInstances.eventController.handlers;
-    expect(handlers.onOpen).toBeDefined();
-    expect(typeof handlers.onOpen).toBe('function');
-  });
-
-  it('should pass onSettings callback to eventController', () => {
-    const handlers = mockInstances.eventController.handlers;
-    expect(handlers.onSettings).toBeDefined();
-    expect(typeof handlers.onSettings).toBe('function');
-  });
-
-  it('should pass isBusy check to eventController', () => {
-    const handlers = mockInstances.eventController.handlers;
-    expect(handlers.isBusy).toBeDefined();
-    expect(typeof handlers.isBusy).toBe('function');
-  });
-
-  it('should pass isOpened check to eventController', () => {
-    const handlers = mockInstances.eventController.handlers;
-    expect(handlers.isOpened).toBeDefined();
-    expect(typeof handlers.isOpened).toBe('function');
   });
 
   it('isBusy should return true when stateMachine is busy', () => {
@@ -824,4 +806,435 @@ describe('BookController event controller callbacks', () => {
 
     expect(mockInstances.mediator.handleBookOpen).toHaveBeenCalledWith(true);
   });
+
+  it('getFontSize callback should read from settings', () => {
+    const handlers = mockInstances.eventController.handlers;
+    expect(handlers.getFontSize).toBeDefined();
+
+    mockInstances.settings.get.mockReturnValue(20);
+    expect(handlers.getFontSize()).toBe(20);
+    expect(mockInstances.settings.get).toHaveBeenCalledWith('fontSize');
+  });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CONSTRUCTOR OPTIONS
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('BookController constructor options', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('should store provided options', () => {
+    vi.clearAllMocks();
+    resetMockInstances();
+    const mockApi = { saveProgress: vi.fn() };
+    const owner = { id: 'user-1', name: 'Author' };
+    const ctrl = new BookController(null, {
+      apiClient: mockApi,
+      bookId: 'book-42',
+      readerMode: 'guest',
+      bookOwner: owner,
+    });
+    expect(ctrl._apiClient).toBe(mockApi);
+    expect(ctrl._bookId).toBe('book-42');
+    expect(ctrl._readerMode).toBe('guest');
+    expect(ctrl._bookOwner).toBe(owner);
+    ctrl.destroy();
+  });
+
+  it('should use defaults when options are omitted', () => {
+    vi.clearAllMocks();
+    resetMockInstances();
+    const ctrl = new BookController();
+    expect(ctrl._apiClient).toBeNull();
+    expect(ctrl._bookOwner).toBeNull();
+    expect(ctrl._readerMode).toBe('owner');
+    ctrl.destroy();
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// _assertAlive
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('BookController _assertAlive', () => {
+  let controller;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    resetMockInstances();
+    controller = new BookController();
+  });
+
+  afterEach(() => {
+    controller?.destroy();
+    vi.restoreAllMocks();
+  });
+
+  it('should not throw when controller is alive', () => {
+    expect(() => controller._assertAlive()).not.toThrow();
+  });
+
+  it('should throw when controller is destroyed', () => {
+    controller.destroy();
+    expect(() => controller._assertAlive()).toThrow('use-after-free');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// _setupSyncIndicator
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('BookController _setupSyncIndicator', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    document.body.innerHTML = '';
+  });
+
+  it('should set onSyncStateChange callback when api and bookId provided', () => {
+    vi.clearAllMocks();
+    resetMockInstances();
+    // Создаём DOM-элементы индикатора
+    const el = document.createElement('div');
+    el.id = 'sync-indicator';
+    el.hidden = true;
+    const textEl = document.createElement('span');
+    textEl.id = 'sync-indicator-text';
+    document.body.appendChild(el);
+    document.body.appendChild(textEl);
+
+    const ctrl = new BookController(null, {
+      apiClient: { saveProgress: vi.fn() },
+      bookId: 'book-1',
+    });
+
+    expect(ctrl.settings.onSyncStateChange).toBeDefined();
+    ctrl.destroy();
+  });
+
+  it('should not set callback if sync-indicator element is missing', () => {
+    vi.clearAllMocks();
+    resetMockInstances();
+    // Нет DOM-элементов
+    const ctrl = new BookController(null, {
+      apiClient: { saveProgress: vi.fn() },
+      bookId: 'book-1',
+    });
+
+    expect(ctrl.settings.onSyncStateChange).toBeUndefined();
+    ctrl.destroy();
+  });
+
+  it('should show syncing state with correct class and text', () => {
+    vi.clearAllMocks();
+    resetMockInstances();
+    const el = document.createElement('div');
+    el.id = 'sync-indicator';
+    el.hidden = true;
+    const textEl = document.createElement('span');
+    textEl.id = 'sync-indicator-text';
+    document.body.appendChild(el);
+    document.body.appendChild(textEl);
+
+    const ctrl = new BookController(null, {
+      apiClient: { saveProgress: vi.fn() },
+      bookId: 'book-1',
+    });
+
+    ctrl.settings.onSyncStateChange('syncing');
+    expect(el.hidden).toBe(false);
+    expect(el.classList.contains('sync-indicator--syncing')).toBe(true);
+    expect(textEl.textContent).toBe('Сохранение...');
+    ctrl.destroy();
+  });
+
+  it('should show synced state and auto-hide after timeout', () => {
+    vi.useFakeTimers();
+    vi.clearAllMocks();
+    resetMockInstances();
+    const el = document.createElement('div');
+    el.id = 'sync-indicator';
+    el.hidden = true;
+    const textEl = document.createElement('span');
+    textEl.id = 'sync-indicator-text';
+    document.body.appendChild(el);
+    document.body.appendChild(textEl);
+
+    const ctrl = new BookController(null, {
+      apiClient: { saveProgress: vi.fn() },
+      bookId: 'book-1',
+    });
+
+    ctrl.settings.onSyncStateChange('synced');
+    expect(el.classList.contains('sync-indicator--synced')).toBe(true);
+    expect(textEl.textContent).toBe('Сохранено');
+    expect(el.hidden).toBe(false);
+
+    vi.advanceTimersByTime(2000);
+    expect(el.hidden).toBe(true);
+
+    ctrl.destroy();
+    vi.useRealTimers();
+  });
+
+  it('should show error state', () => {
+    vi.clearAllMocks();
+    resetMockInstances();
+    const el = document.createElement('div');
+    el.id = 'sync-indicator';
+    el.hidden = true;
+    const textEl = document.createElement('span');
+    textEl.id = 'sync-indicator-text';
+    document.body.appendChild(el);
+    document.body.appendChild(textEl);
+
+    const ctrl = new BookController(null, {
+      apiClient: { saveProgress: vi.fn() },
+      bookId: 'book-1',
+    });
+
+    ctrl.settings.onSyncStateChange('error');
+    expect(el.classList.contains('sync-indicator--error')).toBe(true);
+    expect(textEl.textContent).toBe('Не сохранено');
+    ctrl.destroy();
+  });
+
+  it('should reset className before applying new state', () => {
+    vi.clearAllMocks();
+    resetMockInstances();
+    const el = document.createElement('div');
+    el.id = 'sync-indicator';
+    const textEl = document.createElement('span');
+    textEl.id = 'sync-indicator-text';
+    document.body.appendChild(el);
+    document.body.appendChild(textEl);
+
+    const ctrl = new BookController(null, {
+      apiClient: { saveProgress: vi.fn() },
+      bookId: 'book-1',
+    });
+
+    ctrl.settings.onSyncStateChange('syncing');
+    ctrl.settings.onSyncStateChange('synced');
+    // Предыдущий класс syncing должен быть сброшен
+    expect(el.classList.contains('sync-indicator--syncing')).toBe(false);
+    expect(el.classList.contains('sync-indicator--synced')).toBe(true);
+    ctrl.destroy();
+  });
+
+  it('should set base class sync-indicator on state change', () => {
+    vi.clearAllMocks();
+    resetMockInstances();
+    const el = document.createElement('div');
+    el.id = 'sync-indicator';
+    el.className = 'something-else';
+    const textEl = document.createElement('span');
+    textEl.id = 'sync-indicator-text';
+    document.body.appendChild(el);
+    document.body.appendChild(textEl);
+
+    const ctrl = new BookController(null, {
+      apiClient: { saveProgress: vi.fn() },
+      bookId: 'book-1',
+    });
+
+    ctrl.settings.onSyncStateChange('syncing');
+    // Базовый класс должен быть sync-indicator (не пустой, не старый)
+    expect(el.className).toContain('sync-indicator');
+    expect(el.className).not.toContain('something-else');
+    ctrl.destroy();
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// destroy error collection
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('BookController destroy error handling', () => {
+  let controller;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    resetMockInstances();
+    controller = new BookController();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('should collect errors from failing components and log them', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    // Заставляем один из делегатов бросить ошибку при destroy
+    mockInstances.navigationDelegate.destroy.mockImplementation(() => {
+      throw new Error('nav destroy failed');
+    });
+
+    controller.destroy();
+
+    // Ошибка должна быть залогирована, а не проброшена
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('ошибок при очистке'),
+      expect.arrayContaining([expect.any(Error)])
+    );
+  });
+
+  it('should continue destroying other components when one fails', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    mockInstances.navigationDelegate.destroy.mockImplementation(() => {
+      throw new Error('nav failed');
+    });
+
+    controller.destroy();
+
+    // Остальные делегаты всё равно должны быть уничтожены
+    expect(mockInstances.settingsDelegate.destroy).toHaveBeenCalled();
+    expect(mockInstances.lifecycleDelegate.destroy).toHaveBeenCalled();
+    expect(mockInstances.chapterDelegate.destroy).toHaveBeenCalled();
+    expect(mockInstances.dragDelegate.destroy).toHaveBeenCalled();
+  });
+
+  it('should not log errors when all components destroy cleanly', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    controller.destroy();
+
+    expect(consoleSpy).not.toHaveBeenCalled();
+  });
+
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// init error recovery
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('BookController init error recovery', () => {
+  let controller;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    resetMockInstances();
+    controller = new BookController();
+  });
+
+  afterEach(() => {
+    controller?.destroy();
+    vi.restoreAllMocks();
+  });
+
+  it('should cleanup subscriptions on init failure', async () => {
+    mockInstances.appInitializer.initialize.mockRejectedValue(new Error('init failed'));
+
+    await expect(controller.init()).rejects.toThrow('init failed');
+
+    expect(mockInstances.subscriptionManager.unsubscribeAll).toHaveBeenCalled();
+  });
+
+  it('should cleanup resize handler on init failure', async () => {
+    mockInstances.appInitializer.initialize.mockRejectedValue(new Error('init failed'));
+
+    await expect(controller.init()).rejects.toThrow('init failed');
+
+    expect(mockInstances.resizeHandler.destroy).toHaveBeenCalled();
+  });
+
+  it('should subscribe to swipe hint after successful init', async () => {
+    await controller.init();
+    expect(mockInstances.subscriptionManager.subscribeToSwipeHint).toHaveBeenCalledWith(
+      controller.stateMachine
+    );
+  });
+
+  it('should pass updateDebug callback to subscribeToState', async () => {
+    await controller.init();
+    // subscribeToState третий аргумент — callback, который вызывает mediator.updateDebug
+    const callback = mockInstances.subscriptionManager.subscribeToState.mock.calls[0][2];
+    mockInstances.mediator.updateDebug.mockClear();
+    callback();
+    expect(mockInstances.mediator.updateDebug).toHaveBeenCalled();
+  });
+
+  it('should pass repaginate callback to subscribeToMediaQueries', async () => {
+    await controller.init();
+    const repaginateFn = mockInstances.subscriptionManager.subscribeToMediaQueries.mock.calls[0][0];
+    mockInstances.mediator.repaginate.mockClear();
+    repaginateFn(true);
+    expect(mockInstances.mediator.repaginate).toHaveBeenCalledWith(true);
+  });
+
+  it('should pass isOpened callback to subscribeToMediaQueries', async () => {
+    await controller.init();
+    const isOpenedFn = mockInstances.subscriptionManager.subscribeToMediaQueries.mock.calls[0][1];
+    mockInstances.stateMachine.state = 'OPENED';
+    expect(isOpenedFn()).toBe(true);
+    mockInstances.stateMachine.state = 'CLOSED';
+    expect(isOpenedFn()).toBe(false);
+  });
+
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// AppInitializer & ResizeHandler dependency passing
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('BookController dependency wiring', () => {
+  let controller;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    resetMockInstances();
+    controller = new BookController();
+  });
+
+  afterEach(() => {
+    controller?.destroy();
+    vi.restoreAllMocks();
+  });
+
+  it('should pass all required deps to AppInitializer', () => {
+    vi.clearAllMocks();
+    resetMockInstances();
+    const ctrl = new BookController(null, { readerMode: 'guest', bookOwner: { id: 'u1' }, bookId: 'b1' });
+    const deps = mockInstances.appInitializer._deps;
+
+    expect(deps.dom).toBe(ctrl.core.dom);
+    expect(deps.settings).toBe(ctrl.settings);
+    expect(deps.settingsDelegate).toBe(ctrl.settingsDelegate);
+    expect(deps.backgroundManager).toBe(ctrl.content.backgroundManager);
+    expect(deps.eventController).toBe(ctrl.eventController);
+    expect(deps.dragDelegate).toBe(ctrl.dragDelegate);
+    expect(deps.lifecycleDelegate).toBe(ctrl.lifecycleDelegate);
+    expect(deps.readerMode).toBe('guest');
+    expect(deps.bookOwner).toEqual({ id: 'u1' });
+    expect(deps.bookId).toBe('b1');
+    ctrl.destroy();
+  });
+
+  it('should pass functional callbacks to ResizeHandler', () => {
+    vi.clearAllMocks();
+    resetMockInstances();
+    const ctrl = new BookController();
+    const deps = mockInstances.resizeHandler._deps;
+
+    expect(deps.eventManager).toBe(ctrl.core.eventManager);
+    expect(deps.timerManager).toBe(ctrl.core.timerManager);
+
+    // repaginateFn должен вызывать mediator.repaginate
+    mockInstances.mediator.repaginate.mockClear();
+    deps.repaginateFn(true);
+    expect(mockInstances.mediator.repaginate).toHaveBeenCalledWith(true);
+
+    // isOpenedFn должен возвращать stateMachine.isOpened
+    mockInstances.stateMachine.state = 'OPENED';
+    expect(deps.isOpenedFn()).toBe(true);
+    mockInstances.stateMachine.state = 'CLOSED';
+    expect(deps.isOpenedFn()).toBe(false);
+
+    // isDestroyedFn должен возвращать controller.isDestroyed
+    expect(deps.isDestroyedFn()).toBe(false);
+    ctrl.destroy();
+  });
+});
+

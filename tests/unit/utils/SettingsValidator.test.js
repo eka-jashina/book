@@ -9,8 +9,10 @@ import {
   isValidCSSColor,
   isValidFontSize,
   isValidTheme,
+  isValidLanguage,
   sanitizeFontSize,
   sanitizeVolume,
+  validateSettingsSchema,
 } from '../../../js/utils/SettingsValidator.js';
 
 describe('SettingsValidator', () => {
@@ -311,6 +313,136 @@ describe('SettingsValidator', () => {
 
       expect(result.customKey).toBe('customValue');
       expect(result.fontSize).toBe(20);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // isValidLanguage (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('isValidLanguage', () => {
+    it('should accept supported languages', () => {
+      expect(isValidLanguage('ru')).toBe(true);
+      expect(isValidLanguage('en')).toBe(true);
+      expect(isValidLanguage('es')).toBe(true);
+      expect(isValidLanguage('fr')).toBe(true);
+      expect(isValidLanguage('de')).toBe(true);
+    });
+
+    it('should reject unsupported language codes', () => {
+      expect(isValidLanguage('ja')).toBe(false);
+      expect(isValidLanguage('zh')).toBe(false);
+      expect(isValidLanguage('')).toBe(false);
+    });
+
+    it('should reject non-string values', () => {
+      expect(isValidLanguage(null)).toBe(false);
+      expect(isValidLanguage(undefined)).toBe(false);
+      expect(isValidLanguage(42)).toBe(false);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // sanitizeSetting — language (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('sanitizeSetting — language', () => {
+    it('should return valid language as-is', () => {
+      expect(sanitizeSetting('language', 'en', 'ru')).toBe('en');
+      expect(sanitizeSetting('language', 'de', 'ru')).toBe('de');
+    });
+
+    it('should return default for invalid language', () => {
+      expect(sanitizeSetting('language', 'invalid', 'ru')).toBe('ru');
+      expect(sanitizeSetting('language', '', 'ru')).toBe('ru');
+      expect(sanitizeSetting('language', null, 'ru')).toBe('ru');
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // sanitizeSetting — edge cases (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('sanitizeSetting — edge cases', () => {
+    it('should accept page=0 as valid', () => {
+      expect(sanitizeSetting('page', 0, 1)).toBe(0);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // isValidCSSColor — edge cases (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('isValidCSSColor — edge cases', () => {
+    it('should reject string that contains color function but has prefix', () => {
+      expect(isValidCSSColor('evil rgb(0,0,0)')).toBe(false);
+      expect(isValidCSSColor('xx hsl(0,0%,0%)')).toBe(false);
+    });
+
+    it('should accept rgb/hsl with no space before parenthesis', () => {
+      expect(isValidCSSColor('rgb(0,0,0)')).toBe(true);
+      expect(isValidCSSColor('hsl(0,0%,0%)')).toBe(true);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // validateSettings (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('validateSettingsSchema', () => {
+    const validSettings = {
+      font: 'georgia',
+      fontSize: 18,
+      theme: 'light',
+      page: 0,
+      soundEnabled: true,
+      soundVolume: 0.3,
+      ambientType: 'none',
+      ambientVolume: 0.5,
+      language: 'ru',
+    };
+
+    const defaults = {
+      font: 'georgia',
+      fontSize: 18,
+      theme: 'light',
+      page: 0,
+      soundEnabled: true,
+      soundVolume: 0.3,
+      ambientType: 'none',
+      ambientVolume: 0.5,
+      language: 'ru',
+    };
+
+    it('should return empty errors for valid settings', () => {
+      const errors = validateSettingsSchema(validSettings, defaults);
+      expect(errors).toEqual([]);
+    });
+
+    it('should report missing keys', () => {
+      const incomplete = { font: 'georgia', fontSize: 18 };
+      const errors = validateSettingsSchema(incomplete, defaults);
+      expect(errors.length).toBeGreaterThan(0);
+      expect(errors.some(e => e.includes('theme') || e.includes('Отсутствует'))).toBe(true);
+    });
+
+    it('should report wrong type', () => {
+      const wrongTypes = { ...validSettings, fontSize: 'not a number' };
+      const errors = validateSettingsSchema(wrongTypes, defaults);
+      expect(errors.length).toBeGreaterThan(0);
+    });
+
+    it('should report error when boolean setting has wrong type', () => {
+      const wrongBool = { ...validSettings, soundEnabled: 'yes' };
+      const errors = validateSettingsSchema(wrongBool, defaults);
+      expect(errors.length).toBeGreaterThan(0);
+    });
+
+    it('should return multiple errors for multiple problems', () => {
+      const broken = { font: 123, fontSize: 'big' };
+      const errors = validateSettingsSchema(broken, defaults);
+      // Missing keys + wrong types
+      expect(errors.length).toBeGreaterThan(2);
     });
   });
 });

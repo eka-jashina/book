@@ -1,6 +1,10 @@
 # Dependencies
 node_modules/
 
+# Mutation testing
+.stryker-tmp/
+reports/mutation/
+
 # Build output
 dist/
 *.local

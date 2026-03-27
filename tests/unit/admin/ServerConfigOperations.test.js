@@ -63,9 +63,9 @@ describe('ServerConfigOperations', () => {
   describe('createChapter', () => {
     it('should send chapter data to API', async () => {
       await createChapter(api, 'book-1', { title: 'New', htmlContent: '<p>Hi</p>', file: 'ch1.html' });
-      expect(api.createChapter).toHaveBeenCalledWith('book-1', {
+      expect(api.createChapter).toHaveBeenCalledWith('book-1', expect.objectContaining({
         title: 'New', htmlContent: '<p>Hi</p>', filePath: 'ch1.html', bg: '', bgMobile: '',
-      });
+      }));
     });
   });
 

@@ -73,7 +73,26 @@
       "Bash(ls -la /c/Users/ekaterina/Documents/book/tests/integration/flows/*.test.js)",
       "Bash(cat:*)",
       "Bash(grep -l \"export class\\\\|export async function\\\\|export function\" js/**/*.js)",
-      "Read(//c/Users/EKATER~1/AppData/Local/Temp/claude/c--Users-ekaterina-Documents-book/1582311a-95c0-4f69-9b51-18342e5829ef/tasks/**)"
+      "Read(//c/Users/EKATER~1/AppData/Local/Temp/claude/c--Users-ekaterina-Documents-book/1582311a-95c0-4f69-9b51-18342e5829ef/tasks/**)",
+      "Bash(grep -r \"SessionTimeout\\\\|session.*modal\\\\|session.*expired\" /c/Users/ekaterina/Documents/book --include=*.js --include=*.html)",
+      "Bash(grep -r \"destroy\\\\|cleanup\" js/managers/*.js)",
+      "Read(//c/Users/ekaterina/Documents/book/**)",
+      "Bash(npm install:*)",
+      "Bash(npx stryker:*)",
+      "Read(//c/Users/EKATER~1/AppData/Local/Temp/claude/c--Users-ekaterina-Documents-book/9ff5c07f-b871-42ea-9c74-2200c233e079/tasks/**)",
+      "Bash(node -e \"import\\(''''file:///c:/Users/ekaterina/Documents/book/tests/unit/utils/HTMLSanitizer.test.js''''\\).catch\\(e => console.log\\(e.message\\)\\)\")",
+      "Bash(node -e \":*)",
+      "Read(//c/Users/ekaterina/.claude/projects/c--Users-ekaterina-Documents-book/memory/**)",
+      "Bash(xxd)",
+      "Bash(node -e \"try { require\\(''c:/Users/ekaterina/Documents/book/tests/unit/utils/EventEmitter.test.js''\\) } catch\\(e\\) { console.log\\(e.message.slice\\(0,200\\)\\) }\")",
+      "Bash(node --check c:/Users/ekaterina/Documents/book/tests/unit/utils/EventEmitter.test.js)",
+      "Bash(node -c tests/unit/utils/CSSVariables.test.js)",
+      "Bash(node -c tests/unit/utils/EventListenerManager.test.js)",
+      "Bash(node -c tests/unit/utils/TransitionHelper.test.js)",
+      "Bash(npm uninstall:*)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\ekaterina\\.claude\\projects\\c--Users-ekaterina-Documents-book\\memory"
     ]
   }
 }

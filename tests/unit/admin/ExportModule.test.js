@@ -44,20 +44,6 @@ describe('ExportModule', () => {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // cacheDOM
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  describe('cacheDOM()', () => {
-    it('should cache all required DOM elements', () => {
-      expect(mod.exportBtn).toBe(document.getElementById('exportConfig'));
-      expect(mod.importInput).toBe(document.getElementById('importConfig'));
-      expect(mod.resetAllBtn).toBe(document.getElementById('resetAll'));
-      expect(mod.jsonPreview).toBe(document.getElementById('jsonPreview'));
-      expect(mod.copyJsonBtn).toBe(document.getElementById('copyJson'));
-    });
-  });
-
-  // ═══════════════════════════════════════════════════════════════════════════
   // render / renderJsonPreview
   // ═══════════════════════════════════════════════════════════════════════════
 

@@ -5,16 +5,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// ═══════════════════════════════════════════════════════════════════════════
-// MOCK SETUP
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Mock import.meta.env.BASE_URL — defaults to '/' stripped to ''
-vi.mock('../../../js/utils/Router.js', async (importOriginal) => {
-  return importOriginal();
-});
-
-const { Router } = await import('../../../js/utils/Router.js');
+import { Router } from '../../../js/utils/Router.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // HELPERS
@@ -353,31 +344,6 @@ describe('Router', () => {
   // ── _resolve ──
 
   describe('_resolve', () => {
-    it('should normalize trailing slashes', async () => {
-      router = new Router(routes);
-      await router.start();
-
-      await router.navigate('/account');
-      expect(router.getCurrentRoute().name).toBe('account');
-    });
-
-    it('should fallback to home for unmatched paths', async () => {
-      // Create router with only specific routes (no catch-all)
-      const limitedRoutes = [
-        { name: 'home', path: '/', handler: vi.fn() },
-        { name: 'reader', path: '/book/:bookId', handler: vi.fn() },
-      ];
-      history.replaceState(null, '', '/');
-      router = new Router(limitedRoutes);
-      await router.start();
-
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      await router.navigate('/unknown/deep/path');
-
-      expect(consoleSpy).toHaveBeenCalled();
-      expect(router.getCurrentRoute().name).toBe('home');
-    });
-
     it('should handle handler errors gracefully', async () => {
       const errorRoutes = [
         { name: 'home', path: '/', handler: vi.fn() },
@@ -398,16 +364,6 @@ describe('Router', () => {
         expect.stringContaining('broken'),
         expect.any(Error)
       );
-    });
-
-    it('should parse query string into URLSearchParams', async () => {
-      router = new Router(routes);
-      await router.start();
-
-      await router.navigate('/account?tab=fonts&page=2');
-      const current = router.getCurrentRoute();
-      expect(current.query.get('tab')).toBe('fonts');
-      expect(current.query.get('page')).toBe('2');
     });
   });
 
@@ -611,14 +567,148 @@ describe('Router', () => {
       expect(match.params).toEqual({ bookId: 'abc', chapterId: '42' });
     });
 
-    it('should handle synchronous handler', async () => {
-      const syncRoutes = [
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Path normalization (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('path normalization', () => {
+    beforeEach(async () => {
+      history.replaceState(null, '', '/');
+      router = new Router(routes);
+      await router.start();
+      vi.clearAllMocks();
+    });
+
+    it('should strip trailing slash from non-root paths', async () => {
+      await router.navigate('/account/');
+      expect(router.getCurrentRoute().name).toBe('account');
+    });
+
+    it('should keep root path as /', async () => {
+      await router.navigate('/');
+      expect(router.getCurrentRoute().name).toBe('home');
+    });
+
+    it('should match /book/123/ same as /book/123', async () => {
+      await router.navigate('/book/test-book/');
+      expect(router.getCurrentRoute().name).toBe('reader');
+      expect(router.getCurrentRoute().params.bookId).toBe('test-book');
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Duplicate navigation prevention (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('duplicate navigation prevention', () => {
+    beforeEach(async () => {
+      history.replaceState(null, '', '/');
+      router = new Router(routes);
+      await router.start();
+      vi.clearAllMocks();
+    });
+
+    it('should allow re-navigation to same path (handler called again)', async () => {
+      await router.navigate('/account');
+      vi.clearAllMocks();
+      await router.navigate('/account');
+      expect(routes[3].handler).toHaveBeenCalled();
+    });
+
+    it('should navigate if path is same but query is different', async () => {
+      await router.navigate('/account?tab=profile');
+      vi.clearAllMocks();
+      const pushSpy = vi.spyOn(history, 'pushState');
+      await router.navigate('/account?tab=fonts');
+      expect(pushSpy).toHaveBeenCalled();
+    });
+
+    it('should navigate if query is same but path is different', async () => {
+      await router.navigate('/account');
+      vi.clearAllMocks();
+      const pushSpy = vi.spyOn(history, 'pushState');
+      await router.navigate('/book/123');
+      expect(pushSpy).toHaveBeenCalled();
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Query string edge cases (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('query string edge cases', () => {
+    beforeEach(async () => {
+      history.replaceState(null, '', '/');
+      router = new Router(routes);
+      await router.start();
+      vi.clearAllMocks();
+    });
+
+    it('should handle query-only path ?param=value on root', async () => {
+      await router.navigate('/?param=value');
+      const current = router.getCurrentRoute();
+      expect(current.name).toBe('home');
+      expect(current.query.get('param')).toBe('value');
+    });
+
+    it('should handle multiple query parameters', async () => {
+      await router.navigate('/account?tab=profile&lang=ru&debug=1');
+      const current = router.getCurrentRoute();
+      expect(current.query.get('tab')).toBe('profile');
+      expect(current.query.get('lang')).toBe('ru');
+      expect(current.query.get('debug')).toBe('1');
+    });
+
+    it('should handle empty query string', async () => {
+      await router.navigate('/account?');
+      const current = router.getCurrentRoute();
+      expect(current.name).toBe('account');
+      expect(current.query.toString()).toBe('');
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Fallback behavior (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('fallback behavior', () => {
+    it('should use replaceState (not pushState) when falling back to /', async () => {
+      const limitedRoutes = [
         { name: 'home', path: '/', handler: vi.fn() },
       ];
-      router = new Router(syncRoutes);
+      history.replaceState(null, '', '/');
+      router = new Router(limitedRoutes);
       await router.start();
+      vi.clearAllMocks();
 
-      expect(syncRoutes[0].handler).toHaveBeenCalled();
+      const replaceSpy = vi.spyOn(history, 'replaceState');
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+      await router.navigate('/nonexistent/path');
+
+      expect(replaceSpy).toHaveBeenCalled();
+      expect(router.getCurrentRoute().name).toBe('home');
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Popstate with path normalization (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('popstate with different paths', () => {
+    it('should correctly resolve non-root path on popstate', async () => {
+      router = new Router(routes);
+      await router.start();
+      await router.navigate('/account');
+
+      // Simulate back to /book/abc
+      history.replaceState(null, '', '/book/abc');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+      await new Promise((r) => setTimeout(r, 0));
+
+      expect(router.getCurrentRoute().name).toBe('reader');
+      expect(router.getCurrentRoute().params.bookId).toBe('abc');
     });
   });
 });

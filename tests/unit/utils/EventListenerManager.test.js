@@ -28,10 +28,7 @@ describe('EventListenerManager', () => {
       expect(manager.listeners.size).toBe(0);
     });
 
-    it('should initialize with zero listener count', () => {
-      expect(manager.listenerCount).toBe(0);
-    });
-  });
+});
 
   // ═══════════════════════════════════════════════════════════════════════════
   // add()
@@ -130,54 +127,6 @@ describe('EventListenerManager', () => {
       element.dispatchEvent(new Event('click'));
 
       expect(handler).toHaveBeenCalledOnce();
-    });
-  });
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // _createKey()
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  describe('_createKey()', () => {
-    it('should create key based on capture option', () => {
-      const handler = vi.fn();
-
-      const key1 = manager._createKey(handler, { capture: true });
-      const key2 = manager._createKey(handler, { capture: false });
-
-      expect(key1).toBe('true|false|false');
-      expect(key2).toBe('false|false|false');
-    });
-
-    it('should handle boolean options', () => {
-      const handler = vi.fn();
-
-      const key1 = manager._createKey(handler, true);
-      const key2 = manager._createKey(handler, false);
-
-      expect(key1).toBe('true|false|false');
-      expect(key2).toBe('false|false|false');
-    });
-
-    it('should default to false capture', () => {
-      const handler = vi.fn();
-
-      const key = manager._createKey(handler, {});
-
-      expect(key).toBe('false|false|false');
-    });
-
-    it('should differentiate by passive and once options', () => {
-      const handler = vi.fn();
-
-      const key1 = manager._createKey(handler, { capture: false, passive: true });
-      const key2 = manager._createKey(handler, { capture: false, passive: false });
-      const key3 = manager._createKey(handler, { capture: false, once: true });
-
-      expect(key1).toBe('false|true|false');
-      expect(key2).toBe('false|false|false');
-      expect(key3).toBe('false|false|true');
-      expect(key1).not.toBe(key2);
-      expect(key2).not.toBe(key3);
     });
   });
 

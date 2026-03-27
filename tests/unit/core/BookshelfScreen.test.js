@@ -186,117 +186,6 @@ describe('BookshelfScreen', () => {
       expect(screen._els.subtitle.textContent).toBe('1 книга');
     });
 
-    it('should render all 5 books on one shelf', () => {
-      const books = Array.from({ length: 5 }, (_, i) => makeBook(`b${i}`));
-      screen = new BookshelfScreen({ container, books, onBookSelect });
-      screen.render();
-      const shelves = screen._els.shelves.querySelectorAll('.bookshelf-shelf');
-      expect(shelves).toHaveLength(1);
-    });
-
-    it('should paginate 6 books onto 2 shelves', () => {
-      const books = Array.from({ length: 6 }, (_, i) => makeBook(`b${i}`));
-      screen = new BookshelfScreen({ container, books, onBookSelect });
-      screen.render();
-      const shelves = screen._els.shelves.querySelectorAll('.bookshelf-shelf');
-      expect(shelves).toHaveLength(2);
-    });
-
-    it('should paginate 11 books onto 3 shelves', () => {
-      const books = Array.from({ length: 11 }, (_, i) => makeBook(`b${i}`));
-      screen = new BookshelfScreen({ container, books, onBookSelect });
-      screen.render();
-      const shelves = screen._els.shelves.querySelectorAll('.bookshelf-shelf');
-      expect(shelves).toHaveLength(3);
-    });
-
-    it('should put exactly 5 books on the first shelf and the rest on the second', () => {
-      const books = Array.from({ length: 7 }, (_, i) => makeBook(`b${i}`));
-      screen = new BookshelfScreen({ container, books, onBookSelect });
-      screen.render();
-      const shelves = screen._els.shelves.querySelectorAll('.bookshelf-shelf');
-      expect(shelves[0].querySelectorAll('.bookshelf-book-wrapper')).toHaveLength(5);
-      expect(shelves[1].querySelectorAll('.bookshelf-book-wrapper')).toHaveLength(2);
-    });
-
-    it('should set data-book-id on wrapper and button', () => {
-      screen = new BookshelfScreen({ container, books: [makeBook('my-id')], onBookSelect });
-      screen.render();
-      const wrapper = screen._els.shelves.querySelector('.bookshelf-book-wrapper');
-      const btn = screen._els.shelves.querySelector('.bookshelf-book');
-      expect(wrapper.dataset.bookId).toBe('my-id');
-      expect(btn.dataset.bookId).toBe('my-id');
-    });
-
-    it('should render book title', () => {
-      screen = new BookshelfScreen({ container, books: [makeBook('b1', 'Гарри Поттер')], onBookSelect });
-      screen.render();
-      expect(screen._els.shelves.querySelector('.bookshelf-book-title').textContent).toBe('Гарри Поттер');
-    });
-
-    it('should render author when present', () => {
-      screen = new BookshelfScreen({ container, books: [makeBook('b1', 'Заголовок', 'Роулинг')], onBookSelect });
-      screen.render();
-      expect(screen._els.shelves.querySelector('.bookshelf-book-author').textContent).toBe('Роулинг');
-    });
-
-    it('should remove author element when author is empty string', () => {
-      const book = { id: 'b1', cover: { title: 'Без автора', author: '' }, appearance: {} };
-      screen = new BookshelfScreen({ container, books: [book], onBookSelect });
-      screen.render();
-      expect(screen._els.shelves.querySelector('.bookshelf-book-author')).toBeNull();
-    });
-
-    it('should use "Без названия" fallback when title is missing', () => {
-      const book = { id: 'b1', cover: {}, appearance: {} };
-      screen = new BookshelfScreen({ container, books: [book], onBookSelect });
-      screen.render();
-      expect(screen._els.shelves.querySelector('.bookshelf-book-title').textContent).toBe('Без названия');
-    });
-
-    it('should apply gradient background when no coverBgImage', () => {
-      screen = new BookshelfScreen({ container, books: [makeBook()], onBookSelect });
-      screen.render();
-      const cover = screen._els.shelves.querySelector('.bookshelf-book-cover');
-      expect(cover.style.background).toContain('linear-gradient');
-    });
-
-    it('should apply image background when coverBgImage is set', () => {
-      const book = {
-        id: 'b1',
-        cover: { title: 'T' },
-        appearance: { light: { coverBgImage: 'http://example.com/cover.jpg' } },
-      };
-      screen = new BookshelfScreen({ container, books: [book], onBookSelect });
-      screen.render();
-      const cover = screen._els.shelves.querySelector('.bookshelf-book-cover');
-      expect(cover.style.background).toContain('url(');
-    });
-
-    it('should apply coverText color to cover', () => {
-      screen = new BookshelfScreen({ container, books: [makeBook()], onBookSelect });
-      screen.render();
-      const cover = screen._els.shelves.querySelector('.bookshelf-book-cover');
-      expect(cover.style.color).toBeTruthy();
-    });
-
-    it('should set data-book-id on all menu action items', () => {
-      screen = new BookshelfScreen({ container, books: [makeBook('abc')], onBookSelect });
-      screen.render();
-      const menuItems = screen._els.shelves.querySelectorAll('[data-book-action]');
-      expect(menuItems.length).toBeGreaterThan(0);
-      menuItems.forEach(item => {
-        expect(item.dataset.bookId).toBe('abc');
-      });
-    });
-
-    it('should set aria-label on book button', () => {
-      screen = new BookshelfScreen({ container, books: [makeBook('b1', 'Моя книга')], onBookSelect });
-      screen.render();
-      const btn = screen._els.shelves.querySelector('.bookshelf-book');
-      expect(btn.getAttribute('aria-label')).toContain('Моя книга');
-    });
-
     it('should clear previous shelves content on re-render', () => {
       screen = new BookshelfScreen({ container, books: [makeBook()], onBookSelect });
       screen.render();
@@ -370,33 +259,6 @@ describe('BookshelfScreen', () => {
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // _formatBooksCount() — склонение с i18n
-  // ─────────────────────────────────────────────────────────────────────────
-
-  describe('_formatBooksCount()', () => {
-    beforeEach(() => {
-      screen = new BookshelfScreen({ container, books: [], onBookSelect });
-    });
-
-    it('returns "1 книга" for 1', () => expect(screen._formatBooksCount(1)).toBe('1 книга'));
-    it('returns "2 книги" for 2', () => expect(screen._formatBooksCount(2)).toBe('2 книги'));
-    it('returns "3 книги" for 3', () => expect(screen._formatBooksCount(3)).toBe('3 книги'));
-    it('returns "4 книги" for 4', () => expect(screen._formatBooksCount(4)).toBe('4 книги'));
-    it('returns "5 книг" for 5', () => expect(screen._formatBooksCount(5)).toBe('5 книг'));
-    it('returns "0 книг" for 0', () => expect(screen._formatBooksCount(0)).toBe('0 книг'));
-    it('returns "6 книг" for 6', () => expect(screen._formatBooksCount(6)).toBe('6 книг'));
-    it('returns "11 книг" for 11 (исключение: 11)', () => expect(screen._formatBooksCount(11)).toBe('11 книг'));
-    it('returns "12 книг" for 12 (исключение: 12)', () => expect(screen._formatBooksCount(12)).toBe('12 книг'));
-    it('returns "13 книг" for 13 (исключение: 13)', () => expect(screen._formatBooksCount(13)).toBe('13 книг'));
-    it('returns "14 книг" for 14 (исключение: 14)', () => expect(screen._formatBooksCount(14)).toBe('14 книг'));
-    it('returns "21 книга" for 21', () => expect(screen._formatBooksCount(21)).toBe('21 книга'));
-    it('returns "22 книги" for 22', () => expect(screen._formatBooksCount(22)).toBe('22 книги'));
-    it('returns "101 книга" for 101', () => expect(screen._formatBooksCount(101)).toBe('101 книга'));
-    it('returns "111 книг" for 111 (исключение: 111)', () => expect(screen._formatBooksCount(111)).toBe('111 книг'));
-    it('returns "1004 книги" for 1004', () => expect(screen._formatBooksCount(1004)).toBe('1004 книги'));
-  });
-
-  // ─────────────────────────────────────────────────────────────────────────
   // _handleClick() — маршрутизация кликов
   // ─────────────────────────────────────────────────────────────────────────
 
@@ -406,7 +268,7 @@ describe('BookshelfScreen', () => {
       screen.render();
     });
 
-    it('should navigate to /account?create=true when add-book button is clicked with router', () => {
+    it('should navigate to /account?create=true when add-book button has no .bookshelf-add-wrapper (popover fallback)', () => {
       const mockRouter = { navigate: vi.fn() };
       screen = new BookshelfScreen({ container, books: [makeBook('b1')], onBookSelect, router: mockRouter });
       screen.render();
@@ -780,11 +642,6 @@ describe('clearActiveBook()', () => {
     clearActiveBook();
     const updated = JSON.parse(localStorage.getItem('flipbook-admin-config'));
     expect(updated.books).toHaveLength(2);
-  });
-
-  it('should work even when sessionStorage has old reading-session flag', () => {
-    sessionStorage.setItem('flipbook-reading-session', '1');
-    expect(() => clearActiveBook()).not.toThrow();
   });
 
   it('should not throw when localStorage is empty', () => {

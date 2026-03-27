@@ -136,11 +136,6 @@ describe('BaseConfigStore', () => {
       expect(() => store._notifySave()).not.toThrow();
     });
 
-    it('не должен вызывать _onSave если он null', () => {
-      store.onSave = null;
-      // Просто проверяем что не бросает ошибку
-      expect(() => store._notifySave()).not.toThrow();
-    });
   });
 
   // ═══════════════════════════════════════════

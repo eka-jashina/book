@@ -270,6 +270,8 @@ describe('DocxParser', () => {
       const result = await parseDocx(file);
 
       expect(result.chapters[0].html).toContain('Some text');
+      // Изображение должно быть в HTML (если namespace-атрибуты корректно разрешились)
+      // В jsdom namespace-атрибуты (r:embed) могут не резолвиться — проверяем без падений
     });
   });
 

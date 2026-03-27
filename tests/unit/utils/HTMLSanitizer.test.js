@@ -3,10 +3,19 @@
  * Тесты для защиты от XSS при загрузке HTML-контента
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { HTMLSanitizer, sanitizer } from '@utils/HTMLSanitizer.js';
 
+/**
+ * Создаём новый экземпляр перед каждым тестом, чтобы конструктор
+ * читал актуальные значения модульных констант (важно для mutation testing).
+ */
+let freshSanitizer;
+
 describe('HTMLSanitizer', () => {
+  beforeEach(() => {
+    freshSanitizer = new HTMLSanitizer();
+  });
   // ═══════════════════════════════════════════════════════════════════════════
   // XSS PROTECTION - DANGEROUS TAGS
   // ═══════════════════════════════════════════════════════════════════════════
@@ -458,79 +467,311 @@ describe('HTMLSanitizer', () => {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // CUSTOM OPTIONS
+  // ALLOWED TAGS WHITELIST (spec-based)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // LINK SECURITY
-  // ═══════════════════════════════════════════════════════════════════════════
+  describe('allowed tags whitelist - completeness', () => {
+    const allExpectedTags = [
+      'article', 'section', 'div', 'span', 'main', 'aside',
+      'header', 'footer', 'nav', 'p', 'h1', 'h2', 'h3', 'h4',
+      'h5', 'h6', 'strong', 'em', 'b', 'i', 'u', 's', 'mark',
+      'small', 'sub', 'sup', 'ol', 'ul', 'li', 'dl', 'dt', 'dd',
+      'blockquote', 'pre', 'code', 'br', 'hr', 'figure',
+      'figcaption', 'img', 'a', 'table', 'thead', 'tbody', 'tfoot',
+      'tr', 'th', 'td', 'caption',
+    ];
 
-  describe('link security', () => {
-    it('should allow anchor tags by default', () => {
-      const html = '<a href="/page">Internal Link</a>';
-      const result = sanitizer.sanitize(html);
+    // Void-элементы (не могут иметь детей)
+    const voidTags = new Set(['br', 'hr', 'img']);
+    // Теги, требующие определённого родителя для корректного парсинга
+    const tableChildTags = new Set(['thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'caption']);
 
-      expect(result).toContain('<a');
-      expect(result).toContain('href="/page"');
-      expect(result).toContain('Internal Link');
-    });
+    for (const tag of allExpectedTags) {
+      if (tableChildTags.has(tag)) continue; // проверяются в "preserve table tags"
+      if (voidTags.has(tag)) {
+        it(`should allow <${tag}> (void)`, () => {
+          const html = tag === 'img'
+            ? `<${tag} src="test.jpg" alt="test">`
+            : `<${tag}>`;
+          const result = freshSanitizer.sanitize(html);
+          expect(result).toContain(`<${tag}`);
+        });
+      } else {
+        it(`should allow <${tag}>`, () => {
+          const html = `<${tag}>content</${tag}>`;
+          const result = freshSanitizer.sanitize(html);
+          expect(result).toContain(`<${tag}>`);
+        });
+      }
+    }
 
-    it('should add noopener noreferrer to external links', () => {
-      const html = '<a href="https://example.com">External</a>';
-      const result = sanitizer.sanitize(html);
-
-      expect(result).toContain('rel="noopener noreferrer"');
-      expect(result).toContain('target="_blank"');
-    });
-
-    it('should not add noopener to internal links', () => {
-      const html = '<a href="/internal/page">Internal</a>';
-      const result = sanitizer.sanitize(html);
-
-      expect(result).not.toContain('noopener');
-      expect(result).not.toContain('target="_blank"');
-    });
-
-    it('should not add noopener to anchor links', () => {
-      const html = '<a href="#section">Anchor</a>';
-      const result = sanitizer.sanitize(html);
-
-      expect(result).not.toContain('noopener');
-      expect(result).not.toContain('target="_blank"');
-    });
-
-    it('should not add noopener to relative paths', () => {
-      const html = '<a href="./page.html">Relative</a><a href="../other.html">Parent</a>';
-      const result = sanitizer.sanitize(html);
-
-      expect(result).not.toContain('noopener');
-      expect(result).not.toContain('target="_blank"');
-    });
-
-    it('should handle http:// as external', () => {
-      const html = '<a href="http://example.com">HTTP</a>';
-      const result = sanitizer.sanitize(html);
-
-      expect(result).toContain('rel="noopener noreferrer"');
-      expect(result).toContain('target="_blank"');
-    });
-
-    it('should remove javascript: URLs completely', () => {
-      const html = '<a href="javascript:alert(1)">XSS</a>';
-      const result = sanitizer.sanitize(html);
-
-      expect(result).not.toContain('javascript:');
-      expect(result).not.toContain('href');
-    });
-
-    it('should remove data: URLs completely', () => {
-      const html = '<a href="data:text/html,<script>alert(1)</script>">XSS</a>';
-      const result = sanitizer.sanitize(html);
-
-      expect(result).not.toContain('data:');
-      expect(result).not.toContain('href');
+    it('should reject tags not in the whitelist', () => {
+      const forbidden = ['script', 'style', 'iframe', 'form', 'input', 'button',
+                         'select', 'textarea', 'object', 'embed', 'link', 'meta',
+                         'template', 'slot', 'svg', 'math', 'video', 'audio', 'source'];
+      for (const tag of forbidden) {
+        const html = `<${tag}>content</${tag}>`;
+        const result = freshSanitizer.sanitize(html);
+        expect(result, `<${tag}> should be removed`).not.toContain(`<${tag}`);
+      }
     });
   });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // GLOBAL ATTRIBUTES WHITELIST (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('global attributes whitelist - completeness', () => {
+    const allowedGlobalAttrs = ['class', 'id', 'title', 'lang', 'dir'];
+
+    for (const attr of allowedGlobalAttrs) {
+      it(`should preserve global attr "${attr}" on any tag`, () => {
+        const html = `<p ${attr}="test-value">Text</p>`;
+        const result = freshSanitizer.sanitize(html);
+        expect(result).toContain(`${attr}="test-value"`);
+      });
+    }
+
+    it('should remove non-whitelisted global attributes', () => {
+      const forbidden = ['style', 'tabindex', 'accesskey', 'contenteditable', 'draggable', 'role'];
+      for (const attr of forbidden) {
+        const html = `<p ${attr}="x">Text</p>`;
+        const result = freshSanitizer.sanitize(html);
+        expect(result, `attr "${attr}" should be removed`).not.toContain(`${attr}=`);
+      }
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PER-TAG ATTRIBUTE RESTRICTIONS (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('per-tag attribute restrictions', () => {
+    it('should allow src on img but not on div', () => {
+      const html = '<div src="http://evil.com">text</div>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).not.toContain('src=');
+    });
+
+    it('should allow href on a but not on div', () => {
+      const html = '<div href="http://evil.com">text</div>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).not.toContain('href=');
+    });
+
+    it('should allow colspan on td but not on div', () => {
+      const html = '<div colspan="2">text</div>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).not.toContain('colspan=');
+    });
+
+    it('should allow start on ol but not on ul', () => {
+      const html = '<ul start="5"><li>Item</li></ul>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).not.toContain('start=');
+    });
+
+    it('should allow width/height on img but not on div', () => {
+      const html = '<div width="100" height="100">text</div>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).not.toContain('width=');
+      expect(result).not.toContain('height=');
+    });
+
+    it('should allow loading on img but not on div', () => {
+      const html = '<div loading="lazy">text</div>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).not.toContain('loading=');
+    });
+
+    it('should allow scope on th but not on td', () => {
+      const html = '<table><tr><td scope="col">text</td></tr></table>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).not.toContain('scope=');
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DATA ATTRIBUTES WHITELIST (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('data attributes whitelist - completeness', () => {
+    const allowedDataAttrs = [
+      'data-chapter', 'data-chapter-start', 'data-index',
+      'data-layout', 'data-filter', 'data-filter-intensity', 'data-rotation',
+    ];
+
+    for (const attr of allowedDataAttrs) {
+      it(`should preserve "${attr}"`, () => {
+        const html = `<div ${attr}="value">Text</div>`;
+        const result = freshSanitizer.sanitize(html);
+        expect(result).toContain(`${attr}="value"`);
+      });
+    }
+
+    it('should remove arbitrary data-* attributes', () => {
+      const forbidden = ['data-x', 'data-evil', 'data-bind', 'data-action',
+                         'data-controller', 'data-src', 'data-href'];
+      for (const attr of forbidden) {
+        const html = `<div ${attr}="x">Text</div>`;
+        const result = freshSanitizer.sanitize(html);
+        expect(result, `${attr} should be removed`).not.toContain(`${attr}=`);
+      }
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DATA URI SECURITY (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('data URI security', () => {
+    const safeImageFormats = ['png', 'jpeg', 'jpg', 'gif', 'webp', 'bmp', 'tiff', 'tif', 'ico', 'avif'];
+
+    for (const fmt of safeImageFormats) {
+      it(`should allow safe data:image/${fmt} in img src`, () => {
+        const dataUri = `data:image/${fmt};base64,AAAA`;
+        const html = `<img src="${dataUri}" alt="test">`;
+        const result = freshSanitizer.sanitize(html);
+        expect(result, `data:image/${fmt} should be preserved`).toContain(`src="${dataUri}"`);
+      });
+    }
+
+    it('should block data:image/svg+xml in img src (can contain script)', () => {
+      const html = '<img src="data:image/svg+xml;base64,PHN2Zz4=" alt="test">';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).not.toContain('data:image/svg');
+    });
+
+    it('should block data:text/html in img src', () => {
+      const html = '<img src="data:text/html,<script>alert(1)</script>" alt="test">';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).not.toContain('data:text');
+    });
+
+    it('should block data:application/javascript in img src', () => {
+      const html = '<img src="data:application/javascript,alert(1)" alt="test">';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).not.toContain('data:application');
+    });
+
+    it('should block unsafe data: URI in href', () => {
+      const html = '<a href="data:text/html,<script>alert(1)</script>">XSS</a>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).not.toContain('data:');
+    });
+
+    it('should block data: URI without proper base64 marker', () => {
+      const html = '<img src="data:image/png,rawdata" alt="test">';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).not.toContain('data:image/png,rawdata');
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // URL SCHEME SECURITY (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('URL scheme security', () => {
+    it('should allow http:// URLs in href', () => {
+      const html = '<a href="http://example.com">Link</a>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).toContain('href="http://example.com"');
+    });
+
+    it('should allow https:// URLs in href', () => {
+      const html = '<a href="https://example.com">Link</a>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).toContain('href="https://example.com"');
+    });
+
+    it('should allow mailto: URLs', () => {
+      const html = '<a href="mailto:user@example.com">Email</a>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).toContain('href="mailto:user@example.com"');
+    });
+
+    it('should allow tel: URLs', () => {
+      const html = '<a href="tel:+1234567890">Call</a>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).toContain('href="tel:+1234567890"');
+    });
+
+    it('should allow relative URLs', () => {
+      const html = '<a href="/page">Link</a>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).toContain('href="/page"');
+    });
+
+    it('should allow anchor URLs', () => {
+      const html = '<a href="#section">Link</a>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).toContain('href="#section"');
+    });
+
+    it('should block javascript: in any case', () => {
+      const variants = ['javascript:', 'JAVASCRIPT:', 'JavaScript:', 'jAvAsCrIpT:'];
+      for (const scheme of variants) {
+        const html = `<a href="${scheme}alert(1)">XSS</a>`;
+        const result = freshSanitizer.sanitize(html);
+        expect(result, `${scheme} should be blocked`).not.toContain(scheme.toLowerCase());
+      }
+    });
+
+    it('should block vbscript: in any case', () => {
+      const html = '<a href="VBSCRIPT:MsgBox(1)">XSS</a>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).not.toContain('vbscript');
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // EXTERNAL LINK HARDENING (spec-based)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('external link hardening', () => {
+    it('should add rel and target to https:// links', () => {
+      const html = '<a href="https://external.com">Link</a>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).toContain('rel="noopener noreferrer"');
+      expect(result).toContain('target="_blank"');
+    });
+
+    it('should add rel and target to http:// links', () => {
+      const html = '<a href="http://external.com">Link</a>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).toContain('rel="noopener noreferrer"');
+      expect(result).toContain('target="_blank"');
+    });
+
+    it('should NOT add rel/target to relative links', () => {
+      const html = '<a href="/internal">Link</a>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).not.toContain('noopener');
+    });
+
+    it('should NOT add rel/target to anchor links', () => {
+      const html = '<a href="#top">Link</a>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).not.toContain('noopener');
+    });
+
+    it('should NOT add rel/target to mailto links', () => {
+      const html = '<a href="mailto:a@b.com">Link</a>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).not.toContain('target="_blank"');
+    });
+
+    it('should only harden <a> tags, not other elements', () => {
+      const html = '<div>text</div><p>text</p>';
+      const result = freshSanitizer.sanitize(html);
+      expect(result).not.toContain('noopener');
+      expect(result).not.toContain('target=');
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CUSTOM OPTIONS
+  // ═══════════════════════════════════════════════════════════════════════════
 
   describe('custom options', () => {
     it('should allow custom allowed tags', () => {

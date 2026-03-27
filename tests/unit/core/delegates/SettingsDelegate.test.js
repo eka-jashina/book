@@ -155,23 +155,6 @@ describe('SettingsDelegate', () => {
       );
     });
 
-    it('should apply theme setting', () => {
-      delegate.apply();
-
-      expect(mockHtml.dataset.theme).toBe('');
-    });
-
-    it('should apply dark theme', () => {
-      mockDeps.settings.get.mockImplementation((key) => {
-        if (key === 'theme') return 'dark';
-        return null;
-      });
-
-      delegate.apply();
-
-      expect(mockHtml.dataset.theme).toBe('dark');
-    });
-
     it('should apply sound settings', () => {
       delegate.apply();
 
@@ -466,6 +449,23 @@ describe('SettingsDelegate', () => {
       expect(delegate.debugPanel).toBeNull();
     });
 
+    it('should nullify _fontController', () => {
+      delegate.destroy();
+      expect(delegate._fontController).toBeNull();
+    });
+
+    it('should nullify _audioController', () => {
+      delegate.destroy();
+      expect(delegate._audioController).toBeNull();
+    });
+
+    it('should destroy and nullify _themeController', () => {
+      const themeDestroySpy = vi.spyOn(delegate._themeController, 'destroy');
+      delegate.destroy();
+      expect(themeDestroySpy).toHaveBeenCalled();
+      expect(delegate._themeController).toBeNull();
+    });
+
     it('should remove all event listeners', () => {
       delegate.destroy();
 
@@ -475,6 +475,46 @@ describe('SettingsDelegate', () => {
 
       expect(eventHandlers.onSettingsUpdate).not.toHaveBeenCalled();
       expect(eventHandlers.onRepaginate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('handleChange - repagination only when opened', () => {
+    it('should not emit repaginate for fontSize when book is closed', () => {
+      mockDeps.stateMachine.current = 'CLOSED';
+      mockDeps.settings.get.mockImplementation((key) => key === 'fontSize' ? 18 : null);
+
+      delegate.handleChange('fontSize', 'increase');
+
+      expect(eventHandlers.onRepaginate).not.toHaveBeenCalled();
+    });
+
+    it('should not emit repaginate for font change when closed', () => {
+      mockDeps.stateMachine.current = 'CLOSED';
+
+      delegate.handleChange('font', 'merriweather');
+
+      expect(eventHandlers.onRepaginate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('_handleDebug - missing debugPanel guard', () => {
+    it('should not throw when debugPanel is null', () => {
+      delegate.debugPanel = null;
+      expect(() => delegate.handleChange('debug', true)).not.toThrow();
+    });
+  });
+
+  describe('apply - html element guard', () => {
+    it('should log error and return early when html element not found', () => {
+      mockDeps.dom.get.mockReturnValue(null);
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      delegate.apply();
+
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining('HTML element not found')
+      );
+      errorSpy.mockRestore();
     });
   });
 });

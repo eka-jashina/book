@@ -4,7 +4,18 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+vi.mock('jszip', () => {
+  return {
+    default: {
+      loadAsync: vi.fn(),
+    },
+  };
+});
+
+import JSZip from 'jszip';
 import {
+  parseEpub,
   convertElement,
   convertInlineContent,
   convertImage,
@@ -13,7 +24,66 @@ import {
   splitByHeadings,
 } from '../../../js/admin/parsers/EpubParser.js';
 
+/**
+ * Создать мок ZIP-архива для EPUB
+ */
+function createMockEpubZip(files = {}) {
+  const zipFiles = {};
+
+  for (const [path, content] of Object.entries(files)) {
+    zipFiles[path] = {
+      dir: false,
+      name: path,
+      async: vi.fn().mockResolvedValue(content),
+      _data: { uncompressedSize: content.length || 100 },
+    };
+  }
+
+  return {
+    files: zipFiles,
+    file: vi.fn((path) => zipFiles[path] || null),
+  };
+}
+
+/**
+ * Минимальный container.xml
+ */
+function makeContainerXml(opfPath = 'OEBPS/content.opf') {
+  return `<?xml version="1.0"?>
+    <container xmlns="urn:oasis:names:tc:opendocument:xmlns:container" version="1.0">
+      <rootfiles>
+        <rootfile full-path="${opfPath}" media-type="application/oebps-package+xml"/>
+      </rootfiles>
+    </container>`;
+}
+
+/**
+ * Минимальный content.opf
+ */
+function makeOpfXml({ title = 'Test Book', author = 'Test Author', spineItems = [] } = {}) {
+  const manifestItems = spineItems
+    .map((item, i) => `<item id="ch${i}" href="${item.href}" media-type="${item.mediaType || 'application/xhtml+xml'}"/>`)
+    .join('\n');
+  const spineRefs = spineItems
+    .map((_, i) => `<itemref idref="ch${i}"/>`)
+    .join('\n');
+
+  return `<?xml version="1.0"?>
+    <package xmlns="http://www.idpf.org/2007/opf" xmlns:dc="http://purl.org/dc/elements/1.1/">
+      <metadata>
+        <dc:title>${title}</dc:title>
+        <dc:creator>${author}</dc:creator>
+      </metadata>
+      <manifest>${manifestItems}</manifest>
+      <spine>${spineRefs}</spine>
+    </package>`;
+}
+
 describe('EpubParser', () => {
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   // ═══════════════════════════════════════════════════════════════════════════
   // resolveRelativePath
@@ -329,6 +399,153 @@ describe('EpubParser', () => {
 
       expect(sections[0].content).toContain('Paragraph 1');
       expect(sections[0].content).toContain('Paragraph 2');
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // parseEpub
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('parseEpub', () => {
+    it('should parse basic EPUB with one chapter', async () => {
+      const chapterHtml = `<?xml version="1.0"?>
+        <html xmlns="http://www.w3.org/1999/xhtml">
+          <body><h1>Chapter 1</h1><p>Content here</p></body>
+        </html>`;
+
+      const mockZip = createMockEpubZip({
+        'META-INF/container.xml': makeContainerXml(),
+        'OEBPS/content.opf': makeOpfXml({
+          title: 'My EPUB',
+          author: 'Author Name',
+          spineItems: [{ href: 'chapter1.xhtml' }],
+        }),
+        'OEBPS/chapter1.xhtml': chapterHtml,
+      });
+      JSZip.loadAsync.mockResolvedValue(mockZip);
+
+      const file = new File(['data'], 'book.epub');
+      const result = await parseEpub(file);
+
+      expect(result.title).toBe('My EPUB');
+      expect(result.author).toBe('Author Name');
+      expect(result.chapters).toHaveLength(1);
+      expect(result.chapters[0].html).toContain('Content here');
+    });
+
+    it('should parse EPUB with multiple spine items', async () => {
+      const ch1 = `<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml">
+        <body><h1>Глава 1</h1><p>Текст первой главы</p></body></html>`;
+      const ch2 = `<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml">
+        <body><h2>Глава 2</h2><p>Текст второй главы</p></body></html>`;
+
+      const mockZip = createMockEpubZip({
+        'META-INF/container.xml': makeContainerXml(),
+        'OEBPS/content.opf': makeOpfXml({
+          spineItems: [
+            { href: 'ch1.xhtml' },
+            { href: 'ch2.xhtml' },
+          ],
+        }),
+        'OEBPS/ch1.xhtml': ch1,
+        'OEBPS/ch2.xhtml': ch2,
+      });
+      JSZip.loadAsync.mockResolvedValue(mockZip);
+
+      const file = new File(['data'], 'book.epub');
+      const result = await parseEpub(file);
+
+      expect(result.chapters.length).toBeGreaterThanOrEqual(2);
+      expect(result.chapters[0].html).toContain('Текст первой главы');
+      expect(result.chapters[1].html).toContain('Текст второй главы');
+    });
+
+    it('should throw if container.xml is missing', async () => {
+      const mockZip = createMockEpubZip({});
+      JSZip.loadAsync.mockResolvedValue(mockZip);
+
+      const file = new File(['data'], 'bad.epub');
+
+      await expect(parseEpub(file)).rejects.toThrow();
+    });
+
+    it('should throw if no text extracted from EPUB', async () => {
+      const emptyHtml = `<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml">
+        <body></body></html>`;
+
+      const mockZip = createMockEpubZip({
+        'META-INF/container.xml': makeContainerXml(),
+        'OEBPS/content.opf': makeOpfXml({
+          spineItems: [{ href: 'empty.xhtml' }],
+        }),
+        'OEBPS/empty.xhtml': emptyHtml,
+      });
+      JSZip.loadAsync.mockResolvedValue(mockZip);
+
+      const file = new File(['data'], 'empty.epub');
+
+      await expect(parseEpub(file)).rejects.toThrow('Не удалось извлечь текст из EPUB');
+    });
+
+    it('should use filename as title fallback', async () => {
+      const chapterHtml = `<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml">
+        <body><p>Some content</p></body></html>`;
+
+      const mockZip = createMockEpubZip({
+        'META-INF/container.xml': makeContainerXml(),
+        'OEBPS/content.opf': makeOpfXml({
+          title: '',
+          author: '',
+          spineItems: [{ href: 'ch.xhtml' }],
+        }),
+        'OEBPS/ch.xhtml': chapterHtml,
+      });
+      JSZip.loadAsync.mockResolvedValue(mockZip);
+
+      const file = new File(['data'], 'My Novel.epub');
+      const result = await parseEpub(file);
+
+      expect(result.title).toBe('My Novel');
+    });
+
+    it('should skip non-html spine items', async () => {
+      const chapterHtml = `<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml">
+        <body><p>Real content</p></body></html>`;
+
+      const mockZip = createMockEpubZip({
+        'META-INF/container.xml': makeContainerXml(),
+        'OEBPS/content.opf': makeOpfXml({
+          spineItems: [
+            { href: 'style.css', mediaType: 'text/css' },
+            { href: 'ch.xhtml' },
+          ],
+        }),
+        'OEBPS/ch.xhtml': chapterHtml,
+      });
+      JSZip.loadAsync.mockResolvedValue(mockZip);
+
+      const file = new File(['data'], 'book.epub');
+      const result = await parseEpub(file);
+
+      expect(result.chapters.length).toBeGreaterThanOrEqual(1);
+      expect(result.chapters[0].html).toContain('Real content');
+    });
+
+    it('should reject ZIP bombs', async () => {
+      const mockZip = {
+        files: {
+          'META-INF/container.xml': {
+            dir: false,
+            _data: { uncompressedSize: 200 * 1024 * 1024 },
+          },
+        },
+        file: vi.fn(),
+      };
+      JSZip.loadAsync.mockResolvedValue(mockZip);
+
+      const file = new File(['data'], 'bomb.epub');
+
+      await expect(parseEpub(file)).rejects.toThrow('лимит');
     });
   });
 });

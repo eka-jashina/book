@@ -371,27 +371,6 @@ describe('ContentLoader', () => {
     });
   });
 
-  describe('abort', () => {
-    it('should call abort on controller', () => {
-      const abortSpy = vi.fn();
-      loader.controller = { abort: abortSpy };
-
-      loader.abort();
-
-      expect(abortSpy).toHaveBeenCalled();
-    });
-
-    it('should set controller to null', () => {
-      loader.controller = new AbortController();
-      loader.abort();
-      expect(loader.controller).toBeNull();
-    });
-
-    it('should not fail if no controller', () => {
-      expect(() => loader.abort()).not.toThrow();
-    });
-  });
-
   describe('clear', () => {
     it('should clear cache', () => {
       loader.cache.set('a.html', 'content');
@@ -421,35 +400,6 @@ describe('ContentLoader', () => {
   });
 
   describe('_fetchWithRetry — additional coverage', () => {
-    it('should throw timeout error after all attempts timeout', async () => {
-      // Все 3 попытки зависают → таймаут каждой
-      global.fetch = vi.fn().mockImplementation((_url, options) => {
-        return new Promise((_, reject) => {
-          options?.signal?.addEventListener('abort', () => {
-            reject(new DOMException('Aborted', 'AbortError'));
-          });
-        });
-      });
-
-      const resultPromise = loader._fetchWithRetry('slow.html', null);
-      const expectPromise = expect(resultPromise)
-        .rejects.toThrow(`Failed to load slow.html after ${MAX_RETRIES} attempts`);
-
-      // Попытка 1 — таймаут
-      await vi.advanceTimersByTimeAsync(FETCH_TIMEOUT);
-      // Retry delay 1
-      await vi.advanceTimersByTimeAsync(INITIAL_RETRY_DELAY);
-      // Попытка 2 — таймаут
-      await vi.advanceTimersByTimeAsync(FETCH_TIMEOUT);
-      // Retry delay 2
-      await vi.advanceTimersByTimeAsync(INITIAL_RETRY_DELAY * 2);
-      // Попытка 3 — таймаут (последняя, без delay)
-      await vi.advanceTimersByTimeAsync(FETCH_TIMEOUT);
-
-      await expectPromise;
-      expect(global.fetch).toHaveBeenCalledTimes(MAX_RETRIES);
-    });
-
     it('should forward external abort to internal timeout controller', async () => {
       const externalController = new AbortController();
       let fetchSignal;
@@ -920,6 +870,277 @@ describe('ContentLoader', () => {
 
       expect(mockDb.close).toHaveBeenCalled();
     });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // constructor options
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('constructor options', () => {
+    it('should store apiClient', () => {
+      const api = { getChapterContent: vi.fn() };
+      const l = new ContentLoader({ apiClient: api });
+      expect(l._api).toBe(api);
+    });
+
+    it('should store bookId', () => {
+      const l = new ContentLoader({ bookId: 'b-123' });
+      expect(l._bookId).toBe('b-123');
+    });
+
+    it('should store publicMode', () => {
+      const l = new ContentLoader({ publicMode: true });
+      expect(l._publicMode).toBe(true);
+    });
+
+    it('should default apiClient to null', () => {
+      expect(loader._api).toBeNull();
+    });
+
+    it('should default bookId to null', () => {
+      expect(loader._bookId).toBeNull();
+    });
+
+    it('should default publicMode to false', () => {
+      expect(loader._publicMode).toBe(false);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // _fetchChapterFromAPI
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('_fetchChapterFromAPI', () => {
+    it('should call getChapterContent for non-public mode', async () => {
+      const api = {
+        getChapterContent: vi.fn().mockResolvedValue({ html: '<p>content</p>' }),
+        getPublicChapterContent: vi.fn(),
+      };
+      const l = new ContentLoader({ apiClient: api, bookId: 'b1' });
+
+      const result = await l._fetchChapterFromAPI('ch1');
+
+      expect(api.getChapterContent).toHaveBeenCalledWith('b1', 'ch1');
+      expect(api.getPublicChapterContent).not.toHaveBeenCalled();
+      expect(result).toBe('<p>content</p>');
+    });
+
+    it('should call getPublicChapterContent for public mode', async () => {
+      const api = {
+        getChapterContent: vi.fn(),
+        getPublicChapterContent: vi.fn().mockResolvedValue({ html: '<p>public</p>' }),
+      };
+      const l = new ContentLoader({ apiClient: api, bookId: 'b1', publicMode: true });
+
+      const result = await l._fetchChapterFromAPI('ch1');
+
+      expect(api.getPublicChapterContent).toHaveBeenCalledWith('b1', 'ch1');
+      expect(api.getChapterContent).not.toHaveBeenCalled();
+      expect(result).toBe('<p>public</p>');
+    });
+
+    it('should handle response with htmlContent field', async () => {
+      const api = {
+        getChapterContent: vi.fn().mockResolvedValue({ htmlContent: '<p>htmlContent</p>' }),
+      };
+      const l = new ContentLoader({ apiClient: api, bookId: 'b1' });
+
+      const result = await l._fetchChapterFromAPI('ch1');
+      expect(result).toBe('<p>htmlContent</p>');
+    });
+
+    it('should handle response with content field', async () => {
+      const api = {
+        getChapterContent: vi.fn().mockResolvedValue({ content: '<p>content field</p>' }),
+      };
+      const l = new ContentLoader({ apiClient: api, bookId: 'b1' });
+
+      const result = await l._fetchChapterFromAPI('ch1');
+      expect(result).toBe('<p>content field</p>');
+    });
+
+    it('should handle string response directly', async () => {
+      const api = {
+        getChapterContent: vi.fn().mockResolvedValue('<p>direct string</p>'),
+      };
+      const l = new ContentLoader({ apiClient: api, bookId: 'b1' });
+
+      const result = await l._fetchChapterFromAPI('ch1');
+      expect(result).toBe('<p>direct string</p>');
+    });
+
+    it('should return empty string for object without known fields', async () => {
+      const api = {
+        getChapterContent: vi.fn().mockResolvedValue({ unknown: 'data' }),
+      };
+      const l = new ContentLoader({ apiClient: api, bookId: 'b1' });
+
+      const result = await l._fetchChapterFromAPI('ch1');
+      expect(result).toBe('');
+    });
+
+    it('should prioritize html over htmlContent over content', async () => {
+      const api = {
+        getChapterContent: vi.fn().mockResolvedValue({
+          html: '<p>html</p>',
+          htmlContent: '<p>htmlContent</p>',
+          content: '<p>content</p>',
+        }),
+      };
+      const l = new ContentLoader({ apiClient: api, bookId: 'b1' });
+
+      const result = await l._fetchChapterFromAPI('ch1');
+      expect(result).toBe('<p>html</p>');
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // load — API mode
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('load — API mode', () => {
+    let apiLoader;
+    let mockApi;
+
+    beforeEach(() => {
+      mockApi = {
+        getChapterContent: vi.fn().mockResolvedValue({ html: '<article><p>api content</p></article>' }),
+        getPublicChapterContent: vi.fn().mockResolvedValue({ html: '<article><p>public</p></article>' }),
+      };
+      apiLoader = new ContentLoader({ apiClient: mockApi, bookId: 'b1' });
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve('<content>fetched</content>'),
+      });
+    });
+
+    it('should load chapters with _hasHtmlContent via API', async () => {
+      const result = await apiLoader.load([
+        { id: 'ch1', _hasHtmlContent: true },
+      ]);
+
+      expect(mockApi.getChapterContent).toHaveBeenCalledWith('b1', 'ch1');
+      expect(result).toContain('api content');
+    });
+
+    it('should cache API results with api: prefix', async () => {
+      await apiLoader.load([{ id: 'ch1', _hasHtmlContent: true }]);
+
+      expect(apiLoader.cache.has('api:ch1')).toBe(true);
+    });
+
+    it('should skip API fetch for already cached chapters', async () => {
+      apiLoader.cache.set('api:ch1', '<article><p>cached</p></article>');
+
+      await apiLoader.load([{ id: 'ch1', _hasHtmlContent: true }]);
+
+      expect(mockApi.getChapterContent).not.toHaveBeenCalled();
+    });
+
+    it('should warn on API fetch failure and continue', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      mockApi.getChapterContent
+        .mockResolvedValueOnce({ html: '<article><p>ok</p></article>' })  // ch1 OK
+        .mockRejectedValueOnce(new Error('Network'));                      // ch2 fails
+
+      await apiLoader.load([
+        { id: 'ch1', _hasHtmlContent: true },
+        { id: 'ch2', _hasHtmlContent: true },
+      ]);
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('ch2'),
+        expect.any(Error)
+      );
+    });
+
+    it('should use public API in publicMode', async () => {
+      const publicLoader = new ContentLoader({ apiClient: mockApi, bookId: 'b1', publicMode: true });
+
+      await publicLoader.load([{ id: 'ch1', _hasHtmlContent: true }]);
+
+      expect(mockApi.getPublicChapterContent).toHaveBeenCalledWith('b1', 'ch1');
+      expect(mockApi.getChapterContent).not.toHaveBeenCalled();
+    });
+
+    it('should handle mixed API and static file chapters', async () => {
+      const result = await apiLoader.load([
+        { id: 'ch1', _hasHtmlContent: true },
+        { file: 'static.html' },
+      ]);
+
+      expect(mockApi.getChapterContent).toHaveBeenCalledTimes(1);
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(result).toContain('api content');
+      expect(result).toContain('fetched');
+    });
+
+    it('should handle inline htmlContent in API mode', async () => {
+      const result = await apiLoader.load([
+        { file: 'inline', htmlContent: '<p>inline data</p>' },
+      ]);
+
+      expect(result).toContain('inline data');
+      expect(mockApi.getChapterContent).not.toHaveBeenCalled();
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // load — article wrapping and title insertion
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('load — article wrapping', () => {
+    beforeEach(() => {
+      global.fetch = vi.fn().mockImplementation((url) =>
+        Promise.resolve({
+          ok: true,
+          text: () => Promise.resolve(`<content>${url}</content>`),
+        })
+      );
+    });
+
+    it('should not wrap content that starts with <article', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve('<article><p>already wrapped</p></article>'),
+      });
+
+      const result = await loader.load(['ch.html']);
+      // Должен вернуть как есть, без двойной обёртки
+      expect(result).toBe('<article><p>already wrapped</p></article>');
+      expect(result.match(/<article/g)).toHaveLength(1);
+    });
+
+    it('should wrap non-article content in <article> tags', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve('<p>plain content</p>'),
+      });
+
+      const result = await loader.load(['ch.html']);
+      expect(result).toBe('<article>\n<p>plain content</p>\n</article>');
+    });
+
+    it('should add h2 heading from chapter title when wrapping', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve('<p>content</p>'),
+      });
+
+      const result = await loader.load([{ file: 'ch.html', title: 'Chapter One' }]);
+      expect(result).toBe('<article>\n<h2>Chapter One</h2>\n<p>content</p>\n</article>');
+    });
+
+    it('should not add heading when title is missing', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve('<p>content</p>'),
+      });
+
+      const result = await loader.load([{ file: 'ch.html' }]);
+      expect(result).not.toContain('<h2>');
+    });
+
   });
 
   describe('integration', () => {

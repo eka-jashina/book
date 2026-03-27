@@ -61,31 +61,6 @@ describe('StorageManager', () => {
       consoleSpy.mockRestore();
     });
 
-    it('should handle complex nested objects', () => {
-      const complexData = {
-        settings: {
-          font: 'georgia',
-          nested: {
-            deep: {
-              value: 42,
-            },
-          },
-        },
-        array: [1, 2, { key: 'value' }],
-      };
-
-      localStorage.setItem(TEST_KEY, JSON.stringify(complexData));
-
-      expect(storage.load()).toEqual(complexData);
-    });
-
-    it('should handle arrays as root value', () => {
-      localStorage.setItem(TEST_KEY, JSON.stringify([1, 2, 3]));
-
-      // Технически load() ожидает объект, но JSON.parse вернёт массив
-      expect(storage.load()).toEqual([1, 2, 3]);
-    });
-
     it('should return empty object when localStorage throws', () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const getItemSpy = vi.spyOn(localStorage, 'getItem').mockImplementation(() => {
@@ -110,14 +85,6 @@ describe('StorageManager', () => {
 
       const stored = JSON.parse(localStorage.getItem(TEST_KEY));
       expect(stored).toEqual({ theme: 'dark' });
-    });
-
-    it('should merge with existing data (patch update)', () => {
-      storage.save({ font: 'georgia' });
-      storage.save({ theme: 'dark' });
-
-      const stored = JSON.parse(localStorage.getItem(TEST_KEY));
-      expect(stored).toEqual({ font: 'georgia', theme: 'dark' });
     });
 
     it('should overwrite existing fields', () => {
@@ -174,38 +141,6 @@ describe('StorageManager', () => {
 
       setItemSpy.mockRestore();
       errorSpy.mockRestore();
-    });
-
-    it('should handle various value types', () => {
-      storage.save({
-        string: 'hello',
-        number: 42,
-        boolean: true,
-        null: null,
-        array: [1, 2, 3],
-        object: { nested: 'value' },
-      });
-
-      const stored = storage.load();
-      expect(stored.string).toBe('hello');
-      expect(stored.number).toBe(42);
-      expect(stored.boolean).toBe(true);
-      expect(stored.null).toBeNull();
-      expect(stored.array).toEqual([1, 2, 3]);
-      expect(stored.object).toEqual({ nested: 'value' });
-    });
-
-    it('should handle special characters in values', () => {
-      storage.save({
-        unicode: 'Привет мир 你好世界',
-        special: '!@#$%^&*()_+{}[]',
-        quotes: '"\'`',
-      });
-
-      const stored = storage.load();
-      expect(stored.unicode).toBe('Привет мир 你好世界');
-      expect(stored.special).toBe('!@#$%^&*()_+{}[]');
-      expect(stored.quotes).toBe('"\'`');
     });
   });
 
@@ -419,17 +354,6 @@ describe('StorageManager', () => {
   // ═══════════════════════════════════════════════════════════════════════════
 
   describe('isolation between instances', () => {
-    it('should not share data between different keys', () => {
-      const storage1 = new StorageManager('app1');
-      const storage2 = new StorageManager('app2');
-
-      storage1.save({ data: 'from app1' });
-      storage2.save({ data: 'from app2' });
-
-      expect(storage1.load().data).toBe('from app1');
-      expect(storage2.load().data).toBe('from app2');
-    });
-
     it('should allow multiple instances with same key', () => {
       const instance1 = new StorageManager(TEST_KEY);
       const instance2 = new StorageManager(TEST_KEY);

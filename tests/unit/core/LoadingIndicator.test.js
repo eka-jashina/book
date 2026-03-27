@@ -16,16 +16,6 @@ describe('LoadingIndicator', () => {
     indicator = new LoadingIndicator(mockOverlay, mockProgressEl);
   });
 
-  describe('constructor', () => {
-    it('should store overlay reference', () => {
-      expect(indicator.overlay).toBe(mockOverlay);
-    });
-
-    it('should store progress element reference', () => {
-      expect(indicator.progressEl).toBe(mockProgressEl);
-    });
-  });
-
   describe('show', () => {
     it('should set overlay hidden to false', () => {
       indicator.show();

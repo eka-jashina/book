@@ -71,11 +71,6 @@ describe('BaseApiClient', () => {
       expect(c._onUnauthorized).toBeNull();
     });
 
-    it('должен установить onUnauthorized = null при пустом объекте', () => {
-      const c = new BaseApiClient({});
-      expect(c._onUnauthorized).toBeNull();
-    });
-
     it('должен инициализировать csrfToken как null', () => {
       const c = new BaseApiClient();
       expect(c._csrfToken).toBeNull();
@@ -247,28 +242,10 @@ describe('BaseApiClient', () => {
       expect(opts.headers['x-csrf-token']).toBe('test-csrf-token');
     });
 
-    it('должен добавить x-csrf-token для PUT', async () => {
+    it.each(['PUT', 'PATCH', 'DELETE'])('должен добавить x-csrf-token для %s', async (method) => {
       fetch.mockResolvedValue(mockResponse(200, { data: 'ok' }));
 
-      await client._fetch('/api/test', { method: 'PUT', body: {} });
-
-      const [, opts] = fetch.mock.calls[0];
-      expect(opts.headers['x-csrf-token']).toBe('test-csrf-token');
-    });
-
-    it('должен добавить x-csrf-token для PATCH', async () => {
-      fetch.mockResolvedValue(mockResponse(200, { data: 'ok' }));
-
-      await client._fetch('/api/test', { method: 'PATCH', body: {} });
-
-      const [, opts] = fetch.mock.calls[0];
-      expect(opts.headers['x-csrf-token']).toBe('test-csrf-token');
-    });
-
-    it('должен добавить x-csrf-token для DELETE', async () => {
-      fetch.mockResolvedValue(mockResponse(200, { data: 'ok' }));
-
-      await client._fetch('/api/test', { method: 'DELETE' });
+      await client._fetch('/api/test', { method, body: {} });
 
       const [, opts] = fetch.mock.calls[0];
       expect(opts.headers['x-csrf-token']).toBe('test-csrf-token');
@@ -324,12 +301,9 @@ describe('BaseApiClient', () => {
     it('должен бросить ApiError(401)', async () => {
       fetch.mockResolvedValue(mockResponse(401, { message: 'Unauthorized' }));
 
-      try {
-        await client._fetch('/api/test');
-      } catch (err) {
-        expect(err).toBeInstanceOf(ApiError);
-        expect(err.status).toBe(401);
-      }
+      const err = await client._fetch('/api/test').catch(e => e);
+      expect(err).toBeInstanceOf(ApiError);
+      expect(err.status).toBe(401);
     });
 
     it('не должен вызывать onUnauthorized при suppressUnauthorized', async () => {
@@ -354,11 +328,9 @@ describe('BaseApiClient', () => {
     it('должен извлечь сообщение из тела ответа 401', async () => {
       fetch.mockResolvedValue(mockResponse(401, { message: 'Token expired' }));
 
-      try {
-        await client._fetch('/api/test');
-      } catch (err) {
-        expect(err.message).toBe('Token expired');
-      }
+      const err = await client._fetch('/api/test').catch(e => e);
+      expect(err).toBeInstanceOf(ApiError);
+      expect(err.message).toBe('Token expired');
     });
   });
 
@@ -417,57 +389,44 @@ describe('BaseApiClient', () => {
     it('должен бросить ApiError при ошибке сервера', async () => {
       fetch.mockResolvedValue(mockResponse(500, { message: 'Internal error' }));
 
-      try {
-        await client._fetch('/api/test');
-      } catch (err) {
-        expect(err).toBeInstanceOf(ApiError);
-        expect(err.status).toBe(500);
-        expect(err.message).toBe('Internal error');
-      }
+      const err = await client._fetch('/api/test').catch(e => e);
+      expect(err).toBeInstanceOf(ApiError);
+      expect(err.status).toBe(500);
+      expect(err.message).toBe('Internal error');
     });
 
     it('должен использовать error из тела ответа', async () => {
       fetch.mockResolvedValue(mockResponse(400, { error: 'Bad request' }));
 
-      try {
-        await client._fetch('/api/test');
-      } catch (err) {
-        expect(err.message).toBe('Bad request');
-      }
+      const err = await client._fetch('/api/test').catch(e => e);
+      expect(err).toBeInstanceOf(ApiError);
+      expect(err.message).toBe('Bad request');
     });
 
     it('должен сохранить details из тела ошибки', async () => {
       const details = [{ field: 'email', message: 'required' }];
       fetch.mockResolvedValue(mockResponse(422, { message: 'Validation', details }));
 
-      try {
-        await client._fetch('/api/test');
-      } catch (err) {
-        expect(err.details).toEqual(details);
-      }
+      const err = await client._fetch('/api/test').catch(e => e);
+      expect(err).toBeInstanceOf(ApiError);
+      expect(err.details).toEqual(details);
     });
 
     it('должен установить retryAfter при 429', async () => {
       fetch.mockResolvedValue(mockResponse429('3'));
 
-      try {
-        await client._fetch('/api/test');
-      } catch (err) {
-        expect(err.status).toBe(429);
-        expect(err.retryAfter).toBe(3000);
-      }
+      const err = await client._fetch('/api/test').catch(e => e);
+      expect(err).toBeInstanceOf(ApiError);
+      expect(err.status).toBe(429);
+      expect(err.retryAfter).toBe(3000);
     });
 
     it('должен установить retryAfter = null при невалидном retry-after', async () => {
-      const resp = mockResponse429('invalid');
+      fetch.mockResolvedValue(mockResponse429('invalid'));
 
-      fetch.mockResolvedValue(resp);
-
-      try {
-        await client._fetch('/api/test');
-      } catch (err) {
-        expect(err.retryAfter).toBeNull();
-      }
+      const err = await client._fetch('/api/test').catch(e => e);
+      expect(err).toBeInstanceOf(ApiError);
+      expect(err.retryAfter).toBeNull();
     });
   });
 
@@ -479,13 +438,10 @@ describe('BaseApiClient', () => {
     it('должен бросить ApiError(0) при network error', async () => {
       fetch.mockRejectedValue(new TypeError('Failed to fetch'));
 
-      try {
-        await client._fetch('/api/test');
-      } catch (err) {
-        expect(err).toBeInstanceOf(ApiError);
-        expect(err.status).toBe(0);
-        expect(err.message).toContain('Failed to fetch');
-      }
+      const err = await client._fetch('/api/test').catch(e => e);
+      expect(err).toBeInstanceOf(ApiError);
+      expect(err.status).toBe(0);
+      expect(err.message).toContain('Failed to fetch');
     });
   });
 

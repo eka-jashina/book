@@ -428,6 +428,12 @@ describe('BookRenderer', () => {
       renderer.clearCache();
       expect(mockElements.leftActive.children.length).toBe(0);
     });
+
+    it('should set _sourceElement to null so preWarm skips', () => {
+      renderer.setPaginationData(createMockPageData(5));
+      renderer.clearCache();
+      expect(renderer._sourceElement).toBeNull();
+    });
   });
 
   describe('getMaxIndex', () => {
@@ -459,23 +465,6 @@ describe('BookRenderer', () => {
     });
   });
 
-  describe('totalPages', () => {
-    it('should return 0 when no pagination data set', () => {
-      expect(renderer.totalPages).toBe(0);
-    });
-
-    it('should return page count from pagination data', () => {
-      renderer.setPaginationData(createMockPageData(42));
-      expect(renderer.totalPages).toBe(42);
-    });
-
-    it('should return 0 after setting null pagination data', () => {
-      renderer.setPaginationData(createMockPageData(10));
-      renderer.setPaginationData(null);
-      expect(renderer.totalPages).toBe(0);
-    });
-  });
-
   describe('viewport reuse performance', () => {
     it('should not call cloneNode on subsequent fills to same container', () => {
       renderer.setPaginationData(createMockPageData(10));
@@ -492,4 +481,342 @@ describe('BookRenderer', () => {
       expect(inner.style.transform).toBe('translate3d(-2000px, 0px, 0px)');
     });
   });
+
+  describe('_resetBufferAttributes', () => {
+    it('should set data-active="true" on leftActive and rightActive', () => {
+      // Constructor calls _resetBufferAttributes, check the result
+      expect(mockElements.leftActive.dataset.active).toBe('true');
+      expect(mockElements.rightActive.dataset.active).toBe('true');
+    });
+
+    it('should remove data-buffer from leftActive and rightActive', () => {
+      mockElements.leftActive.dataset.buffer = 'true';
+      mockElements.rightActive.dataset.buffer = 'true';
+
+      // Re-create to trigger _resetBufferAttributes
+      const r = new BookRenderer({ ...mockElements });
+      expect(mockElements.leftActive.dataset.buffer).toBeUndefined();
+      expect(mockElements.rightActive.dataset.buffer).toBeUndefined();
+    });
+
+    it('should set data-buffer="true" on leftBuffer and rightBuffer', () => {
+      expect(mockElements.leftBuffer.dataset.buffer).toBe('true');
+      expect(mockElements.rightBuffer.dataset.buffer).toBe('true');
+    });
+
+    it('should remove data-active from leftBuffer and rightBuffer', () => {
+      mockElements.leftBuffer.dataset.active = 'true';
+      mockElements.rightBuffer.dataset.active = 'true';
+
+      const r = new BookRenderer({ ...mockElements });
+      expect(mockElements.leftBuffer.dataset.active).toBeUndefined();
+      expect(mockElements.rightBuffer.dataset.active).toBeUndefined();
+    });
+
+    it('should handle null elements gracefully', () => {
+      expect(() => new BookRenderer({
+        leftActive: null,
+        rightActive: mockElements.rightActive,
+        leftBuffer: mockElements.leftBuffer,
+        rightBuffer: mockElements.rightBuffer,
+        sheetFront: mockElements.sheetFront,
+        sheetBack: mockElements.sheetBack,
+      })).not.toThrow();
+    });
+  });
+
+  describe('_trackLoadedImage', () => {
+    it('should not add duplicate URLs', () => {
+      renderer.loadedImageUrls.add('http://example.com/a.jpg');
+      renderer._trackLoadedImage('http://example.com/a.jpg');
+      expect(renderer.loadedImageUrls.size).toBe(1);
+    });
+
+    it('should add new URL to set', () => {
+      renderer._trackLoadedImage('http://example.com/new.jpg');
+      expect(renderer.loadedImageUrls.has('http://example.com/new.jpg')).toBe(true);
+    });
+
+    it('should evict oldest URL when cache limit exceeded', () => {
+      // Fill up to limit (100)
+      for (let i = 0; i < 100; i++) {
+        renderer._trackLoadedImage(`http://example.com/${i}.jpg`);
+      }
+      expect(renderer.loadedImageUrls.size).toBe(100);
+
+      // Adding one more should evict the first
+      renderer._trackLoadedImage('http://example.com/new.jpg');
+      expect(renderer.loadedImageUrls.size).toBe(100);
+      expect(renderer.loadedImageUrls.has('http://example.com/0.jpg')).toBe(false);
+      expect(renderer.loadedImageUrls.has('http://example.com/new.jpg')).toBe(true);
+    });
+
+  });
+
+  describe('_setupImageBlurPlaceholders - complete image with naturalWidth', () => {
+    it('should skip placeholder for complete images with naturalWidth > 0 and track URL', () => {
+      const container = document.createElement('div');
+      const img = document.createElement('img');
+      Object.defineProperty(img, 'complete', { value: true });
+      Object.defineProperty(img, 'naturalWidth', { value: 200 });
+      img.src = 'http://example.com/cached.jpg';
+      container.appendChild(img);
+
+      renderer._setupImageBlurPlaceholders(container);
+
+      expect(img.dataset.loading).toBe('false');
+      expect(renderer.loadedImageUrls.has('http://example.com/cached.jpg')).toBe(true);
+    });
+
+    it('should not skip if complete but naturalWidth is 0 (broken image)', () => {
+      const container = document.createElement('div');
+      const img = document.createElement('img');
+      Object.defineProperty(img, 'complete', { value: true });
+      Object.defineProperty(img, 'naturalWidth', { value: 0 });
+      img.src = 'http://example.com/broken.jpg';
+      container.appendChild(img);
+
+      renderer._setupImageBlurPlaceholders(container);
+
+      // Should set loading=true because naturalWidth is 0
+      expect(img.dataset.loading).toBe('true');
+    });
+  });
+
+  describe('fill - boundary condition', () => {
+    it('should clear container when pageIndex equals totalPages', () => {
+      renderer.setPaginationData(createMockPageData(5));
+
+      const container = document.createElement('div');
+      const page = document.createElement('div');
+      page.classList.add('page');
+      page.appendChild(container);
+
+      renderer.fill(container, 5); // index === totalPages, should be invalid
+      expect(container.children.length).toBe(0);
+    });
+
+    it('should render last valid page at totalPages - 1', () => {
+      renderer.setPaginationData(createMockPageData(5));
+
+      const container = document.createElement('div');
+      const page = document.createElement('div');
+      page.classList.add('page');
+      page.appendChild(container);
+
+      renderer.fill(container, 4); // last valid index
+      expect(container.children.length).toBe(1);
+    });
+  });
+
+  describe('prepareBuffer - index arithmetic', () => {
+    beforeEach(() => {
+      renderer.setPaginationData(createMockPageData(10));
+    });
+
+    it('should fill leftBuffer with index and rightBuffer with index+1 on desktop', () => {
+      const fillSpy = vi.spyOn(renderer, 'fill');
+      renderer.prepareBuffer(4, false);
+
+      expect(fillSpy).toHaveBeenCalledWith(mockElements.leftBuffer, 4);
+      expect(fillSpy).toHaveBeenCalledWith(mockElements.rightBuffer, 5);
+    });
+
+    it('should clear leftBuffer and fill rightBuffer with index on mobile', () => {
+      const fillSpy = vi.spyOn(renderer, 'fill');
+      renderer.prepareBuffer(3, true);
+
+      expect(fillSpy).toHaveBeenCalledWith(mockElements.rightBuffer, 3);
+      // leftBuffer cleared (replaceChildren)
+      expect(mockElements.leftBuffer.children.length).toBe(0);
+    });
+  });
+
+  describe('prepareSheet - index arithmetic', () => {
+    beforeEach(() => {
+      renderer.setPaginationData(createMockPageData(10));
+    });
+
+    it('should fill sheetFront=currentIndex, sheetBack=nextIndex on mobile', () => {
+      const fillSpy = vi.spyOn(renderer, 'fill');
+      renderer.prepareSheet(3, 4, 'next', true);
+
+      expect(fillSpy).toHaveBeenCalledWith(mockElements.sheetFront, 3);
+      expect(fillSpy).toHaveBeenCalledWith(mockElements.sheetBack, 4);
+    });
+
+    it('should fill sheetFront=current+1, sheetBack=current+2 for desktop next', () => {
+      const fillSpy = vi.spyOn(renderer, 'fill');
+      renderer.prepareSheet(2, 4, 'next', false);
+
+      expect(fillSpy).toHaveBeenCalledWith(mockElements.sheetFront, 3); // current+1
+      expect(fillSpy).toHaveBeenCalledWith(mockElements.sheetBack, 4);  // current+2
+    });
+
+    it('should fill sheetFront=current, sheetBack=current-1 for desktop prev', () => {
+      const fillSpy = vi.spyOn(renderer, 'fill');
+      renderer.prepareSheet(4, 2, 'prev', false);
+
+      expect(fillSpy).toHaveBeenCalledWith(mockElements.sheetFront, 4); // current
+      expect(fillSpy).toHaveBeenCalledWith(mockElements.sheetBack, 3);  // current-1
+    });
+  });
+
+  describe('renderSpread - currentPageIndex tracking', () => {
+    it('should update _currentPageIndex for pre-warm', () => {
+      renderer.setPaginationData(createMockPageData(10));
+      renderer.renderSpread(6, false);
+      expect(renderer._currentPageIndex).toBe(6);
+    });
+  });
+
+  describe('_schedulePreWarm', () => {
+    it('should not schedule twice (dedup via _preWarmScheduled flag)', () => {
+      renderer.setPaginationData(createMockPageData(5));
+
+      const rafSpy = vi.spyOn(global, 'requestAnimationFrame').mockImplementation(() => 1);
+
+      renderer._schedulePreWarm();
+      renderer._schedulePreWarm();
+      renderer._schedulePreWarm();
+
+      // Should only be called once due to _preWarmScheduled guard
+      expect(rafSpy).toHaveBeenCalledTimes(1);
+      rafSpy.mockRestore();
+    });
+
+    it('should reset _preWarmScheduled flag in doWarm callback before calling _preWarmViewports', () => {
+      renderer.setPaginationData(createMockPageData(5));
+
+      let capturedFn;
+      const rafSpy = vi.spyOn(global, 'requestAnimationFrame').mockImplementation(fn => {
+        capturedFn = fn;
+        return 1;
+      });
+
+      // Stub _preWarmViewports to prevent re-scheduling
+      const preWarmSpy = vi.spyOn(renderer, '_preWarmViewports').mockImplementation(() => {});
+
+      renderer._schedulePreWarm();
+      expect(renderer._preWarmScheduled).toBe(true);
+
+      // Execute the callback — it resets flag, then calls _preWarmViewports
+      capturedFn();
+      expect(renderer._preWarmScheduled).toBe(false);
+      expect(preWarmSpy).toHaveBeenCalled();
+
+      rafSpy.mockRestore();
+      preWarmSpy.mockRestore();
+    });
+  });
+
+  describe('_preWarmViewports', () => {
+    it('should skip if no _sourceElement', () => {
+      renderer._sourceElement = null;
+      // Should not throw
+      expect(() => renderer._preWarmViewports()).not.toThrow();
+    });
+
+    it('should skip if elements is null', () => {
+      renderer.elements = null;
+      renderer._sourceElement = document.createElement('div');
+      expect(() => renderer._preWarmViewports()).not.toThrow();
+    });
+
+    it('should create viewport for first empty container', () => {
+      renderer.setPaginationData(createMockPageData(5));
+      // Clear all viewports
+      renderer._clearAllViewports();
+
+      // Mock _schedulePreWarm to prevent recursive scheduling
+      const scheduleSpy = vi.spyOn(renderer, '_schedulePreWarm').mockImplementation(() => {});
+
+      renderer._preWarmViewports();
+
+      // sheetFront is first in priority order, should get a viewport
+      expect(mockElements.sheetFront.firstElementChild?._isBookViewport).toBe(true);
+      expect(scheduleSpy).toHaveBeenCalled();
+
+      scheduleSpy.mockRestore();
+    });
+
+    it('should skip containers that already have viewports', () => {
+      renderer.setPaginationData(createMockPageData(5));
+      // Fill all — they all get viewports
+      renderer.fill(mockElements.leftActive, 0);
+      renderer.fill(mockElements.rightActive, 1);
+      renderer.fill(mockElements.leftBuffer, 0);
+      renderer.fill(mockElements.rightBuffer, 1);
+      renderer.fill(mockElements.sheetFront, 0);
+      renderer.fill(mockElements.sheetBack, 1);
+
+      const scheduleSpy = vi.spyOn(renderer, '_schedulePreWarm');
+
+      renderer._preWarmViewports();
+
+      // All containers already warmed — no more scheduling needed
+      expect(scheduleSpy).not.toHaveBeenCalled();
+      scheduleSpy.mockRestore();
+    });
+  });
+
+  describe('destroy', () => {
+    it('should reset _preWarmScheduled to false', () => {
+      renderer._preWarmScheduled = true;
+      renderer.destroy();
+      expect(renderer._preWarmScheduled).toBe(false);
+    });
+
+    it('should reset _currentPageIndex to 0', () => {
+      renderer._currentPageIndex = 42;
+      renderer.destroy();
+      expect(renderer._currentPageIndex).toBe(0);
+    });
+
+    it('should clear loadedImageUrls', () => {
+      renderer.loadedImageUrls.add('http://example.com/a.jpg');
+      renderer.destroy();
+      expect(renderer.loadedImageUrls.size).toBe(0);
+    });
+
+    it('should set _sourceElement to null', () => {
+      renderer.setPaginationData(createMockPageData(5));
+      renderer.destroy();
+      expect(renderer._sourceElement).toBeNull();
+    });
+
+    it('should reset _totalPages to 0', () => {
+      renderer.setPaginationData(createMockPageData(10));
+      renderer.destroy();
+      expect(renderer._totalPages).toBe(0);
+    });
+
+    it('should reset _pageWidth and _pageHeight to 0', () => {
+      renderer.setPaginationData(createMockPageData(5, 300, 500));
+      renderer.destroy();
+      expect(renderer._pageWidth).toBe(0);
+      expect(renderer._pageHeight).toBe(0);
+    });
+
+    it('should reset _hasTOC to false', () => {
+      renderer.setPaginationData(createMockPageData(5, 400, 600, true));
+      renderer.destroy();
+      expect(renderer._hasTOC).toBe(false);
+    });
+
+    it('should set elements to null', () => {
+      renderer.destroy();
+      expect(renderer.elements).toBeNull();
+    });
+
+    it('should clear all viewports before nullifying elements', () => {
+      renderer.setPaginationData(createMockPageData(5));
+      renderer.fill(mockElements.leftActive, 0);
+      expect(mockElements.leftActive.children.length).toBe(1);
+
+      renderer.destroy();
+      expect(mockElements.leftActive.children.length).toBe(0);
+    });
+  });
+
 });

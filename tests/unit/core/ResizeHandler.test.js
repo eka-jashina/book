@@ -260,5 +260,47 @@ describe('ResizeHandler', () => {
 
       expect(() => handler.destroy()).not.toThrow();
     });
+
+    it('should not call clearTimeout if resizeTimer is null', () => {
+      handler.resizeTimer = null;
+      mockContext.timerManager.clearTimeout.mockClear();
+
+      handler.destroy();
+
+      expect(mockContext.timerManager.clearTimeout).not.toHaveBeenCalled();
+    });
   });
+
+  describe('_handleResize - debounce timer management', () => {
+    it('should store new timer ID in resizeTimer', () => {
+      window.innerWidth = 500;
+      handler._handleResize();
+      expect(handler.resizeTimer).not.toBeNull();
+    });
+
+    it('should not call clearTimeout on first resize (resizeTimer is null)', () => {
+      mockContext.timerManager.clearTimeout.mockClear();
+      window.innerWidth = 500;
+      handler._handleResize();
+      // clearTimeout should not be called when resizeTimer was null
+      expect(mockContext.timerManager.clearTimeout).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('_handleFullscreenChange - debounce timer management', () => {
+    it('should not call clearTimeout if resizeTimer is null', () => {
+      handler.resizeTimer = null;
+      mockContext.timerManager.clearTimeout.mockClear();
+
+      handler._handleFullscreenChange();
+
+      expect(mockContext.timerManager.clearTimeout).not.toHaveBeenCalled();
+    });
+
+    it('should set resizeTimer to new timer', () => {
+      handler._handleFullscreenChange();
+      expect(handler.resizeTimer).not.toBeNull();
+    });
+  });
+
 });

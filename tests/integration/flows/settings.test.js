@@ -32,9 +32,7 @@ describe('Settings Integration', () => {
   beforeEach(() => {
     dom = createFullBookDOM();
 
-    // Create a mock HTML element for settings
-    htmlElement = document.createElement('html');
-    document.body.appendChild(htmlElement);
+    htmlElement = document.documentElement;
 
     // Real settings manager with mock storage
     const mockStorage = {
@@ -99,6 +97,11 @@ describe('Settings Integration', () => {
     settingsManager?.destroy();
     eventEmitter?.destroy();
     localStorage.removeItem('flipbook-theme');
+    // Очищаем изменения, внесённые тестами в document.documentElement
+    document.documentElement.removeAttribute('data-theme');
+    document.documentElement.style.removeProperty('--reader-font-family');
+    document.documentElement.style.removeProperty('--reader-font-size');
+    document.documentElement.style.removeProperty('--decorative-font');
     cleanupIntegrationDOM();
     vi.restoreAllMocks();
   });

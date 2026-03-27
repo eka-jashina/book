@@ -362,17 +362,19 @@ describe('OLE2Parser', () => {
   });
 
   describe('parseOLE2 — edge cases', () => {
-    it('should handle exactly 512 bytes (header only, minimal)', () => {
+    it('should handle exactly 512 bytes (header only, no data sectors)', () => {
       const buf = new ArrayBuffer(512);
       const view = new Uint8Array(buf);
       for (let i = 0; i < 8; i++) view[i] = OLE2_SIGNATURE[i];
-      // Set valid sector size
       new DataView(buf).setUint16(30, 9, true);
-      // This should parse but may have no useful data
-      // Just verify it doesn't crash
+      // 512 байт = только заголовок, FAT/directory секторы отсутствуют
       const result = parseOLE2(buf);
-      // May return null or valid result depending on directory sector reference
-      expect(result === null || typeof result === 'object').toBe(true);
+      // Без FAT-секторов парсер не может прочитать directory — ожидаем null или пустой результат
+      if (result !== null) {
+        expect(result.directories).toHaveLength(0);
+      } else {
+        expect(result).toBeNull();
+      }
     });
 
     it('should handle OLE2 with empty streams (size=0)', () => {

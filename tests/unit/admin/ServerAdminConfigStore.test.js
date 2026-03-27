@@ -298,11 +298,11 @@ describe('ServerAdminConfigStore', () => {
   // ═══════════════════════════════════════════════════════════════════════════
 
   describe('getDecorativeFont', () => {
-    it('should fetch decorative font', async () => {
-      mockApi.getDecorativeFont.mockResolvedValue({ name: 'Fancy' });
+    it('should fetch decorative font and map fileUrl to dataUrl', async () => {
+      mockApi.getDecorativeFont.mockResolvedValue({ name: 'Fancy', fileUrl: '/fonts/fancy.woff2' });
 
       const font = await store.getDecorativeFont();
-      expect(font).toEqual({ name: 'Fancy' });
+      expect(font).toEqual({ name: 'Fancy', dataUrl: '/fonts/fancy.woff2' });
     });
 
     it('should return null when no decorative font', async () => {

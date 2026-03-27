@@ -325,6 +325,7 @@ describe('Page Navigation Integration', () => {
     let mobileNavigationDelegate;
     let mobileFlipPromise;
     let resolveMobileFlip;
+    let mobileAnimator;
 
     beforeEach(() => {
       // Create new delegate with mobile mode
@@ -332,7 +333,7 @@ describe('Page Navigation Integration', () => {
       resolveMobileFlip = mobileFlipPromise.resolve;
 
       const mobileMediaQueries = { isMobile: true };
-      const mobileAnimator = {
+      mobileAnimator = {
         runFlip: vi.fn().mockImplementation((direction, swapCallback) => {
           mobileAnimator._swapCallback = swapCallback;
           return mobileFlipPromise.promise;
@@ -359,6 +360,9 @@ describe('Page Navigation Integration', () => {
     });
 
     const completeMobileFlip = async () => {
+      if (mobileAnimator._swapCallback) {
+        mobileAnimator._swapCallback();
+      }
       resolveMobileFlip();
       await Promise.resolve();
     };

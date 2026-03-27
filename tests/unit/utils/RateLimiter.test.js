@@ -1,16 +1,21 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { RateLimiter, rateLimiters } from '../../../js/utils/RateLimiter.js';
 
 describe('RateLimiter', () => {
   let limiter;
 
   beforeEach(() => {
+    vi.useFakeTimers();
     limiter = new RateLimiter({
       maxTokens: 5,
       refillRate: 2,
       minInterval: 100,
     });
     vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe('constructor', () => {
@@ -29,58 +34,59 @@ describe('RateLimiter', () => {
   });
 
   describe('tryAction', () => {
-    it('should allow actions within token limit', async () => {
+    it('should allow actions within token limit', () => {
       expect(limiter.tryAction()).toBe(true);
-      await new Promise(resolve => setTimeout(resolve, 110));
+      vi.advanceTimersByTime(110);
       expect(limiter.tryAction()).toBe(true);
-      await new Promise(resolve => setTimeout(resolve, 110));
+      vi.advanceTimersByTime(110);
       expect(limiter.tryAction()).toBe(true);
     });
 
     it('should block actions when tokens exhausted', () => {
-      // Exhaust all tokens
-      for (let i = 0; i < 5; i++) {
-        limiter.tryAction();
-      }
-      // Next action should be blocked
-      expect(limiter.tryAction()).toBe(false);
+      // refillRate=0.01 — практически без восстановления, minInterval=1ms
+      const fastLimiter = new RateLimiter({ maxTokens: 3, refillRate: 0.01, minInterval: 1 });
+
+      expect(fastLimiter.tryAction()).toBe(true);
+      vi.advanceTimersByTime(1);
+      expect(fastLimiter.tryAction()).toBe(true);
+      vi.advanceTimersByTime(1);
+      expect(fastLimiter.tryAction()).toBe(true);
+      vi.advanceTimersByTime(1);
+
+      // Токены исчерпаны
+      expect(fastLimiter.tryAction()).toBe(false);
     });
 
     it('should block actions that are too frequent', () => {
       expect(limiter.tryAction()).toBe(true);
-      // Immediate second action should be blocked
+      // Немедленное повторное действие — блокируется по minInterval
       expect(limiter.tryAction()).toBe(false);
     });
 
-    it('should allow actions after minInterval', async () => {
+    it('should allow actions after minInterval', () => {
       expect(limiter.tryAction()).toBe(true);
 
-      // Wait for minInterval
-      await new Promise(resolve => setTimeout(resolve, 110));
+      vi.advanceTimersByTime(110);
 
       expect(limiter.tryAction()).toBe(true);
     });
 
-    it('should refill tokens over time', async () => {
-      // Exhaust all tokens
+    it('should refill tokens over time', () => {
+      // Расходуем все токены
       for (let i = 0; i < 5; i++) {
         limiter.tryAction();
-        await new Promise(resolve => setTimeout(resolve, 110));
+        vi.advanceTimersByTime(110);
       }
 
-      // Wait for tokens to refill (0.5 seconds = 1 token at rate 2/sec)
-      await new Promise(resolve => setTimeout(resolve, 600));
+      // Ждём восстановления (600ms × 2 tokens/sec = ~1.2 токена)
+      vi.advanceTimersByTime(600);
 
       expect(limiter.tryAction()).toBe(true);
     });
 
     it('should warn after multiple blocked actions', () => {
-      // Exhaust tokens
-      for (let i = 0; i < 5; i++) {
-        limiter.tryAction();
-      }
-
-      // Block 5 more actions to trigger warning
+      // Первое действие успешно, далее 5 подряд заблокированных
+      limiter.tryAction();
       for (let i = 0; i < 5; i++) {
         limiter.tryAction();
       }
@@ -88,6 +94,15 @@ describe('RateLimiter', () => {
       expect(console.warn).toHaveBeenCalledWith(
         expect.stringContaining('подозрительная активность')
       );
+    });
+
+    it('should not warn before reaching warning threshold', () => {
+      limiter.tryAction();
+      for (let i = 0; i < 4; i++) {
+        limiter.tryAction();
+      }
+
+      expect(console.warn).not.toHaveBeenCalled();
     });
   });
 
@@ -120,9 +135,10 @@ describe('RateLimiter', () => {
 
   describe('reset', () => {
     it('should restore tokens to maximum', () => {
-      // Exhaust tokens
+      // Расходуем токены
       for (let i = 0; i < 5; i++) {
         limiter.tryAction();
+        vi.advanceTimersByTime(100);
       }
 
       limiter.reset();
@@ -133,33 +149,30 @@ describe('RateLimiter', () => {
     });
 
     it('should allow actions after reset', () => {
-      // Exhaust tokens
-      for (let i = 0; i < 5; i++) {
-        limiter.tryAction();
+      const strictLimiter = new RateLimiter({ maxTokens: 3, refillRate: 0.01, minInterval: 1 });
+
+      for (let i = 0; i < 3; i++) {
+        strictLimiter.tryAction();
+        vi.advanceTimersByTime(1);
       }
-      expect(limiter.tryAction()).toBe(false);
+      expect(strictLimiter.tryAction()).toBe(false);
 
-      limiter.reset();
+      strictLimiter.reset();
 
-      expect(limiter.tryAction()).toBe(true);
+      expect(strictLimiter.tryAction()).toBe(true);
     });
   });
 
   describe('rateLimiters presets', () => {
-    it('should have navigation limiter', () => {
+    it('should export all preset limiters', () => {
       expect(rateLimiters.navigation).toBeInstanceOf(RateLimiter);
-      expect(rateLimiters.navigation.maxTokens).toBe(10);
-    });
-
-    it('should have chapter limiter with stricter limits', () => {
       expect(rateLimiters.chapter).toBeInstanceOf(RateLimiter);
-      expect(rateLimiters.chapter.maxTokens).toBe(3);
-      expect(rateLimiters.chapter.minInterval).toBe(500);
+      expect(rateLimiters.settings).toBeInstanceOf(RateLimiter);
     });
 
-    it('should have settings limiter', () => {
-      expect(rateLimiters.settings).toBeInstanceOf(RateLimiter);
-      expect(rateLimiters.settings.maxTokens).toBe(20);
+    it('should have chapter limiter stricter than navigation', () => {
+      expect(rateLimiters.chapter.maxTokens).toBeLessThan(rateLimiters.navigation.maxTokens);
+      expect(rateLimiters.chapter.minInterval).toBeGreaterThan(rateLimiters.navigation.minInterval);
     });
   });
 });

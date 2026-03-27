@@ -155,32 +155,18 @@ describe('LRUCache', () => {
       expect(tinyCache.size).toBe(1);
     });
 
-    it('should handle various value types', () => {
-      // Используем кэш с бОльшим лимитом для этого теста
-      const largeCache = new LRUCache(10);
+    it('should not evict when updating existing key in full cache', () => {
+      cache.set('a', 1);
+      cache.set('b', 2);
+      cache.set('c', 3);
 
-      largeCache.set('obj', { foo: 'bar' });
-      largeCache.set('arr', [1, 2, 3]);
-      largeCache.set('num', 42);
-      largeCache.set('str', 'hello');
+      // Кэш полон (3/3), обновляем существующий ключ — eviction не нужен
+      cache.set('a', 10);
 
-      expect(largeCache.get('obj')).toEqual({ foo: 'bar' });
-      expect(largeCache.get('arr')).toEqual([1, 2, 3]);
-      expect(largeCache.get('num')).toBe(42);
-      expect(largeCache.get('str')).toBe('hello');
-    });
-
-    it('should handle numeric keys', () => {
-      cache.set(1, 'one');
-      cache.set(2, 'two');
-
-      expect(cache.get(1)).toBe('one');
-      expect(cache.get(2)).toBe('two');
-    });
-
-    it('should handle empty string as key', () => {
-      cache.set('', 'empty');
-      expect(cache.get('')).toBe('empty');
+      expect(cache.size).toBe(3);
+      expect(cache.get('a')).toBe(10);
+      expect(cache.has('b')).toBe(true);
+      expect(cache.has('c')).toBe(true);
     });
   });
 });
